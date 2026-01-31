@@ -147,7 +147,7 @@ The frontend must send this JSON to the `/api/generate-report` endpoint:
 **UX Flow**: The "Export" button is always visible. Clicking it opens the Email Capture Modal.
 **Style**: Minimalist, Terminal-like. No marketing fluff.
 **Headline**: `Export TCO Analysis`
-**Body**: `Generate a signed PDF compliant with procurement standards. Includes sensitivity analysis and JSON config.`
+**Body**: `Generate a Signed LLM Cost Analysis (TCO & Vendor Comparison). Includes sensitivity analysis and JSON config.`
 **Placeholder**: `user@corp.com`
 **Button**: `[GENERATE .PDF]`
 
@@ -170,11 +170,20 @@ The application must sync the URL Query Parameters 1:1 with the Signals state.
 
 ### 7.2 Canonical Strategy
 
-- **Self-referencing Canonical**: If params are present, the canonical tag must reflect the full URL to signal Google to index this specific scenario.
-- **Dynamic Meta Tags**:
-  - **Title**: `Cost of [M] Daily Messages Chatbot: GPT-4o vs Gemini`
-  - **Description**: `Calculate the monthly TCO for a chatbot handling [M] messages/day with [Ti] input tokens. Winner: [WinnerName].`
-    - **Description**: `Calculate the monthly TCO for a chatbot handling [M] messages/day with [Ti] input tokens. Winner: [WinnerName].`
+### 7.2 Canonical Strategy (Safe Mode)
+
+To avoid "Thin Content" penalties from 10,000+ near-identical pages:
+
+- **Canonical Tag**: Always points to `https://llm-cost-engine.vercel.app/tools/chatbot-simulator` (Validation Required).
+- **Index Strategy**: Allow Google to index parameters naturally if content is significantly different, but default to the main tool as the authority.
+
+### 7.3 "Save & Share" (Retention Hook)
+
+Since the URL captures the full state, we do not need a database for user sessions.
+
+- **Save**: "Bookmark this URL to save your scenario."
+- **Share**: "Send this link to your CFO."
+- **Compare**: Open twotabs with different parameters side-by-side.
 
 This architecture turns one tool into 10,000+ landing pages.
 
@@ -216,3 +225,33 @@ The backend/analyst will classify events based on `scenario_volume`:
 ### 8.3 Implementation Note
 
 Use Vercel Web Analytics custom events or a lightweight `POST /api/telemetry` endpoint that writes to a non-relational store (e.g., Redis/KV).
+
+## 9. Community Benchmark Protocol
+
+To maintain the "Gold Standard" status while allowing community innovation, we define a strict protocol for adding new models.
+
+### 9.1 The "Challenger" Slot
+
+The UI will feature a dynamic 4th slot reserved for community-voted models (e.g., DeepSeek, Llama-3).
+
+### 9.2 Contribution Standard (JSON Registry)
+
+Community PRs must modify `src/assets/data/llm-pricing.json` and include:
+
+1.  **Citation**: Link to official API pricing page.
+2.  **Date**: `last_updated` field (stale prices > 90 days are flagged).
+3.  **Specs**: `context_window` and `latency_index` (must be backed by a benchmark link, e.g., Artificial Analysis).
+
+```json
+{
+  "id": "deepseek-v3",
+  "name": "DeepSeek V3",
+  "provider": "DeepSeek",
+  "pricing": { ... },
+  "specs": {
+    "context_window": 128000,
+    "latency_index": 0.85,  // Source: benchmarks.ai
+    "source_url": "..."
+  }
+}
+```

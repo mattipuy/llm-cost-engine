@@ -11,16 +11,24 @@
 
 ## Overview
 
-LLM Cost Engine is a deterministic cost analysis platform designed for enterprise procurement teams evaluating Large Language Model providers. The tool delivers CFO-ready TCO (Total Cost of Ownership) reports with transparent, reproducible calculations.
+LLM Cost Engine is a **community-driven benchmark** for LLM TCO (Total Cost of Ownership).
+Unlike simple cost calculators, it establishes a deterministic **ValueScore™** standard to compare model efficiency.
+
+The core engine is open-source to ensure transparency and reproducibility.
+We started with the "Big 3" (GPT-4o, Gemini 1.5 Pro, Claude 3.5 Sonnet) to establish a stable baseline.
+
+**Mission**: To replace "vibe-based" model selection with engineering metrics.
 
 ### Key Features
 
-- **ValueScore Algorithm**: Proprietary scoring system that balances cost efficiency against capability metrics
+### Key Features
+
+- **ValueScore Algorithm**: Opinionated, deterministic scoring framework that balances cost efficiency against capability metrics
 - **Multi-Provider Comparison**: Side-by-side analysis of OpenAI, Anthropic, Google, and 50+ other providers
 - **Deterministic Methodology**: Every output is traceable to a mathematical formula—no black-box heuristics
 - **Enterprise Simulation**: Model annual costs across varying token volumes and use cases
 - **Prompt Caching Support**: Accurate cost modeling with provider-specific cache hit rates
-- **CFO-Ready Exports**: Generate signed PDF reports suitable for internal procurement approval
+- **Audit-Ready Exports**: Generate signed PDF reports suitable for internal technical review
 
 ---
 
@@ -48,6 +56,7 @@ The ValueScore algorithm provides a single, comparable metric across all LLM pro
 $$ValueScore = \left(\frac{1}{Cost}\right)^\alpha \times \log_{10}(ContextWindow)^\beta \times LatencyIndex$$
 
 **Where:**
+
 - **Cost** = Monthly blended cost (input/output weighted with caching)
 - **ContextWindow** = Maximum context length in tokens
 - **LatencyIndex** = Normalized response time score (0.0-1.0)
@@ -56,11 +65,21 @@ $$ValueScore = \left(\frac{1}{Cost}\right)^\alpha \times \log_{10}(ContextWindow
 
 ### Weight Rationale
 
-| Weight | Factor | Justification |
-|--------|--------|---------------|
-| **alpha = 0.65** | Cost Efficiency | Primary ROI driver; hard budget constraints |
-| **beta = 0.35** | Context Capacity | Diminishing returns at scale; logarithmic benefit |
-| **Linear** | Latency Index | User experience penalty; disqualifies slow models |
+| Weight           | Factor           | Justification                                     |
+| ---------------- | ---------------- | ------------------------------------------------- |
+| **alpha = 0.65** | Cost Efficiency  | Primary ROI driver; hard budget constraints       |
+| **beta = 0.35**  | Context Capacity | Diminishing returns at scale; logarithmic benefit |
+| **Linear**       | Latency Index    | User experience penalty; disqualifies slow models |
+
+### Formula Rationale
+
+Why `log10(Context)`?
+
+- **Diminishing Returns**: Going from 8k to 32k context is a massive operational unlock (4x). Going from 1M to 4M is niche (4x). The logarithmic scale penalizes small context severely but prevents massive context (Gemini 1.5) from skewing the score disproportionately against efficient models (GPT-4o).
+
+Why `LatencyIndex` is linear?
+
+- **User Experience**: Latency is felt linearly. A 500ms delay is noticeable; a 2s delay is painful. We treat speed as a direct multiplier of value.
 
 These parameters are configurable in `src/app/core/constants/engine-weights.ts`.
 
@@ -81,7 +100,17 @@ Every calculation in LLM Cost Engine follows these principles:
 
 ### Interpretation
 
-Higher ValueScore = better value proposition. The model with the highest score is recommended.
+### Limitations (The "Fine Print")
+
+We value transparency over hype. This model has known constraints:
+
+1.  **Output Quality Agnostic**: The engine assumes "sufficient quality". It does not penalize hallucination rates or reasoning capabilities.
+2.  **Throughput Variance**: Latency is modeled as a static index, not a dynamic distribution. Real-world Token/s varies by load.
+3.  **Public Rates Only**: Enterprise negotiated rates (EDP) are not reflected multiple.
+
+### Disclaimer
+
+> **Not Financial Advice**: This tool provides a deterministic simulation based on public pricing. It is an engineering artifact, not a procurement guarantee. Verify all prices with official provider documentation before signing contracts.
 
 ---
 
@@ -89,7 +118,7 @@ Higher ValueScore = better value proposition. The model with the highest score i
 
 ![Enterprise TCO Report](assets/preview-report.png)
 
-> **CFO-Ready Reports**: Generate signed, CFO-ready PDF reports directly from the tool for internal procurement approval.
+> **Engineering-Grade Reports**: Generate signed, audit-ready PDF reports directly from the tool for internal alignment.
 
 ---
 
@@ -99,11 +128,11 @@ Experience the full platform at: **[https://llm-cost-engine.vercel.app](https://
 
 ### Preset Scenarios
 
-| Scenario | URL |
-|----------|-----|
-| Startup MVP | [?m=500&ti=150&to=300&cr=20](https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=500&ti=150&to=300&cr=20) |
-| SaaS Growth | [?m=5000&ti=200&to=400&cr=30](https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=5000&ti=200&to=400&cr=30) |
-| Enterprise | [?m=50000&ti=150&to=250&cr=45](https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=50000&ti=150&to=250&cr=45) |
+| Scenario         | URL                                                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Startup MVP      | [?m=500&ti=150&to=300&cr=20](https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=500&ti=150&to=300&cr=20)     |
+| SaaS Growth      | [?m=5000&ti=200&to=400&cr=30](https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=5000&ti=200&to=400&cr=30)   |
+| Enterprise       | [?m=50000&ti=150&to=250&cr=45](https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=50000&ti=150&to=250&cr=45) |
 | Dev Productivity | [?m=1000&ti=800&to=1200&cr=15](https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=1000&ti=800&to=1200&cr=15) |
 
 ---
@@ -112,12 +141,12 @@ Experience the full platform at: **[https://llm-cost-engine.vercel.app](https://
 
 ### Input Variables
 
-| Variable | Symbol | Description | Default |
-|----------|--------|-------------|---------|
-| Messages per day | M | Daily API call volume | 500 |
-| Input tokens | T_i | Tokens per request (prompt) | 150 |
-| Output tokens | T_o | Tokens per response (completion) | 300 |
-| Cache hit rate | C_r | Fraction of cached prompts | 0.20 |
+| Variable         | Symbol | Description                      | Default |
+| ---------------- | ------ | -------------------------------- | ------- |
+| Messages per day | M      | Daily API call volume            | 500     |
+| Input tokens     | T_i    | Tokens per request (prompt)      | 150     |
+| Output tokens    | T_o    | Tokens per response (completion) | 300     |
+| Cache hit rate   | C_r    | Fraction of cached prompts       | 0.20    |
 
 ### Formulas
 
@@ -138,6 +167,7 @@ $$C_{output} = \frac{M \times T_o}{1{,}000{,}000} \times P_{output}$$
 $$Cost_{monthly} = (C_{input\_nc} + C_{input\_c} + C_{output}) \times 30$$
 
 Where:
+
 - P_input = Price per 1M input tokens
 - P_cached = Price per 1M cached input tokens
 - P_output = Price per 1M output tokens
@@ -168,16 +198,17 @@ Every simulation state is addressable via URL for deep linking and SEO:
 /tools/chatbot-simulator?m=50000&ti=150&to=250&cr=45
 ```
 
-| Parameter | Maps To | Range | Default |
-|-----------|---------|-------|---------|
-| `m` | Messages/day | 100-100,000 | 500 |
-| `ti` | Input tokens | 50-5,000 | 150 |
-| `to` | Output tokens | 50-10,000 | 300 |
-| `cr` | Cache rate (%) | 0-100 | 20 |
+| Parameter | Maps To        | Range       | Default |
+| --------- | -------------- | ----------- | ------- |
+| `m`       | Messages/day   | 100-100,000 | 500     |
+| `ti`      | Input tokens   | 50-5,000    | 150     |
+| `to`      | Output tokens  | 50-10,000   | 300     |
+| `cr`      | Cache rate (%) | 0-100       | 20      |
 
 ### Canonical URLs
 
 Each parameter combination generates a unique canonical URL, enabling:
+
 - Programmatic SEO (thousands of indexable pages)
 - Shareable simulation states
 - Reproducible analysis for procurement
@@ -186,14 +217,14 @@ Each parameter combination generates a unique canonical URL, enabling:
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Angular 19 (Standalone Components, Signals) |
-| Rendering | Server-Side Rendering (SSR) + TransferState |
-| Edge Functions | Vercel Edge Runtime |
-| Language | TypeScript 5.x |
-| Styling | Tailwind CSS v4 |
-| Data Layer | JSON Registries (`src/assets/data/llm-registry.json`) |
+| Layer          | Technology                                            |
+| -------------- | ----------------------------------------------------- |
+| Frontend       | Angular 19 (Standalone Components, Signals)           |
+| Rendering      | Server-Side Rendering (SSR) + TransferState           |
+| Edge Functions | Vercel Edge Runtime                                   |
+| Language       | TypeScript 5.x                                        |
+| Styling        | Tailwind CSS v4                                       |
+| Data Layer     | JSON Registries (`src/assets/data/llm-registry.json`) |
 
 ### Architecture
 
@@ -219,11 +250,11 @@ src/app/
 
 ### Bundle Analysis
 
-| Chunk | Size (gzip) |
-|-------|-------------|
-| Initial | ~91 kB |
-| Lazy (simulator) | ~12 kB |
-| CSS | ~5 kB |
+| Chunk            | Size (gzip) |
+| ---------------- | ----------- |
+| Initial          | ~91 kB      |
+| Lazy (simulator) | ~12 kB      |
+| CSS              | ~5 kB       |
 
 ---
 
@@ -247,6 +278,17 @@ npm install
 # Start development server
 npm run start
 ```
+
+### Contributing (Community Models)
+
+We explicitly invite the community to extend the benchmark.
+Do you believe **DeepSeek-V3** or **Llama-3-70b** offers better TCO? Prove it.
+
+1.  **Fork** the repo.
+2.  Add your model to `src/assets/data/llm-pricing.json`.
+3.  **Open a PR** with the title: `feat: add [ModelName] to benchmark`.
+
+_Note: We strictly control the "Big 3" baseline, but the "Community Choice" slot is open for monthly rotation._
 
 ### Build for Production
 
@@ -279,6 +321,7 @@ GET /api/insights
 ```
 
 Returns aggregated market simulation data including:
+
 - Average monthly token consumption by tier
 - Provider distribution across enterprise accounts
 - Cost optimization recommendations
@@ -296,7 +339,18 @@ Returns aggregated market simulation data including:
 }
 ```
 
-> Note: Detailed Market Insights data is proprietary. See [Data Ownership](#data-ownership--usage) section.
+> Note: Detailed Market Insights data is currently in **Alpha collection phase**. Aggregated benchmarks will be released in Q3 2026. See [Data Ownership](#data-ownership--usage) section.
+
+---
+
+## Roadmap
+
+We are building the standard for LLM Cost Analysis. Here is where we are going:
+
+- [ ] **Quality Weighting**: Optional parameter to penalize models with higher hallucination rates (community-sourced).
+- [ ] **Throughput Modeling**: Dynamic latency modeling based on real-time token/s benchmarks.
+- [ ] **Historical Price Tracking**: Time-series view of price drops to visualize deflationary trends.
+- [ ] **Enterprise Profiles**: Custom weight configurations for specific organizational needs (e.g. "Security First").
 
 ---
 
@@ -307,6 +361,7 @@ This project operates under a **hybrid licensing model**:
 ### Source Code (MIT License)
 
 The application source code is released under the MIT License. You are free to:
+
 - Use the code for commercial and non-commercial purposes
 - Modify and distribute the code
 - Create derivative works
@@ -316,6 +371,7 @@ See the [LICENSE](LICENSE) file for full terms.
 ### Market Insights Data (Proprietary)
 
 The aggregated simulation data collected through the Market Insights API (`/api/insights`) is **proprietary and NOT released under MIT**. This data represents:
+
 - Curated market intelligence from enterprise deployments
 - Anonymized usage patterns and cost benchmarks
 - Trend analysis derived from platform interactions
@@ -325,6 +381,7 @@ Commercial use of Market Insights data requires a separate license agreement.
 ### LLM Registry (Attribution Required)
 
 The `llm-registry.json` pricing data is provided as-is for educational and research purposes. Requirements for use:
+
 - **Personal/Educational**: Free to use with attribution
 - **Commercial Redistribution**: Requires explicit attribution to LLM Cost Engine
 - **Data Accuracy**: Pricing is point-in-time and should be verified against official provider sources
@@ -369,6 +426,17 @@ This project uses a hybrid licensing model:
 - **LLM Registry Data**: Free with attribution for non-commercial use
 
 Copyright (c) 2026 LLM Cost Engine Contributors
+
+---
+
+## Changelog
+
+**v1.0.0** (2026-01-31)
+
+- Initial Release.
+- Added: GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro.
+- Feature: Deep Linking & Programmatic SEO.
+- Feature: ValueScore™ Algorithm.
 
 ---
 

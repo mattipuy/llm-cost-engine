@@ -1,15 +1,48 @@
-import { Component, computed, inject, signal, OnInit, OnDestroy, effect, PLATFORM_ID } from '@angular/core';
-import { CommonModule, CurrencyPipe, DecimalPipe, isPlatformBrowser, Location } from '@angular/common';
+import {
+  Component,
+  computed,
+  inject,
+  signal,
+  OnInit,
+  OnDestroy,
+  effect,
+  PLATFORM_ID,
+} from '@angular/core';
+import {
+  CommonModule,
+  CurrencyPipe,
+  DecimalPipe,
+  isPlatformBrowser,
+  Location,
+} from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
-import { ChatbotSimulatorLogicService, SimulatorInputs, SimulatorResult, LlmModel, AggressiveComparison, SensitivityAnalysis } from './logic.service';
+import {
+  ChatbotSimulatorLogicService,
+  SimulatorInputs,
+  SimulatorResult,
+  LlmModel,
+  AggressiveComparison,
+  SensitivityAnalysis,
+} from './logic.service';
 import { JsonLdService } from '../../core/services/json-ld.service';
 import { PricingDataService } from '../../core/services/pricing-data.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { MarketInsightsService } from '../../core/services/market-insights.service';
-import { WEIGHT_DESCRIPTIONS, ENGINE_META } from '../../core/constants/engine-weights';
+import {
+  WEIGHT_DESCRIPTIONS,
+  ENGINE_META,
+} from '../../core/constants/engine-weights';
 import { generateScenarioId } from '../../core/utils/scenario-id';
-import { SEO_PRESETS, SeoPreset, getPresetUrl } from '../../core/configs/seo-presets';
-import { MarketSegment, classifySegment, SEGMENT_THRESHOLDS } from '../../core/models/market-insight.model';
+import {
+  SEO_PRESETS,
+  SeoPreset,
+  getPresetUrl,
+} from '../../core/configs/seo-presets';
+import {
+  MarketSegment,
+  classifySegment,
+  SEGMENT_THRESHOLDS,
+} from '../../core/models/market-insight.model';
 
 // Preset configurations for different use cases
 interface UseCasePreset {
@@ -40,53 +73,68 @@ interface ComparisonInsight {
   standalone: true,
   imports: [CommonModule, CurrencyPipe, DecimalPipe],
   templateUrl: './chatbot-simulator.component.html',
-  styles: [`
-    :host { display: block; }
+  styles: [
+    `
+      :host {
+        display: block;
+      }
 
-    /* Smooth transitions for all interactive elements */
-    .transition-gpu {
-      transition: transform 150ms ease-out, opacity 150ms ease-out;
-      will-change: transform, opacity;
-    }
+      /* Smooth transitions for all interactive elements */
+      .transition-gpu {
+        transition:
+          transform 150ms ease-out,
+          opacity 150ms ease-out;
+        will-change: transform, opacity;
+      }
 
-    /* CLS Prevention: Fixed dimensions for model cards */
-    .stable-height {
-      min-height: 480px;
-      max-height: 520px;
-    }
+      /* CLS Prevention: Fixed dimensions for model cards */
+      .stable-height {
+        min-height: 480px;
+        max-height: 520px;
+      }
 
-    /* CLS Prevention: Fixed winner card height */
-    .winner-card-stable {
-      min-height: 180px;
-    }
+      /* CLS Prevention: Fixed winner card height */
+      .winner-card-stable {
+        min-height: 180px;
+      }
 
-    /* CLS Prevention: Loading skeleton placeholder */
-    .skeleton-card {
-      min-height: 480px;
-      background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-      background-size: 200% 100%;
-      animation: skeleton-shimmer 1.5s infinite;
-    }
+      /* CLS Prevention: Loading skeleton placeholder */
+      .skeleton-card {
+        min-height: 480px;
+        background: linear-gradient(
+          90deg,
+          #f3f4f6 25%,
+          #e5e7eb 50%,
+          #f3f4f6 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.5s infinite;
+      }
 
-    @keyframes skeleton-shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
+      @keyframes skeleton-shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
 
-    /* Ghost update fade effect */
-    .ghost-fade {
-      transition: opacity 200ms ease-in-out;
-    }
+      /* Ghost update fade effect */
+      .ghost-fade {
+        transition: opacity 200ms ease-in-out;
+      }
 
-    .ghost-updating {
-      opacity: 0.6;
-    }
+      .ghost-updating {
+        opacity: 0.6;
+      }
 
-    /* Prevent number jumps during updates */
-    .tabular-nums {
-      font-variant-numeric: tabular-nums;
-    }
-  `]
+      /* Prevent number jumps during updates */
+      .tabular-nums {
+        font-variant-numeric: tabular-nums;
+      }
+    `,
+  ],
 })
 export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // ============================================================================
@@ -101,7 +149,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       messagesPerDay: 2000,
       tokensInput: 200,
       tokensOutput: 350,
-      cacheHitRate: 0.30
+      cacheHitRate: 0.3,
     },
     {
       id: 'enterprise-support',
@@ -110,7 +158,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       messagesPerDay: 25000,
       tokensInput: 150,
       tokensOutput: 250,
-      cacheHitRate: 0.45
+      cacheHitRate: 0.45,
     },
     {
       id: 'dev-productivity',
@@ -119,8 +167,8 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       messagesPerDay: 500,
       tokensInput: 800,
       tokensOutput: 1200,
-      cacheHitRate: 0.15
-    }
+      cacheHitRate: 0.15,
+    },
   ];
 
   // ============================================================================
@@ -133,7 +181,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     { value: 2000, label: 'Department' },
     { value: 10000, label: 'Company' },
     { value: 25000, label: 'Enterprise' },
-    { value: 50000, label: 'High-Volume' }
+    { value: 50000, label: 'High-Volume' },
   ];
 
   readonly tokenSnapPoints: SnapPoint[] = [
@@ -141,7 +189,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     { value: 150, label: 'Standard' },
     { value: 500, label: 'Detailed' },
     { value: 1000, label: 'Rich Context' },
-    { value: 2000, label: 'Long-form' }
+    { value: 2000, label: 'Long-form' },
   ];
 
   // ============================================================================
@@ -151,7 +199,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   messagesPerDay = signal(500);
   tokensInputPerMessage = signal(150);
   tokensOutputPerMessage = signal(300);
-  cacheHitRate = signal(0.20);
+  cacheHitRate = signal(0.2);
   activePreset = signal<string | null>(null);
 
   // ============================================================================
@@ -172,7 +220,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   showEmailForm = signal(false); // Email form appears only after clicking Export
   leadEmail = signal('');
-  leadSubmitStatus = signal<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  leadSubmitStatus = signal<'idle' | 'submitting' | 'success' | 'error'>(
+    'idle',
+  );
 
   // ============================================================================
   // ENGINE METADATA & TRANSPARENCY
@@ -211,7 +261,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       messagesPerDay: this.messagesPerDay(),
       tokensInputPerMessage: this.tokensInputPerMessage(),
       tokensOutputPerMessage: this.tokensOutputPerMessage(),
-      cacheHitRate: this.cacheHitRate()
+      cacheHitRate: this.cacheHitRate(),
     };
     return this.logicService.simulateAllModels(inputs, this.models());
   });
@@ -234,14 +284,14 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     const models = this.models();
     if (!best || models.length === 0) return null;
 
-    const model = models.find(m => m.id === best.modelId);
+    const model = models.find((m) => m.id === best.modelId);
     if (!model) return null;
 
     const inputs: SimulatorInputs = {
       messagesPerDay: this.messagesPerDay(),
       tokensInputPerMessage: this.tokensInputPerMessage(),
       tokensOutputPerMessage: this.tokensOutputPerMessage(),
-      cacheHitRate: this.cacheHitRate()
+      cacheHitRate: this.cacheHitRate(),
     };
     return this.logicService.calculateSensitivityAnalysis(inputs, model);
   });
@@ -252,7 +302,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       messagesPerDay: this.messagesPerDay(),
       tokensInput: this.tokensInputPerMessage(),
       tokensOutput: this.tokensOutputPerMessage(),
-      cacheHitRate: this.cacheHitRate()
+      cacheHitRate: this.cacheHitRate(),
     });
   });
 
@@ -323,8 +373,8 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     const rate = this.cacheHitRate();
     if (rate === 0) return 'No Caching';
     if (rate <= 0.15) return 'Minimal';
-    if (rate <= 0.30) return 'Moderate';
-    if (rate <= 0.50) return 'Optimized';
+    if (rate <= 0.3) return 'Moderate';
+    if (rate <= 0.5) return 'Optimized';
     if (rate <= 0.75) return 'Aggressive';
     return 'Maximum';
   });
@@ -348,7 +398,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       insights.push({
         icon: '💰',
         text: 'costs less than',
-        highlight: `${costPercent.toFixed(0)}% cheaper`
+        highlight: `${costPercent.toFixed(0)}% cheaper`,
       });
     }
 
@@ -358,13 +408,13 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       insights.push({
         icon: '🧠',
         text: 'context window is',
-        highlight: `${contextRatio.toFixed(1)}x larger`
+        highlight: `${contextRatio.toFixed(1)}x larger`,
       });
     } else if (contextRatio < 0.7) {
       insights.push({
         icon: '⚡',
         text: 'compensates smaller context with',
-        highlight: 'lower cost'
+        highlight: 'lower cost',
       });
     }
 
@@ -374,17 +424,18 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       insights.push({
         icon: '🚀',
         text: 'faster response with',
-        highlight: `${(latencyDiff * 100).toFixed(0)}% better latency`
+        highlight: `${(latencyDiff * 100).toFixed(0)}% better latency`,
       });
     }
 
     // ValueScore advantage
-    const scoreDiff = ((best.valueScore - second.valueScore) / second.valueScore) * 100;
+    const scoreDiff =
+      ((best.valueScore - second.valueScore) / second.valueScore) * 100;
     if (scoreDiff > 10) {
       insights.push({
         icon: '🏆',
         text: 'overall ValueScore is',
-        highlight: `${scoreDiff.toFixed(0)}% higher`
+        highlight: `${scoreDiff.toFixed(0)}% higher`,
       });
     }
 
@@ -424,7 +475,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       // Clear after 200ms (matches CSS transition)
       setTimeout(() => {
         this.explanationUpdatePending.set(false);
-        this.explanationVersion.update(v => v + 1);
+        this.explanationVersion.update((v) => v + 1);
       }, 200);
     });
 
@@ -456,7 +507,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           m,
           comparison.savingsPercent,
           this.cacheHitRate(),
-          this.tokensInputPerMessage() / this.tokensOutputPerMessage()
+          this.tokensInputPerMessage() / this.tokensOutputPerMessage(),
         );
       }
     });
@@ -516,7 +567,11 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // HELPER METHODS
   // ============================================================================
 
-  private snapToNearest(value: number, snapPoints: SnapPoint[], threshold: number): number {
+  private snapToNearest(
+    value: number,
+    snapPoints: SnapPoint[],
+    threshold: number,
+  ): number {
     for (const snap of snapPoints) {
       if (Math.abs(value - snap.value) <= threshold) {
         return snap.value;
@@ -525,7 +580,10 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     return value;
   }
 
-  private findClosestSnapPoint(value: number, snapPoints: SnapPoint[]): SnapPoint | null {
+  private findClosestSnapPoint(
+    value: number,
+    snapPoints: SnapPoint[],
+  ): SnapPoint | null {
     let closest: SnapPoint | null = null;
     let minDiff = Infinity;
 
@@ -587,41 +645,157 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         messagesPerDay: this.messagesPerDay(),
         tokens: {
           input: this.tokensInputPerMessage(),
-          output: this.tokensOutputPerMessage()
+          output: this.tokensOutputPerMessage(),
         },
         cacheRate: this.cacheHitRate(),
-        activePreset: this.activePreset()
+        activePreset: this.activePreset(),
       },
       results: {
         winnerId: this.bestModel()?.modelId,
         winnerName: this.bestModel()?.modelName,
         savingsVsRunnerUp: this.aggressiveComparison()?.savingsPercent ?? 0,
         annualProjectedCost: sensitivity?.annualCost1x ?? 0,
-        allModels: this.results().map(r => ({
+        allModels: this.results().map((r) => ({
           id: r.modelId,
           name: r.modelName,
           monthlyCost: r.monthlyCost,
-          valueScore: r.valueScore
-        }))
+          valueScore: r.valueScore,
+        })),
       },
-      sensitivityAnalysis: sensitivity ? {
-        cost1x: sensitivity.cost1x,
-        cost2x: sensitivity.cost2x,
-        cost3x: sensitivity.cost3x,
-        annualCost1x: sensitivity.annualCost1x,
-        annualCost2x: sensitivity.annualCost2x,
-        annualCost3x: sensitivity.annualCost3x
-      } : null
+      sensitivityAnalysis: sensitivity
+        ? {
+            cost1x: sensitivity.cost1x,
+            cost2x: sensitivity.cost2x,
+            cost3x: sensitivity.cost3x,
+            annualCost1x: sensitivity.annualCost1x,
+            annualCost2x: sensitivity.annualCost2x,
+            annualCost3x: sensitivity.annualCost3x,
+          }
+        : null,
     };
 
-    // Mock execution: log to console and show success
+    // Mock execution: log to console
     console.log('📧 Lead Captured:', leadData);
-    console.log('📄 Generating Signed PDF for:', this.leadEmail());
 
-    // Simulate async API call with realistic delay
-    setTimeout(() => {
+    // Dynamic import for client-side PDF generation
+    if (isPlatformBrowser(this.platformId)) {
+      Promise.all([import('jspdf'), import('jspdf-autotable')]).then(
+        ([jsPDF, autoTable]) => {
+          const doc = new jsPDF.default();
+          const pageWidth = doc.internal.pageSize.width;
+
+          // --- Header ---
+          doc.setFontSize(20);
+          doc.setTextColor(40, 40, 40);
+          doc.text('LLM Cost Analysis: Executive Report', 14, 22);
+
+          doc.setFontSize(10);
+          doc.setTextColor(100);
+          doc.text(`Generated for: ${this.leadEmail()}`, 14, 30);
+          doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 35);
+          doc.text(`Scenario ID: ${currentScenarioId}`, 14, 40);
+
+          // --- Executive Summary (Winner) ---
+          const winner = this.bestModel();
+          if (winner) {
+            doc.setFillColor(240, 248, 255); // AliceBlue
+            doc.rect(14, 50, pageWidth - 28, 40, 'F');
+
+            doc.setFontSize(14);
+            doc.setTextColor(0);
+            doc.text('Recommendation: ' + winner.modelName, 20, 60);
+
+            doc.setFontSize(11);
+            doc.setTextColor(60);
+            doc.text(
+              `Annual Projected Cost: $${(sensitivity?.annualCost1x || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+              20,
+              70,
+            );
+
+            if (this.aggressiveComparison()?.savingsPercent) {
+              doc.setTextColor(0, 100, 0); // Green
+              doc.text(
+                `Savings vs Runner-up: ${this.aggressiveComparison()?.savingsPercent}%`,
+                20,
+                80,
+              );
+            }
+          }
+
+          // --- Inputs ---
+          doc.setTextColor(0);
+          doc.setFontSize(12);
+          doc.text('Scenario Parameters', 14, 105);
+
+          const inputsData = [
+            ['Messages / Day', this.messagesPerDay().toLocaleString()],
+            ['Input Tokens', this.tokensInputPerMessage().toLocaleString()],
+            ['Output Tokens', this.tokensOutputPerMessage().toLocaleString()],
+            ['Cache Hit Rate', `${Math.round(this.cacheHitRate() * 100)}%`],
+          ];
+
+          (doc as any).autoTable({
+            startY: 110,
+            head: [['Parameter', 'Value']],
+            body: inputsData,
+            theme: 'plain',
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [220, 220, 220] },
+          });
+
+          // --- Detailed Comparison ---
+          doc.text(
+            'Model Comparison (Monthly TCO)',
+            14,
+            (doc as any).lastAutoTable.finalY + 15,
+          );
+
+          const comparisonData = this.results().map((r, index) => [
+            r.modelName,
+            `$${r.monthlyCost.toFixed(2)}`,
+            r.valueScore.toFixed(4),
+            index === 0 ? 'WINNER' : `#${index + 1}`,
+          ]);
+
+          (doc as any).autoTable({
+            startY: (doc as any).lastAutoTable.finalY + 20,
+            head: [['Model', 'Monthly Cost', 'ValueScore™', 'Rank']],
+            body: comparisonData,
+            theme: 'striped',
+            headStyles: { fillColor: [41, 128, 185] },
+          });
+
+          // --- Disclaimer ---
+          const finalY = (doc as any).lastAutoTable.finalY + 20;
+          doc.setFontSize(8);
+          doc.setTextColor(150);
+          doc.text(
+            'DISCLAIMER: This report is a deterministic engineering simulation based on public pricing.',
+            14,
+            finalY,
+          );
+          doc.text(
+            'It does not constitute financial advice or a binding procurement offer.',
+            14,
+            finalY + 5,
+          );
+          doc.text(
+            'Generated by LLM Cost Engine (Open Source Benchmark).',
+            14,
+            finalY + 10,
+          );
+
+          // Save
+          doc.save(`LLM_Analysis_${currentScenarioId}.pdf`);
+
+          this.leadSubmitStatus.set('success');
+        },
+      );
+    } else {
+      // Fallback for SSR
       this.leadSubmitStatus.set('success');
-    }, 1500);
+    }
   }
 
   resetLeadForm(): void {
@@ -687,7 +861,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       m: m.toString(),
       ti: ti.toString(),
       to: to.toString(),
-      cr: Math.round(cr * 100).toString()
+      cr: Math.round(cr * 100).toString(),
     });
 
     // Always use the canonical path for SEO consistency
@@ -700,9 +874,15 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
    * Enables unique SEO for each parameter combination.
    * Implements Programmatic SEO: ogni stato = URL unico = landing page indicizzabile.
    */
-  private updateDynamicMetaTags(m: number, ti: number, to: number, cr: number): void {
+  private updateDynamicMetaTags(
+    m: number,
+    ti: number,
+    to: number,
+    cr: number,
+  ): void {
     const winner = this.bestModel();
-    const formattedMessages = m >= 1000 ? `${(m / 1000).toFixed(0)}K` : m.toString();
+    const formattedMessages =
+      m >= 1000 ? `${(m / 1000).toFixed(0)}K` : m.toString();
 
     // Dynamic title based on volume - Long-tail keyword targeting
     let volumeDesc = 'Custom';
@@ -724,7 +904,10 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     this.title.setTitle(dynamicTitle);
     this.meta.updateTag({ name: 'description', content: dynamicDescription });
     this.meta.updateTag({ property: 'og:title', content: dynamicTitle });
-    this.meta.updateTag({ property: 'og:description', content: dynamicDescription });
+    this.meta.updateTag({
+      property: 'og:description',
+      content: dynamicDescription,
+    });
 
     // Canonical URL - Critical for Programmatic SEO (prevents duplicate content)
     const canonicalUrl = `https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=${m}&ti=${ti}&to=${to}&cr=${Math.round(cr * 100)}`;
@@ -739,7 +922,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
    * Each unique parameter combination = unique canonical URL.
    */
   private updateCanonicalLink(url: string): void {
-    let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    let link = document.querySelector(
+      'link[rel="canonical"]',
+    ) as HTMLLinkElement;
     if (!link) {
       link = document.createElement('link');
       link.setAttribute('rel', 'canonical');
@@ -753,41 +938,49 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // ============================================================================
 
   private injectJsonLd(): void {
-    this.jsonLdService.injectSoftwareApplicationSchema({
-      name: ENGINE_META.fullName,
-      description: 'Enterprise-grade TCO analysis for LLM deployments. Compare GPT-4o, Gemini 1.5 Pro, and Claude 3.5 Sonnet with deterministic ValueScore methodology.',
-      url: 'https://llm-cost-engine.vercel.app',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web Browser',
-      softwareVersion: ENGINE_META.version,
-      featureList: [
-        'Multi-provider LLM TCO comparison',
-        'Real-time cost calculation with Angular Signals',
-        'Prompt Caching ROI estimation',
-        'Deterministic ValueScore algorithm',
-        'Sensitivity Analysis (2x/3x traffic projections)',
-        'Export signed PDF for CTO/CFO approval'
-      ],
-      aggregateRating: {
-        ratingValue: '4.8',
-        ratingCount: '127'
-      }
-    }, 'llm-cost-engine');
+    this.jsonLdService.injectSoftwareApplicationSchema(
+      {
+        name: ENGINE_META.fullName,
+        description:
+          'Enterprise-grade TCO analysis for LLM deployments. Compare GPT-4o, Gemini 1.5 Pro, and Claude 3.5 Sonnet with deterministic ValueScore methodology.',
+        url: 'https://llm-cost-engine.vercel.app',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web Browser',
+        softwareVersion: ENGINE_META.version,
+        featureList: [
+          'Multi-provider LLM TCO comparison',
+          'Real-time cost calculation with Angular Signals',
+          'Prompt Caching ROI estimation',
+          'Deterministic ValueScore algorithm',
+          'Sensitivity Analysis (2x/3x traffic projections)',
+          'Export signed PDF for CTO/CFO approval',
+        ],
+        aggregateRating: {
+          ratingValue: '4.8',
+          ratingCount: '127',
+        },
+      },
+      'llm-cost-engine',
+    );
   }
 
   private setMetaTags(): void {
-    this.title.setTitle(`${ENGINE_META.fullName}: TCO Analysis for GPT-4o, Claude 3.5 & Gemini`);
+    this.title.setTitle(
+      `${ENGINE_META.fullName}: TCO Analysis for GPT-4o, Claude 3.5 & Gemini`,
+    );
     this.meta.updateTag({
       name: 'description',
-      content: 'Enterprise TCO analysis for LLM deployments. Compare monthly costs for GPT-4o, Gemini 1.5 Pro, and Claude 3.5 Sonnet. Export signed PDF reports for CTO/CFO approval.'
+      content:
+        'Enterprise TCO analysis for LLM deployments. Compare monthly costs for GPT-4o, Gemini 1.5 Pro, and Claude 3.5 Sonnet. Export signed PDF reports for CTO/CFO approval.',
     });
     this.meta.updateTag({
       property: 'og:title',
-      content: `${ENGINE_META.fullName} - Enterprise LLM Cost Analysis`
+      content: `${ENGINE_META.fullName} - Enterprise LLM Cost Analysis`,
     });
     this.meta.updateTag({
       property: 'og:description',
-      content: 'Deterministic TCO analysis for LLM vendor selection. ValueScore methodology balances cost efficiency with contextual capacity for data-driven decisions.'
+      content:
+        'Deterministic TCO analysis for LLM vendor selection. ValueScore methodology balances cost efficiency with contextual capacity for data-driven decisions.',
     });
   }
 
@@ -801,7 +994,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Failed to load pricing data', err);
         this.isLoading.set(false);
-      }
+      },
     });
   }
 }
