@@ -679,9 +679,12 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
     // Dynamic import for client-side PDF generation
     if (isPlatformBrowser(this.platformId)) {
-      Promise.all([import('jspdf'), import('jspdf-autotable')]).then(
-        ([jsPDF, autoTable]) => {
-          const doc = new jsPDF.default();
+      // Must import jsPDF first, then autoTable which registers on jsPDF prototype
+      import('jspdf').then(async (jsPDFModule) => {
+        const jsPDF = jsPDFModule.default;
+        // Import autoTable - it auto-registers on jsPDF prototype
+        await import('jspdf-autotable');
+        const doc = new jsPDF();
           const pageWidth = doc.internal.pageSize.width;
 
           // --- Header ---
