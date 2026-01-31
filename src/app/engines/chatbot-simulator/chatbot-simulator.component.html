@@ -46,6 +46,32 @@
         <div class="bg-white rounded-lg shadow p-6 sticky top-4">
           <h2 class="text-lg font-semibold text-gray-900 mb-6">Configuration</h2>
 
+          <!-- Model Selector Section -->
+          <div class="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-medium text-slate-300">Compare Models</h3>
+              <span class="text-xs text-slate-500">{{ selectedModelIds().size }}/6 selected</span>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              @for (model of availableModels(); track model.id) {
+                <button
+                  type="button"
+                  (click)="toggleModel(model.id)"
+                  [class]="isModelSelected(model.id)
+                    ? 'px-3 py-1.5 text-xs font-medium rounded-full bg-indigo-600 text-white border border-indigo-500 hover:bg-indigo-700 transition-colors'
+                    : 'px-3 py-1.5 text-xs font-medium rounded-full bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-300 transition-colors'"
+                  [attr.aria-pressed]="isModelSelected(model.id)">
+                  {{ model.name }}
+                </button>
+              }
+            </div>
+
+            <p class="mt-2 text-xs text-slate-500">
+              Select 2-6 models to compare. Click to toggle.
+            </p>
+          </div>
+
           <!-- Messages per Day -->
           <div class="mb-6">
             <div class="flex justify-between items-baseline mb-2">

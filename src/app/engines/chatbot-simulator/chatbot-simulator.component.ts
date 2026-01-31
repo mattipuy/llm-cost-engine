@@ -209,6 +209,24 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   models = signal<LlmModel[]>([]);
   isLoading = signal(true);
 
+  // ============================================================================
+  // SIGNALS - Dynamic Model Filter
+  // ============================================================================
+
+  // All available models from JSON (populated on load)
+  availableModels = signal<LlmModel[]>([]);
+
+  // Selected model IDs for comparison (default: first 3 popular models)
+  selectedModelIds = signal<Set<string>>(
+    new Set(['gpt-4o', 'gemini-1.5-pro', 'claude-3.5-sonnet']),
+  );
+
+  // Computed: filtered models for display based on user selection
+  activeModels = computed(() => {
+    const selected = this.selectedModelIds();
+    return this.models().filter((m) => selected.has(m.id));
+  });
+
   // Ghost update pattern: tracks when explanation is updating
   private explanationUpdatePending = signal(false);
   private explanationVersion = signal(0);
@@ -263,7 +281,8 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       tokensOutputPerMessage: this.tokensOutputPerMessage(),
       cacheHitRate: this.cacheHitRate(),
     };
-    return this.logicService.simulateAllModels(inputs, this.models());
+    // Use activeModels() for filtered comparison instead of all models
+    return this.logicService.simulateAllModels(inputs, this.activeModels());
   });
 
   bestModel = computed(() => this.logicService.findBestValue(this.results()));
@@ -608,6 +627,40 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   formatCacheRate(): string {
     return `${Math.round(this.cacheHitRate() * 100)}%`;
+  }
+
+  // ============================================================================
+  // MODEL FILTER HANDLERS
+  // ============================================================================
+
+  /**
+   * Toggles a model's selection state for comparison.
+   * Enforces minimum 2 models and maximum 6 models constraint.
+   */
+  toggleModel(modelId: string): void {
+    const current = this.selectedModelIds();
+    const updated = new Set(current);
+
+    if (updated.has(modelId)) {
+      // Only allow removal if more than 2 models are selected (minimum constraint)
+      if (updated.size > 2) {
+        updated.delete(modelId);
+      }
+    } else {
+      // Only allow addition if fewer than 6 models are selected (maximum constraint)
+      if (updated.size < 6) {
+        updated.add(modelId);
+      }
+    }
+
+    this.selectedModelIds.set(updated);
+  }
+
+  /**
+   * Checks if a model is currently selected for comparison.
+   */
+  isModelSelected(modelId: string): boolean {
+    return this.selectedModelIds().has(modelId);
   }
 
   // ============================================================================
@@ -995,6 +1048,8 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     this.pricingService.loadPricingData().subscribe({
       next: (data) => {
         this.models.set(data.models);
+        // Populate availableModels with all models from JSON for filter UI
+        this.availableModels.set(data.models);
         this.isLoading.set(false);
       },
       error: (err) => {
