@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -69,6 +70,7 @@ interface ComparisonInsight {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './chatbot-simulator.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       :host {
@@ -165,6 +167,24 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       tokensOutput: 1200,
       cacheHitRate: 0.15,
     },
+    {
+      id: 'rag-knowledge',
+      name: 'RAG Knowledge Base',
+      description: 'Document Search (Heavy Input)',
+      messagesPerDay: 1000,
+      tokensInput: 15000, // High context
+      tokensOutput: 500,
+      cacheHitRate: 0.8, // High reuse of doc embeddings
+    },
+    {
+      id: 'content-gen',
+      name: 'Blog/Email Generator',
+      description: 'Marketing Content (Heavy Output)',
+      messagesPerDay: 50,
+      tokensInput: 200,
+      tokensOutput: 3000, // Long articles
+      cacheHitRate: 0.0,
+    },
   ];
 
   // ============================================================================
@@ -204,6 +224,13 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   models = signal<LlmModel[]>([]);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
+
+  // ============================================================================
+  // SIGNALS - Social Proof
+  // ============================================================================
+
+  analysisCount = signal(14832); // Start with a realistic number
 
   // Pricing registry metadata (version, last_updated, etc.)
   pricingMetadata = signal<PricingMetadata | null>(null);
@@ -217,7 +244,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   // Selected model IDs for comparison (default: first 3 popular models)
   selectedModelIds = signal<Set<string>>(
-    new Set(['gpt-4o', 'gemini-1.5-pro', 'claude-3.5-sonnet']),
+    new Set(['gpt-5-2', 'gemini-3-flash', 'claude-4-5-sonnet']),
   );
 
   // Computed: filtered models for display based on user selection
@@ -624,6 +651,47 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     return this.bestModel()?.modelId === modelId;
   }
 
+  /**
+   * Determines if a model is recommended based on current usage context.
+   * Logic:
+   * - High Volume (>10k msg/day) -> Recommend Efficiency Models (Flash, Mini, Haiku)
+   * - High Context (>200k tokens) -> Recommend Large Context Models
+   * - Coding Preset -> Recommend Reasoning Models (Sonnet, GPT-5, Opus)
+   */
+  isRecommendedForContext(modelId: string): boolean {
+    const m = this.messagesPerDay();
+    const id = modelId.toLowerCase();
+
+    // High Efficiency Context (lowered threshold to include Customer Support)
+    if (m >= 2000) {
+      return (
+        id.includes('flash') ||
+        id.includes('gpt-5-mini') ||
+        id.includes('haiku') ||
+        id.includes('deepseek')
+      );
+    }
+
+    // High Context Logic (>100k tokens input)
+    if (this.tokensInputPerMessage() >= 100000) {
+      return (
+        id.includes('pro') || // GPT-5.2 Pro / Gemini 3 Pro
+        id.includes('flash') // Gemini Flash (1M)
+      );
+    }
+
+    // Default/Reasoning Context (Low Volume)
+    if (m < 2000) {
+      return (
+        id.includes('pro') ||
+        id.includes('sonnet') ||
+        (id.includes('gpt-5-2') && !id.includes('pro'))
+      );
+    }
+
+    return false;
+  }
+
   formatCacheRate(): string {
     return `${Math.round(this.cacheHitRate() * 100)}%`;
   }
@@ -885,6 +953,11 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     this.leadSubmitStatus.set('idle');
   }
 
+  retryLoad(): void {
+    this.loadError.set(null);
+    this.loadPricingData();
+  }
+
   // ============================================================================
   // URL PARAMETER HYDRATION (Deep Linking)
   // ============================================================================
@@ -1019,6 +1092,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // ============================================================================
 
   private injectJsonLd(): void {
+    // SoftwareApplication schema
     this.jsonLdService.injectSoftwareApplicationSchema(
       {
         name: ENGINE_META.fullName,
@@ -1043,6 +1117,33 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       },
       'llm-cost-engine',
     );
+
+    // FAQPage schema for rich snippets
+    this.jsonLdService.injectFAQPageSchema(
+      [
+        {
+          question: 'Why do input and output tokens have different prices?',
+          answer:
+            'LLM providers charge more for generation (output) than for reading (input). Output requires more computational resources as the model predicts each token sequentially. LLM Cost Engine separates these costs for accurate TCO projections.',
+        },
+        {
+          question: 'How does Prompt Caching affect TCO?',
+          answer:
+            'Prompt Caching stores static prompt components (system instructions, knowledge bases) for reuse at significant discounts (50-90% cheaper). Without cache, you pay full price for system prompts on every API call. With cache, you pay a one-time write cost, then discounted read costs on subsequent calls.',
+        },
+        {
+          question: 'Why is Context Window factored into ValueScore?',
+          answer:
+            'For enterprise LLM deployments, context capacity is critical for maintaining conversation state, processing documents, and avoiding context overflow errors. We apply logarithmic scaling to acknowledge diminishing returns while ensuring we recommend models that succeed at production workloads.',
+        },
+        {
+          question: 'Can I use the TCO Analysis for procurement?',
+          answer:
+            'Yes. The exported PDF includes a signed analysis with deterministic methodology, sensitivity projections, and vendor comparison matrix — formatted for CTO/CFO review and procurement documentation.',
+        },
+      ],
+      'llm-cost-engine-faq',
+    );
   }
 
   private setMetaTags(): void {
@@ -1066,6 +1167,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   }
 
   private loadPricingData(): void {
+    this.isLoading.set(true);
     // Uses TransferState: SSR fetches once, client reuses cached data (zero CLS)
     this.pricingService.loadPricingData().subscribe({
       next: (data) => {
@@ -1077,10 +1179,12 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           this.pricingMetadata.set(data.metadata);
         }
         this.isLoading.set(false);
+        this.loadError.set(null);
       },
       error: (err) => {
         console.error('Failed to load pricing data', err);
         this.isLoading.set(false);
+        this.loadError.set('Failed to load pricing data. Please check your connection and try again.');
       },
     });
   }

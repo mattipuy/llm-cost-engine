@@ -15,6 +15,11 @@ export interface SoftwareApplicationSchema {
   };
 }
 
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,11 +27,12 @@ export class JsonLdService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly document = inject(DOCUMENT);
 
+  /**
+   * Injects SoftwareApplication schema.
+   * Works on both SSR and browser for Google to see structured data.
+   */
   injectSoftwareApplicationSchema(data: SoftwareApplicationSchema, schemaId: string): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
+    // Remove existing to avoid duplicates during hydration
     this.removeExistingSchema(schemaId);
 
     const schema = {
@@ -70,14 +76,45 @@ export class JsonLdService {
     this.document.head.appendChild(script);
   }
 
-  removeExistingSchema(schemaId: string): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
+  /**
+   * Injects FAQPage schema for rich snippets in search results.
+   * Works on both SSR and browser.
+   */
+  injectFAQPageSchema(faqs: FAQItem[], schemaId: string): void {
+    this.removeExistingSchema(schemaId);
 
-    const existingScript = this.document.querySelector(`script[data-schema="${schemaId}"]`);
-    if (existingScript) {
-      existingScript.remove();
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    };
+
+    const script = this.document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-schema', schemaId);
+    script.text = JSON.stringify(schema);
+    this.document.head.appendChild(script);
+  }
+
+  /**
+   * Removes existing schema to avoid duplicates during hydration.
+   * Works on both SSR and browser via DOCUMENT token.
+   */
+  removeExistingSchema(schemaId: string): void {
+    try {
+      const existingScript = this.document.querySelector(`script[data-schema="${schemaId}"]`);
+      if (existingScript) {
+        existingScript.remove();
+      }
+    } catch {
+      // Ignore errors during SSR if DOM operations fail
     }
   }
 }

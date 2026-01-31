@@ -3,10 +3,17 @@
   <header class="bg-white border-b border-gray-200 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-3">
-        <h1 class="text-3xl font-bold text-gray-900">{{ engineMeta.fullName }}</h1>
-        <span class="px-2 py-0.5 text-xs font-mono bg-gray-100 text-gray-600 rounded">v{{ engineMeta.version }}</span>
+        <h1 class="text-3xl font-bold text-gray-900">
+          {{ engineMeta.fullName }}
+        </h1>
+        <span
+          class="px-2 py-0.5 text-xs font-mono bg-gray-100 text-gray-600 rounded"
+          >v{{ engineMeta.version }}</span
+        >
       </div>
-      <p class="mt-2 text-lg text-gray-600">Enterprise TCO Analysis for LLM Deployments</p>
+      <p class="mt-2 text-lg text-gray-600">
+        Compare LLM costs instantly. Get a procurement-ready analysis in 60 seconds.
+      </p>
     </div>
   </header>
 
@@ -14,7 +21,12 @@
     <!-- Preset Case Studies -->
     <section class="mb-8" aria-labelledby="presets-heading">
       <div class="flex items-center justify-between mb-3">
-        <h2 id="presets-heading" class="text-sm font-medium text-gray-500 uppercase tracking-wide">Budget Simulation Scenarios</h2>
+        <h2
+          id="presets-heading"
+          class="text-sm font-medium text-gray-500 uppercase tracking-wide"
+        >
+          Budget Simulation Scenarios
+        </h2>
       </div>
       <div class="flex flex-wrap gap-3">
         @for (preset of presets; track preset.id) {
@@ -29,10 +41,18 @@
             [class.hover:border-indigo-300]="activePreset() !== preset.id"
             [class.hover:bg-gray-50]="activePreset() !== preset.id"
           >
-            <span class="block text-xs font-medium text-indigo-600 uppercase tracking-wide mb-0.5">{{ preset.description }}</span>
-            <span class="block text-sm font-semibold text-gray-900">{{ preset.name }}</span>
+            <span
+              class="block text-xs font-medium text-indigo-600 uppercase tracking-wide mb-0.5"
+              >{{ preset.description }}</span
+            >
+            <span class="block text-sm font-semibold text-gray-900">{{
+              preset.name
+            }}</span>
             @if (activePreset() === preset.id) {
-              <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white text-xs">✓</span>
+              <span
+                class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white text-xs"
+                >✓</span
+              >
             }
           </button>
         }
@@ -40,11 +60,12 @@
     </section>
 
     <div class="lg:grid lg:grid-cols-12 lg:gap-8">
-
       <!-- Sidebar: Controls -->
       <aside class="lg:col-span-3">
         <div class="bg-white rounded-lg shadow p-6 sticky top-4">
-          <h2 class="text-lg font-semibold text-gray-900 mb-6">Configuration</h2>
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">
+            Configuration
+          </h2>
 
           <!-- Model Selector Section -->
           <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -60,23 +81,48 @@
                 <label
                   class="flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors"
                   [ngClass]="{
-                    'bg-indigo-50 border border-indigo-200': isModelSelected(model.id),
-                    'hover:bg-gray-100': !isModelSelected(model.id) && canSelectMoreModels(),
-                    'opacity-50': !isModelSelected(model.id) && !canSelectMoreModels(),
-                    'cursor-not-allowed': !isModelSelected(model.id) && !canSelectMoreModels()
-                  }">
+                    'bg-indigo-50 border border-indigo-200': isModelSelected(
+                      model.id
+                    ),
+                    'hover:bg-gray-100':
+                      !isModelSelected(model.id) && canSelectMoreModels(),
+                    'opacity-50':
+                      !isModelSelected(model.id) && !canSelectMoreModels(),
+                    'cursor-not-allowed':
+                      !isModelSelected(model.id) && !canSelectMoreModels(),
+                  }"
+                >
                   <input
                     type="checkbox"
                     [checked]="isModelSelected(model.id)"
-                    [disabled]="(isModelSelected(model.id) && !canDeselectModel()) || (!isModelSelected(model.id) && !canSelectMoreModels())"
+                    [disabled]="
+                      (isModelSelected(model.id) && !canDeselectModel()) ||
+                      (!isModelSelected(model.id) && !canSelectMoreModels())
+                    "
                     (change)="toggleModel(model.id)"
-                    class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                    class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
                   <div class="flex-1 min-w-0">
-                    <span class="text-sm text-gray-900 block truncate">{{ model.name }}</span>
-                    <span class="text-xs text-gray-500">{{ model.provider }}</span>
+                    <span class="text-sm text-gray-900 block truncate">
+                      {{ model.name }}
+                      @if (isRecommendedForContext(model.id)) {
+                        <span
+                          class="ml-2 text-xs"
+                          title="Recommended for current volume"
+                          >🎯</span
+                        >
+                      }
+                    </span>
+                    <span class="text-xs text-gray-500">{{
+                      model.provider
+                    }}</span>
                   </div>
                   @if (isModelSelected(model.id) && !canDeselectModel()) {
-                    <span class="text-xs text-amber-600 font-medium" title="At least 1 model required">Min 1</span>
+                    <span
+                      class="text-xs text-amber-600 font-medium"
+                      title="At least 1 model required"
+                      >Min 1</span
+                    >
                   }
                 </label>
               }
@@ -85,15 +131,22 @@
             @if (!canSelectMoreModels()) {
               <p class="mt-3 text-xs text-amber-600 flex items-center gap-1">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
                 Max 5 models for readability
               </p>
             }
 
             @if (pricingMetadata()) {
-              <p class="mt-3 text-xs text-gray-500 border-t border-gray-200 pt-2">
-                Pricing Data v{{ pricingMetadata()?.version }} · {{ pricingMetadata()?.last_updated }}
+              <p
+                class="mt-3 text-xs text-gray-500 border-t border-gray-200 pt-2"
+              >
+                Pricing Data v{{ pricingMetadata()?.version }} ·
+                {{ pricingMetadata()?.last_updated }}
               </p>
             }
           </div>
@@ -104,7 +157,9 @@
               <label class="text-sm font-medium text-gray-700">
                 Messages per Day
               </label>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+              <span
+                class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700"
+              >
                 {{ messageVolumeLabel() }}
               </span>
             </div>
@@ -118,8 +173,12 @@
                 (input)="onMessagesChange($any($event.target).valueAsNumber)"
                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 aria-describedby="messages-value"
+                [attr.aria-label]="'Messages per day: ' + messagesPerDay()"
               />
-              <span id="messages-value" class="w-16 text-right text-sm font-bold text-indigo-600 tabular-nums">
+              <span
+                id="messages-value"
+                class="w-16 text-right text-sm font-bold text-indigo-600 tabular-nums"
+              >
                 {{ messagesPerDay() | number }}
               </span>
             </div>
@@ -137,7 +196,9 @@
               <label class="text-sm font-medium text-gray-700">
                 Input Tokens/Message
               </label>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+              <span
+                class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700"
+              >
                 {{ inputTokensLabel() }}
               </span>
             </div>
@@ -151,8 +212,12 @@
                 (input)="onInputTokensChange($any($event.target).valueAsNumber)"
                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 aria-describedby="input-tokens-value"
+                [attr.aria-label]="'Input tokens: ' + tokensInputPerMessage()"
               />
-              <span id="input-tokens-value" class="w-16 text-right text-sm font-bold text-indigo-600 tabular-nums">
+              <span
+                id="input-tokens-value"
+                class="w-16 text-right text-sm font-bold text-indigo-600 tabular-nums"
+              >
                 {{ tokensInputPerMessage() }}
               </span>
             </div>
@@ -169,7 +234,9 @@
               <label class="text-sm font-medium text-gray-700">
                 Output Tokens/Message
               </label>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+              <span
+                class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700"
+              >
                 {{ outputTokensLabel() }}
               </span>
             </div>
@@ -180,11 +247,17 @@
                 [max]="4000"
                 [step]="50"
                 [value]="tokensOutputPerMessage()"
-                (input)="onOutputTokensChange($any($event.target).valueAsNumber)"
+                (input)="
+                  onOutputTokensChange($any($event.target).valueAsNumber)
+                "
                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 aria-describedby="output-tokens-value"
+                [attr.aria-label]="'Output tokens: ' + tokensOutputPerMessage()"
               />
-              <span id="output-tokens-value" class="w-16 text-right text-sm font-bold text-indigo-600 tabular-nums">
+              <span
+                id="output-tokens-value"
+                class="w-16 text-right text-sm font-bold text-indigo-600 tabular-nums"
+              >
                 {{ tokensOutputPerMessage() }}
               </span>
             </div>
@@ -201,7 +274,9 @@
               <label class="text-sm font-medium text-gray-700">
                 Cache Hit Rate
               </label>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+              <span
+                class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700"
+              >
                 {{ cacheLabel() }}
               </span>
             </div>
@@ -215,8 +290,12 @@
                 (input)="onCacheRateChange($any($event.target).valueAsNumber)"
                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 aria-describedby="cache-value"
+                [attr.aria-label]="'Cache hit rate: ' + formatCacheRate()"
               />
-              <span id="cache-value" class="w-16 text-right text-sm font-bold text-indigo-600 tabular-nums">
+              <span
+                id="cache-value"
+                class="w-16 text-right text-sm font-bold text-indigo-600 tabular-nums"
+              >
                 {{ formatCacheRate() }}
               </span>
             </div>
@@ -241,43 +320,87 @@
               <div class="skeleton-card rounded-lg"></div>
             }
           </div>
+        } @else if (loadError()) {
+          <div class="text-center py-12">
+            <p class="text-red-600 mb-4">{{ loadError() }}</p>
+            <button (click)="retryLoad()" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+              Retry
+            </button>
+          </div>
         } @else {
           <!-- Scenario ID Badge - Enterprise Audit Trail -->
           <div class="flex items-center justify-between mb-4">
-            <p class="text-xs text-gray-400 uppercase tracking-wide">Analysis Results</p>
+            <p class="text-xs text-gray-400 uppercase tracking-wide">
+              Analysis Results
+            </p>
             <div class="flex items-center gap-2">
               <span class="text-xs text-gray-400">Scenario:</span>
-              <code class="px-2 py-1 bg-gray-100 rounded text-xs font-mono text-gray-700 select-all">{{ scenarioId() }}</code>
+              <code
+                class="px-2 py-1 bg-gray-100 rounded text-xs font-mono text-gray-700 select-all"
+                >{{ scenarioId() }}</code
+              >
             </div>
           </div>
 
           <!-- Winner Card (Sticky on Desktop) - CLS Prevention: Fixed min-height -->
           @if (bestModel(); as winner) {
-            <div class="mb-6 lg:sticky lg:top-4 lg:z-10">
-              <div class="bg-gradient-to-r from-yellow-50 via-amber-50 to-yellow-50 rounded-xl shadow-lg ring-2 ring-yellow-400 overflow-hidden transition-gpu winner-card-stable">
+            <div class="mb-6 lg:sticky lg:top-4 lg:z-10" aria-live="polite">
+              <div
+                class="bg-gradient-to-r from-yellow-50 via-amber-50 to-yellow-50 rounded-xl shadow-lg ring-2 ring-yellow-400 overflow-hidden transition-gpu winner-card-stable"
+              >
                 <div class="p-6">
-                  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div
+                    class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                  >
                     <!-- Winner Info -->
                     <div class="flex items-center gap-4">
-                      <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400 text-2xl">
-                        🏆
+                      <div
+                        class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400 text-2xl"
+                      >
+                        <span role="img" aria-label="Winner">🏆</span>
                       </div>
                       <div>
                         <div class="flex items-center gap-2">
-                          <h3 class="text-xl font-bold text-gray-900">{{ winner.modelName }}</h3>
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-400 text-yellow-900">
+                          <h3 class="text-xl font-bold text-gray-900">
+                            {{ winner.modelName }}
+                          </h3>
+                          <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-400 text-yellow-900"
+                          >
                             Best Value
                           </span>
+                          @if (isRecommendedForContext(winner.modelId)) {
+                            <span
+                              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200"
+                            >
+                              🎯 Recommended Match
+                            </span>
+                          }
                         </div>
-                        <p class="text-sm text-gray-600">{{ winner.provider }}</p>
+                        <p class="text-sm text-gray-600">
+                          {{ winner.provider }}
+                        </p>
                       </div>
                     </div>
 
                     <!-- Winner Cost - CLS Prevention: tabular-nums for stable widths -->
                     <div class="text-center md:text-right">
-                      <p class="text-sm text-gray-500 uppercase tracking-wide">Monthly Cost</p>
-                      <p class="text-4xl font-bold text-gray-900 tabular-nums">{{ winner.monthlyCost | currency:'USD':'symbol':'1.2-2' }}</p>
-                      <p class="text-sm text-gray-500">ValueScore: <span class="font-semibold text-indigo-600 tabular-nums">{{ winner.valueScore | number:'1.4-4' }}</span></p>
+                      <p class="text-sm text-gray-500 uppercase tracking-wide">
+                        Monthly Cost
+                      </p>
+                      <p class="text-4xl font-bold text-gray-900 tabular-nums">
+                        {{
+                          winner.monthlyCost
+                            | currency: "USD" : "symbol" : "1.2-2"
+                        }}
+                      </p>
+                      <p class="text-sm text-gray-500">
+                        ValueScore:
+                        <span
+                          class="font-semibold text-indigo-600 tabular-nums"
+                          >{{ winner.valueScore | number: "1.4-4" }}</span
+                        >
+                      </p>
                     </div>
                   </div>
 
@@ -287,26 +410,48 @@
                       class="mt-4 pt-4 border-t border-yellow-200 ghost-fade"
                       [class.ghost-updating]="isExplanationUpdating()"
                     >
-                      <p class="text-xs font-semibold text-gray-500 uppercase mb-3">Why Switch to {{ comparison.winnerName }}?</p>
+                      <p
+                        class="text-xs font-semibold text-gray-500 uppercase mb-3"
+                      >
+                        Why Switch to {{ comparison.winnerName }}?
+                      </p>
 
                       <!-- Marketing Claims -->
                       <div class="space-y-3">
                         <!-- Savings Claim -->
-                        <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                          <span class="text-2xl">💰</span>
+                        <div
+                          class="flex items-start gap-3 p-3 bg-green-50 rounded-lg"
+                        >
+                          <span class="text-2xl" role="img" aria-label="Savings">💰</span>
                           <div>
-                            <p class="text-sm font-semibold text-green-800">{{ comparison.savingsNarration }}</p>
-                            <p class="text-xs text-green-600 mt-1">Save {{ comparison.monthlySavings | currency:'USD':'symbol':'1.2-2' }} per month</p>
+                            <p class="text-sm font-semibold text-green-800">
+                              {{ comparison.savingsNarration }}
+                            </p>
+                            <p class="text-xs text-green-600 mt-1">
+                              Save
+                              {{
+                                comparison.monthlySavings
+                                  | currency: "USD" : "symbol" : "1.2-2"
+                              }}
+                              per month
+                            </p>
                           </div>
                         </div>
 
                         <!-- Context Claim (only if multiplier > 1) -->
                         @if (comparison.contextNarration) {
-                          <div class="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                            <span class="text-2xl">🧠</span>
+                          <div
+                            class="flex items-start gap-3 p-3 bg-purple-50 rounded-lg"
+                          >
+                            <span class="text-2xl" role="img" aria-label="Context">🧠</span>
                             <div>
-                              <p class="text-sm font-semibold text-purple-800">{{ comparison.contextNarration }}</p>
-                              <p class="text-xs text-purple-600 mt-1">{{ comparison.contextMultiplier }}x more conversation memory</p>
+                              <p class="text-sm font-semibold text-purple-800">
+                                {{ comparison.contextNarration }}
+                              </p>
+                              <p class="text-xs text-purple-600 mt-1">
+                                {{ comparison.contextMultiplier }}x more
+                                conversation memory
+                              </p>
                             </div>
                           </div>
                         }
@@ -337,12 +482,22 @@
                 >
                   <div class="flex items-center justify-between">
                     <div>
-                      <h3 class="text-lg font-bold text-gray-900">{{ result.modelName }}</h3>
+                      <h3 class="text-lg font-bold text-gray-900">
+                        {{ result.modelName }}
+                      </h3>
                       <p class="text-sm text-gray-500">{{ result.provider }}</p>
                     </div>
                     @if (isBestModel(result.modelId)) {
-                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-400 text-yellow-900">
+                      <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-400 text-yellow-900"
+                      >
                         #1
+                      </span>
+                    } @else if (isRecommendedForContext(result.modelId)) {
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200"
+                      >
+                        🎯 Match
                       </span>
                     }
                   </div>
@@ -352,45 +507,94 @@
                 <div class="px-6 py-6">
                   <!-- Monthly Cost - CLS Prevention: tabular-nums -->
                   <div class="text-center mb-6">
-                    <p class="text-sm text-gray-500 uppercase tracking-wide">Monthly Cost</p>
-                    <p class="text-3xl font-bold text-gray-900 transition-gpu tabular-nums">{{ result.monthlyCost | currency:'USD':'symbol':'1.2-2' }}</p>
+                    <p class="text-sm text-gray-500 uppercase tracking-wide">
+                      Monthly Cost
+                    </p>
+                    <p
+                      class="text-3xl font-bold text-gray-900 transition-gpu tabular-nums"
+                    >
+                      {{
+                        result.monthlyCost
+                          | currency: "USD" : "symbol" : "1.2-2"
+                      }}
+                    </p>
                   </div>
 
                   <!-- ValueScore - CLS Prevention: tabular-nums -->
                   <div class="mb-6">
                     <div class="flex justify-between items-center mb-2">
-                      <span class="text-sm font-medium text-gray-700">ValueScore</span>
-                      <span class="text-sm font-bold text-indigo-600 tabular-nums">{{ result.valueScore | number:'1.4-4' }}</span>
+                      <span class="text-sm font-medium text-gray-700"
+                        >ValueScore</span
+                      >
+                      <span
+                        class="text-sm font-bold text-indigo-600 tabular-nums"
+                        >{{ result.valueScore | number: "1.4-4" }}</span
+                      >
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden" role="progressbar" [attr.aria-valuenow]="result.valueScore" aria-valuemin="0" [attr.aria-valuemax]="bestModel()?.valueScore || 1">
+                    <div
+                      class="w-full bg-gray-200 rounded-full h-2 overflow-hidden"
+                      role="progressbar"
+                      [attr.aria-valuenow]="result.valueScore"
+                      aria-valuemin="0"
+                      [attr.aria-valuemax]="bestModel()?.valueScore || 1"
+                    >
                       <div
                         class="h-2 rounded-full transition-all duration-200 ease-out"
                         [class.bg-yellow-400]="isBestModel(result.modelId)"
                         [class.bg-indigo-600]="!isBestModel(result.modelId)"
-                        [style.width.%]="(result.valueScore / (bestModel()?.valueScore || 1)) * 100"
+                        [style.width.%]="
+                          (result.valueScore / (bestModel()?.valueScore || 1)) *
+                          100
+                        "
                       ></div>
                     </div>
                   </div>
 
                   <!-- Daily Breakdown - CLS Prevention: tabular-nums on all values -->
                   <div class="border-t border-gray-100 pt-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase mb-3">Daily Breakdown</p>
+                    <p
+                      class="text-xs font-semibold text-gray-500 uppercase mb-3"
+                    >
+                      Daily Breakdown
+                    </p>
                     <dl class="space-y-2 text-sm">
                       <div class="flex justify-between">
                         <dt class="text-gray-500">Input (non-cached)</dt>
-                        <dd class="font-medium text-gray-900 tabular-nums">{{ result.dailyCosts.inputNonCached | currency:'USD':'symbol':'1.2-2' }}</dd>
+                        <dd class="font-medium text-gray-900 tabular-nums">
+                          {{
+                            result.dailyCosts.inputNonCached
+                              | currency: "USD" : "symbol" : "1.2-2"
+                          }}
+                        </dd>
                       </div>
                       <div class="flex justify-between">
                         <dt class="text-gray-500">Input (cached)</dt>
-                        <dd class="font-medium text-gray-900 tabular-nums">{{ result.dailyCosts.inputCached | currency:'USD':'symbol':'1.2-2' }}</dd>
+                        <dd class="font-medium text-gray-900 tabular-nums">
+                          {{
+                            result.dailyCosts.inputCached
+                              | currency: "USD" : "symbol" : "1.2-2"
+                          }}
+                        </dd>
                       </div>
                       <div class="flex justify-between">
                         <dt class="text-gray-500">Output</dt>
-                        <dd class="font-medium text-gray-900 tabular-nums">{{ result.dailyCosts.output | currency:'USD':'symbol':'1.2-2' }}</dd>
+                        <dd class="font-medium text-gray-900 tabular-nums">
+                          {{
+                            result.dailyCosts.output
+                              | currency: "USD" : "symbol" : "1.2-2"
+                          }}
+                        </dd>
                       </div>
-                      <div class="flex justify-between border-t border-gray-100 pt-2">
+                      <div
+                        class="flex justify-between border-t border-gray-100 pt-2"
+                      >
                         <dt class="font-medium text-gray-700">Daily Total</dt>
-                        <dd class="font-bold text-gray-900 tabular-nums">{{ result.dailyCosts.total | currency:'USD':'symbol':'1.2-2' }}</dd>
+                        <dd class="font-bold text-gray-900 tabular-nums">
+                          {{
+                            result.dailyCosts.total
+                              | currency: "USD" : "symbol" : "1.2-2"
+                          }}
+                        </dd>
                       </div>
                     </dl>
                   </div>
@@ -400,12 +604,16 @@
                     class="mt-4 p-3 bg-gray-50 rounded-lg ghost-fade"
                     [class.ghost-updating]="isExplanationUpdating()"
                   >
-                    <p class="text-xs text-gray-600 italic">{{ result.scoreExplanation }}</p>
+                    <p class="text-xs text-gray-600 italic">
+                      {{ result.scoreExplanation }}
+                    </p>
                   </div>
 
                   <!-- Specs -->
                   <div class="mt-4 flex justify-between text-xs text-gray-500">
-                    <span>Context: {{ result.contextWindow | number }} tokens</span>
+                    <span
+                      >Context: {{ result.contextWindow | number }} tokens</span
+                    >
                     <span>Latency: {{ result.latencyIndex }}</span>
                   </div>
                 </div>
@@ -420,32 +628,49 @@
     <section class="mt-12" aria-labelledby="export-heading">
       <div class="bg-gray-900 rounded-lg overflow-hidden shadow-xl">
         <!-- Terminal Header -->
-        <div class="flex items-center gap-2 px-4 py-3 bg-gray-800 border-b border-gray-700">
+        <div
+          class="flex items-center gap-2 px-4 py-3 bg-gray-800 border-b border-gray-700"
+        >
           <div class="flex gap-1.5">
             <span class="w-3 h-3 rounded-full bg-red-500"></span>
             <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
             <span class="w-3 h-3 rounded-full bg-green-500"></span>
           </div>
-          <span class="ml-2 text-sm font-mono text-gray-400">tco_analysis_export.sh</span>
+          <span class="ml-2 text-sm font-mono text-gray-400"
+            >tco_analysis_export.sh</span
+          >
         </div>
 
         <!-- Terminal Body -->
         <div class="p-6 font-mono text-sm">
           <!-- Title - Updated Copy for CTO/CFO -->
-          <h2 id="export-heading" class="text-green-400 font-bold mb-1">Export Signed LLM Cost Analysis</h2>
-          <p class="text-gray-500 text-xs mb-6">Includes TCO Breakdown, Token Forecast & Vendor Comparison ready for CTO/CFO Approval.</p>
+          <h2 id="export-heading" class="text-emerald-400 font-bold mb-1">
+            Export Signed LLM Cost Analysis
+          </h2>
+          <p class="text-gray-500 text-xs mb-6">
+            Includes TCO Breakdown, Token Forecast & Vendor Comparison ready for
+            CTO/CFO Approval.
+          </p>
 
-          @if (leadSubmitStatus() === 'success') {
+          @if (leadSubmitStatus() === "success") {
             <!-- Success State -->
             <div class="space-y-2">
-              <p class="text-green-400">
-                <span class="text-gray-500">$</span> tco-analysis --generate --scenario={{ scenarioId() }}
+              <p class="text-emerald-400">
+                <span class="text-gray-500">$</span> tco-analysis --generate
+                --scenario={{ scenarioId() }}
               </p>
-              <p class="text-green-300">✓ TCO Analysis PDF queued</p>
-              <p class="text-green-300">✓ Scenario ID: <span class="text-cyan-400">{{ scenarioId() }}</span></p>
-              <p class="text-green-300">✓ Email notification scheduled → {{ leadEmail() }}</p>
+              <p class="text-emerald-300">✓ TCO Analysis PDF queued</p>
+              <p class="text-emerald-300">
+                ✓ Scenario ID:
+                <span class="text-cyan-400">{{ scenarioId() }}</span>
+              </p>
+              <p class="text-green-300">
+                ✓ Email notification scheduled → {{ leadEmail() }}
+              </p>
               <p class="text-gray-400 mt-4">
-                <span class="text-gray-500">#</span> Reference this ID for procurement: <span class="text-yellow-400">{{ scenarioId() }}</span>
+                <span class="text-gray-500">#</span> Reference this ID for
+                procurement:
+                <span class="text-yellow-400">{{ scenarioId() }}</span>
               </p>
               <button
                 type="button"
@@ -460,7 +685,9 @@
             @if (winnerSensitivity(); as sensitivity) {
               <div class="mb-6 pb-6 border-b border-gray-700">
                 <p class="text-gray-500 mb-3">
-                  <span class="text-cyan-400">#</span> tco_forecast --model="{{ sensitivity.modelName }}"
+                  <span class="text-cyan-400">#</span> tco_forecast --model="{{
+                    sensitivity.modelName
+                  }}"
                 </p>
                 <table class="w-full text-left">
                   <thead>
@@ -476,24 +703,54 @@
                         <span class="text-yellow-400">1x</span>
                         <span class="text-gray-500 ml-2">(current)</span>
                       </td>
-                      <td class="py-1 text-right text-green-400">{{ sensitivity.cost1x | currency:'USD':'symbol':'1.2-2' }}</td>
-                      <td class="py-1 text-right text-gray-400">{{ sensitivity.annualCost1x | currency:'USD':'symbol':'1.0-0' }}</td>
+                      <td class="py-1 text-right text-green-400">
+                        {{
+                          sensitivity.cost1x
+                            | currency: "USD" : "symbol" : "1.2-2"
+                        }}
+                      </td>
+                      <td class="py-1 text-right text-gray-400">
+                        {{
+                          sensitivity.annualCost1x
+                            | currency: "USD" : "symbol" : "1.0-0"
+                        }}
+                      </td>
                     </tr>
                     <tr>
                       <td class="py-1">
                         <span class="text-orange-400">2x</span>
                         <span class="text-gray-500 ml-2">(doubled)</span>
                       </td>
-                      <td class="py-1 text-right text-green-400">{{ sensitivity.cost2x | currency:'USD':'symbol':'1.2-2' }}</td>
-                      <td class="py-1 text-right text-gray-400">{{ sensitivity.annualCost2x | currency:'USD':'symbol':'1.0-0' }}</td>
+                      <td class="py-1 text-right text-green-400">
+                        {{
+                          sensitivity.cost2x
+                            | currency: "USD" : "symbol" : "1.2-2"
+                        }}
+                      </td>
+                      <td class="py-1 text-right text-gray-400">
+                        {{
+                          sensitivity.annualCost2x
+                            | currency: "USD" : "symbol" : "1.0-0"
+                        }}
+                      </td>
                     </tr>
                     <tr>
                       <td class="py-1">
                         <span class="text-red-400">3x</span>
                         <span class="text-gray-500 ml-2">(tripled)</span>
                       </td>
-                      <td class="py-1 text-right text-green-400">{{ sensitivity.cost3x | currency:'USD':'symbol':'1.2-2' }}</td>
-                      <td class="py-1 text-right text-gray-400">{{ sensitivity.annualCost3x | currency:'USD':'symbol':'1.0-0' }}</td>
+                      <td class="py-1 text-right text-green-400">
+                        {{
+                          sensitivity.cost3x
+                            | currency: "USD" : "symbol" : "1.2-2"
+                        }}
+                      </td>
+                      <td class="py-1 text-right text-gray-400">
+                        {{
+                          sensitivity.annualCost3x
+                            | currency: "USD" : "symbol" : "1.0-0"
+                        }}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -509,12 +766,16 @@
                   (click)="onExportClick()"
                   class="w-full sm:w-auto px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-mono text-sm transition-all duration-150"
                 >
-                  GENERATE ANALYSIS (.PDF)
+                  Get Your TCO Report
                 </button>
 
                 <!-- Report Contents Preview -->
-                <div class="text-xs text-gray-500 pt-2 border-t border-gray-800">
-                  <p class="mb-1"><span class="text-gray-400">#</span> Analysis includes:</p>
+                <div
+                  class="text-xs text-gray-500 pt-2 border-t border-gray-800"
+                >
+                  <p class="mb-1">
+                    <span class="text-gray-400">#</span> Analysis includes:
+                  </p>
                   <ul class="ml-4 space-y-0.5">
                     <li>→ Executive Summary & Winner Recommendation</li>
                     <li>→ TCO Breakdown (Cost/Latency/Context)</li>
@@ -566,7 +827,7 @@
                       [class.text-gray-500]="!canSubmitLead()"
                       [class.cursor-not-allowed]="!canSubmitLead()"
                     >
-                      @if (leadSubmitStatus() === 'submitting') {
+                      @if (leadSubmitStatus() === "submitting") {
                         <span class="inline-flex items-center gap-2">
                           <span class="animate-pulse">▶</span>
                           Generating Signed PDF...
@@ -576,7 +837,9 @@
                       }
                     </button>
                   </div>
-                  <p class="text-xs text-gray-600 mt-2">Signed PDF will be delivered to your inbox.</p>
+                  <p class="text-xs text-gray-600 mt-2">
+                    Signed PDF will be delivered to your inbox.
+                  </p>
                 </div>
               </div>
             }
@@ -588,65 +851,147 @@
     <!-- Transparency Section - Scoring Model Disclosure -->
     <section class="mt-8 text-center">
       <p class="text-sm text-gray-500 italic">
-        Our scoring model balances cost efficiency ({{ weightDescriptions.costEfficiency.percentage }}%)
-        with contextual capacity ({{ weightDescriptions.contextCapacity.percentage }}%),
-        adjusted by real-world latency benchmarks.
+        Our scoring model balances cost efficiency ({{
+          weightDescriptions.costEfficiency.percentage
+        }}%) with contextual capacity ({{
+          weightDescriptions.contextCapacity.percentage
+        }}%), adjusted by real-world latency benchmarks.
       </p>
     </section>
 
     <!-- Methodology Section -->
-    <section class="mt-12 bg-white rounded-lg shadow p-8" aria-labelledby="methodology-heading">
-      <h2 id="methodology-heading" class="text-2xl font-bold text-gray-900 mb-6">Methodology: ValueScore Algorithm</h2>
+    <section
+      class="mt-12 bg-white rounded-lg shadow p-8"
+      aria-labelledby="methodology-heading"
+    >
+      <h2
+        id="methodology-heading"
+        class="text-2xl font-bold text-gray-900 mb-6"
+      >
+        Methodology: ValueScore Algorithm
+      </h2>
       <div class="prose prose-indigo max-w-none">
         <p class="text-gray-600 leading-relaxed">
-          {{ engineMeta.fullName }} uses a deterministic <strong>ValueScore</strong> algorithm to rank LLM providers. This metric balances operational cost with model capability for objective vendor comparison.
+          {{ engineMeta.fullName }} uses a deterministic
+          <strong>ValueScore</strong> algorithm to rank LLM providers. This
+          metric balances operational cost with model capability for objective
+          vendor comparison.
         </p>
-        <p class="text-gray-600 leading-relaxed mt-4">The formula rewards efficiency without sacrificing enterprise requirements:</p>
-        <div class="bg-gray-50 p-4 rounded-lg my-6 font-mono text-sm overflow-x-auto">
-          ValueScore = (1 / MonthlyCost)<sup>{{ weightDescriptions.costEfficiency.weight }}</sup> × log<sub>10</sub>(ContextWindow)<sup>{{ weightDescriptions.contextCapacity.weight }}</sup> × LatencyIndex
+        <p class="text-gray-600 leading-relaxed mt-4">
+          The formula rewards efficiency without sacrificing enterprise
+          requirements:
+        </p>
+        <div
+          class="bg-gray-50 p-4 rounded-lg my-6 font-mono text-sm overflow-x-auto"
+        >
+          ValueScore = (1 / MonthlyCost)<sup>{{
+            weightDescriptions.costEfficiency.weight
+          }}</sup>
+          × log<sub>10</sub>(ContextWindow)<sup>{{
+            weightDescriptions.contextCapacity.weight
+          }}</sup>
+          × LatencyIndex
         </div>
         <ul class="mt-4 space-y-3 text-gray-600">
-          <li><strong class="text-gray-900">Cost Efficiency (α = {{ weightDescriptions.costEfficiency.weight }}):</strong> Cost savings weighted at {{ weightDescriptions.costEfficiency.percentage }}% — the primary driver for ROI decisions. Lower costs significantly boost the score.</li>
-          <li><strong class="text-gray-900">Context Capacity (β = {{ weightDescriptions.contextCapacity.weight }}):</strong> Logarithmic scale for Context Window ({{ weightDescriptions.contextCapacity.percentage }}% weight). Larger windows are valuable but show diminishing returns at scale.</li>
-          <li><strong class="text-gray-900">Latency Index:</strong> A linear multiplier (0-1) penalizing slower models. High latency impacts user experience regardless of cost savings.</li>
+          <li>
+            <strong class="text-gray-900"
+              >Cost Efficiency (α =
+              {{ weightDescriptions.costEfficiency.weight }}):</strong
+            >
+            Cost savings weighted at
+            {{ weightDescriptions.costEfficiency.percentage }}% — the primary
+            driver for ROI decisions. Lower costs significantly boost the score.
+          </li>
+          <li>
+            <strong class="text-gray-900"
+              >Context Capacity (β =
+              {{ weightDescriptions.contextCapacity.weight }}):</strong
+            >
+            Logarithmic scale for Context Window ({{
+              weightDescriptions.contextCapacity.percentage
+            }}% weight). Larger windows are valuable but show diminishing
+            returns at scale.
+          </li>
+          <li>
+            <strong class="text-gray-900">Latency Index:</strong> A linear
+            multiplier (0-1) penalizing slower models. High latency impacts user
+            experience regardless of cost savings.
+          </li>
         </ul>
         <p class="text-gray-500 italic mt-6 text-sm">
-          This deterministic approach ensures reproducible, auditable results for procurement and compliance requirements.
+          This deterministic approach ensures reproducible, auditable results
+          for procurement and compliance requirements.
         </p>
       </div>
     </section>
 
     <!-- FAQ Section -->
-    <section class="mt-12 bg-white rounded-lg shadow p-8" aria-labelledby="faq-heading">
-      <h2 id="faq-heading" class="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+    <section
+      class="mt-12 bg-white rounded-lg shadow p-8"
+      aria-labelledby="faq-heading"
+    >
+      <h2 id="faq-heading" class="text-2xl font-bold text-gray-900 mb-6">
+        Frequently Asked Questions
+      </h2>
       <dl class="space-y-8">
         <div>
-          <dt class="text-lg font-semibold text-gray-900">Why do input and output tokens have different prices?</dt>
+          <dt class="text-lg font-semibold text-gray-900">
+            Why do input and output tokens have different prices?
+          </dt>
           <dd class="mt-2 text-gray-600">
-            LLM providers charge more for "generation" (output) than for "reading" (input). Output requires more computational resources as the model predicts each token sequentially. {{ engineMeta.fullName }} separates these costs for accurate TCO projections.
+            LLM providers charge more for "generation" (output) than for
+            "reading" (input). Output requires more computational resources as
+            the model predicts each token sequentially.
+            {{ engineMeta.fullName }} separates these costs for accurate TCO
+            projections.
           </dd>
         </div>
         <div>
-          <dt class="text-lg font-semibold text-gray-900">How does Prompt Caching affect TCO?</dt>
+          <dt class="text-lg font-semibold text-gray-900">
+            How does Prompt Caching affect TCO?
+          </dt>
           <dd class="mt-2 text-gray-600">
-            <p>Prompt Caching stores static prompt components (system instructions, knowledge bases) for reuse at significant discounts (50-90% cheaper).</p>
+            <p>
+              Prompt Caching stores static prompt components (system
+              instructions, knowledge bases) for reuse at significant discounts
+              (50-90% cheaper).
+            </p>
             <ul class="mt-2 ml-4 list-disc text-gray-600">
-              <li><strong>Without Cache:</strong> Full price for system prompts on every API call.</li>
-              <li><strong>With Cache:</strong> One-time write cost, then discounted read costs on subsequent calls.</li>
+              <li>
+                <strong>Without Cache:</strong> Full price for system prompts on
+                every API call.
+              </li>
+              <li>
+                <strong>With Cache:</strong> One-time write cost, then
+                discounted read costs on subsequent calls.
+              </li>
             </ul>
-            <p class="mt-2">Default cache hit rate is 20%, adjustable based on your deployment architecture.</p>
+            <p class="mt-2">
+              Default cache hit rate is 20%, adjustable based on your deployment
+              architecture.
+            </p>
           </dd>
         </div>
         <div>
-          <dt class="text-lg font-semibold text-gray-900">Why is Context Window factored into ValueScore?</dt>
+          <dt class="text-lg font-semibold text-gray-900">
+            Why is Context Window factored into ValueScore?
+          </dt>
           <dd class="mt-2 text-gray-600">
-            For enterprise LLM deployments, context capacity is critical for maintaining conversation state, processing documents, and avoiding context overflow errors. We apply logarithmic scaling to acknowledge diminishing returns while ensuring we don't recommend models that fail at production workloads.
+            For enterprise LLM deployments, context capacity is critical for
+            maintaining conversation state, processing documents, and avoiding
+            context overflow errors. We apply logarithmic scaling to acknowledge
+            diminishing returns while ensuring we don't recommend models that
+            fail at production workloads.
           </dd>
         </div>
         <div>
-          <dt class="text-lg font-semibold text-gray-900">Can I use the TCO Analysis for procurement?</dt>
+          <dt class="text-lg font-semibold text-gray-900">
+            Can I use the TCO Analysis for procurement?
+          </dt>
           <dd class="mt-2 text-gray-600">
-            Yes. The exported PDF includes a signed analysis with deterministic methodology, sensitivity projections, and vendor comparison matrix — formatted for CTO/CFO review and procurement documentation.
+            Yes. The exported PDF includes a signed analysis with deterministic
+            methodology, sensitivity projections, and vendor comparison matrix —
+            formatted for CTO/CFO review and procurement documentation.
           </dd>
         </div>
       </dl>
@@ -655,8 +1000,15 @@
     <!-- SEO Presets Footer - Programmatic Distribution Links -->
     <footer class="mt-12 pt-8 border-t border-gray-200">
       <div class="text-center mb-6">
-        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">Popular Analysis Scenarios</h3>
-        <nav class="flex flex-wrap justify-center gap-3" aria-label="Analysis presets">
+        <h3
+          class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4"
+        >
+          Popular Analysis Scenarios
+        </h3>
+        <nav
+          class="flex flex-wrap justify-center gap-3"
+          aria-label="Analysis presets"
+        >
           @for (preset of seoPresets; track preset.id) {
             <a
               [href]="getPresetUrl(preset)"
@@ -671,13 +1023,32 @@
 
       <!-- Engine Info -->
       <div class="text-center text-xs text-gray-400 space-y-1">
-        <p>{{ engineMeta.fullName }} — Deterministic TCO Analysis for LLM Deployments</p>
-        <p>ValueScore Algorithm: Cost Efficiency ({{ weightDescriptions.costEfficiency.percentage }}%) + Context Capacity ({{ weightDescriptions.contextCapacity.percentage }}%)</p>
+        <p>
+          {{ engineMeta.fullName }} — Deterministic TCO Analysis for LLM
+          Deployments
+        </p>
+        <p>
+          ValueScore Algorithm: Cost Efficiency ({{
+            weightDescriptions.costEfficiency.percentage
+          }}%) + Context Capacity ({{
+            weightDescriptions.contextCapacity.percentage
+          }}%)
+        </p>
         @if (pricingMetadata()) {
-          <p class="text-indigo-500 font-medium">Pricing Benchmark v{{ pricingMetadata()?.version }}</p>
+          <p class="text-indigo-500 font-medium">
+            Pricing Benchmark v{{ pricingMetadata()?.version }}
+          </p>
         }
+        <p class="text-gray-400">
+          <span class="font-medium text-indigo-500">{{ analysisCount() | number }}</span> analyses generated
+        </p>
         <p class="pt-2">
-          <a href="https://github.com/mattipuy/llm-cost-engine" target="_blank" rel="noopener" class="hover:text-indigo-600">
+          <a
+            href="https://github.com/mattipuy/llm-cost-engine"
+            target="_blank"
+            rel="noopener"
+            class="hover:text-indigo-600"
+          >
             View on GitHub
           </a>
         </p>
