@@ -1,12 +1,15 @@
-import { Component, computed, inject, signal, OnInit, effect, PLATFORM_ID } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, OnDestroy, effect, PLATFORM_ID } from '@angular/core';
 import { CommonModule, CurrencyPipe, DecimalPipe, isPlatformBrowser, Location } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { ChatbotSimulatorLogicService, SimulatorInputs, SimulatorResult, LlmModel, AggressiveComparison, SensitivityAnalysis } from './logic.service';
 import { JsonLdService } from '../../core/services/json-ld.service';
 import { PricingDataService } from '../../core/services/pricing-data.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
+import { MarketInsightsService } from '../../core/services/market-insights.service';
 import { WEIGHT_DESCRIPTIONS, ENGINE_META } from '../../core/constants/engine-weights';
 import { generateScenarioId } from '../../core/utils/scenario-id';
 import { SEO_PRESETS, SeoPreset, getPresetUrl } from '../../core/configs/seo-presets';
+import { MarketSegment, classifySegment, SEGMENT_THRESHOLDS } from '../../core/models/market-insight.model';
 
 // Preset configurations for different use cases
 interface UseCasePreset {
@@ -85,7 +88,7 @@ interface ComparisonInsight {
     }
   `]
 })
-export class ChatbotSimulatorComponent implements OnInit {
+export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // ============================================================================
   // PRESET CONFIGURATIONS
   // ============================================================================
@@ -254,6 +257,43 @@ export class ChatbotSimulatorComponent implements OnInit {
   });
 
   // ============================================================================
+  // COMPUTED - Market Segment Classification
+  // ============================================================================
+
+  /**
+   * Current market segment based on message volume.
+   * Used for "The Reddit Report" aggregation.
+   */
+  currentSegment = computed((): MarketSegment => {
+    return classifySegment(this.messagesPerDay());
+  });
+
+  /**
+   * Human-readable segment label with description.
+   */
+  segmentInfo = computed(() => {
+    const segment = this.currentSegment();
+    return SEGMENT_THRESHOLDS[segment];
+  });
+
+  /**
+   * Real-time market insights for current segment.
+   * Shows aggregate data from other users (privacy-safe).
+   */
+  marketInsightForSegment = computed(() => {
+    const segment = this.currentSegment();
+    return this.marketInsightsService.getSegmentInsight(segment);
+  });
+
+  /**
+   * Average savings reported by users in same segment.
+   */
+  segmentAverageSavings = computed(() => {
+    const segment = this.currentSegment();
+    return this.marketInsightsService.getAverageSavings(segment);
+  });
+
+  // ============================================================================
   // COMPUTED - Dynamic Labels
   // ============================================================================
 
@@ -358,6 +398,8 @@ export class ChatbotSimulatorComponent implements OnInit {
   private pricingService = inject(PricingDataService);
   private logicService = inject(ChatbotSimulatorLogicService);
   private jsonLdService = inject(JsonLdService);
+  private analyticsService = inject(AnalyticsService);
+  private marketInsightsService = inject(MarketInsightsService);
   private meta = inject(Meta);
   private title = inject(Title);
   private location = inject(Location);
@@ -399,6 +441,25 @@ export class ChatbotSimulatorComponent implements OnInit {
         this.updateDynamicMetaTags(m, ti, to, cr);
       }
     });
+
+    // Analytics effect: track simulation_consensus with 2s debounce
+    // Per Architect spec: "The Reddit Report" anonymous data intelligence
+    effect(() => {
+      const winner = this.bestModel();
+      const comparison = this.aggressiveComparison();
+      const m = this.messagesPerDay();
+
+      if (winner && comparison) {
+        // Fire debounced analytics event (2s delay per spec)
+        this.analyticsService.trackSimulationConsensus(
+          winner.modelId,
+          m,
+          comparison.savingsPercent,
+          this.cacheHitRate(),
+          this.tokensInputPerMessage() / this.tokensOutputPerMessage()
+        );
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -406,6 +467,11 @@ export class ChatbotSimulatorComponent implements OnInit {
     this.setMetaTags();
     this.injectJsonLd();
     this.loadPricingData();
+  }
+
+  ngOnDestroy(): void {
+    // Cancel any pending analytics events to prevent memory leaks
+    this.analyticsService.cancelPendingEvents();
   }
 
   // ============================================================================
@@ -661,7 +727,7 @@ export class ChatbotSimulatorComponent implements OnInit {
     this.meta.updateTag({ property: 'og:description', content: dynamicDescription });
 
     // Canonical URL - Critical for Programmatic SEO (prevents duplicate content)
-    const canonicalUrl = `https://llm-cost-engine.com/tools/chatbot-simulator?m=${m}&ti=${ti}&to=${to}&cr=${Math.round(cr * 100)}`;
+    const canonicalUrl = `https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=${m}&ti=${ti}&to=${to}&cr=${Math.round(cr * 100)}`;
     this.updateCanonicalLink(canonicalUrl);
 
     // Open Graph URL for social sharing
@@ -690,7 +756,7 @@ export class ChatbotSimulatorComponent implements OnInit {
     this.jsonLdService.injectSoftwareApplicationSchema({
       name: ENGINE_META.fullName,
       description: 'Enterprise-grade TCO analysis for LLM deployments. Compare GPT-4o, Gemini 1.5 Pro, and Claude 3.5 Sonnet with deterministic ValueScore methodology.',
-      url: 'https://llm-cost-engine.com',
+      url: 'https://llm-cost-engine.vercel.app',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web Browser',
       softwareVersion: ENGINE_META.version,

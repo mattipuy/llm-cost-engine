@@ -174,5 +174,45 @@ The application must sync the URL Query Parameters 1:1 with the Signals state.
 - **Dynamic Meta Tags**:
   - **Title**: `Cost of [M] Daily Messages Chatbot: GPT-4o vs Gemini`
   - **Description**: `Calculate the monthly TCO for a chatbot handling [M] messages/day with [Ti] input tokens. Winner: [WinnerName].`
+    - **Description**: `Calculate the monthly TCO for a chatbot handling [M] messages/day with [Ti] input tokens. Winner: [WinnerName].`
 
 This architecture turns one tool into 10,000+ landing pages.
+
+## 8. Feature: Analytics & Data Intelligence
+
+To generate the "State of LLM Pricing 2026" report (Reddit/LinkedIn), we must track the simulation outcomes anonymously.
+
+### 8.1 Privacy First (GDPR Constraint)
+
+- **NO** User Agents, IP Addresses, or Fingerprints.
+- **NO** User Emails (unless explicitly provided in the PDF export flow).
+- **Metric**: Aggregate counters only.
+
+### 8.2 Event Payload: `simulation_consensus`
+
+Trigger this event when a simulation stabilizes (debounce 2s after last slider change).
+
+```json
+{
+  "event_name": "simulation_consensus",
+  "timestamp": "ISO_8601",
+  "winner_id": "gemini-1.5-pro",
+  "scenario_volume": 50000, // Segmentation: <1k (Startup), >10k (Scaleup), >50k (Enterprise)
+  "cache_rate": 0.45, // Insight: Tech sophistication level
+  "input_output_ratio": 0.6, // Insight: Workload type (Creation vs Analysis)
+  "value_score": 0.0112,
+  "competitor_gap_percent": 48.5
+}
+```
+
+### 8.3 Market Segmentation Logic
+
+The backend/analyst will classify events based on `scenario_volume`:
+
+- **Startup**: < 5,000 msg/day
+- **Scaleup**: 5,000 - 50,000 msg/day
+- **Enterprise**: > 50,000 msg/day
+
+### 8.3 Implementation Note
+
+Use Vercel Web Analytics custom events or a lightweight `POST /api/telemetry` endpoint that writes to a non-relational store (e.g., Redis/KV).

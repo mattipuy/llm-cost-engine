@@ -42,7 +42,7 @@ export class JsonLdService {
       "author": {
         "@type": "Organization",
         "name": "LLM Cost Engine",
-        "url": "https://llm-cost-engine.com"
+        "url": "https://llm-cost-engine.vercel.app"
       },
       "offers": {
         "@type": "Offer",
