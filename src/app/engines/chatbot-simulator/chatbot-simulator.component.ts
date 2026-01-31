@@ -679,122 +679,125 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
     // Dynamic import for client-side PDF generation
     if (isPlatformBrowser(this.platformId)) {
-      // Must import jsPDF first, then autoTable which registers on jsPDF prototype
-      import('jspdf').then(async (jsPDFModule) => {
+      // Use functional approach: autoTable(doc, options) instead of doc.autoTable()
+      Promise.all([
+        import('jspdf'),
+        import('jspdf-autotable')
+      ]).then(([jsPDFModule, autoTableModule]) => {
         const jsPDF = jsPDFModule.default;
-        // Import autoTable - it auto-registers on jsPDF prototype
-        await import('jspdf-autotable');
+        const autoTable = autoTableModule.default;
         const doc = new jsPDF();
-          const pageWidth = doc.internal.pageSize.width;
+        const pageWidth = doc.internal.pageSize.width;
 
-          // --- Header ---
-          doc.setFontSize(20);
-          doc.setTextColor(40, 40, 40);
-          doc.text('LLM Cost Analysis: Executive Report', 14, 22);
+        // --- Header ---
+        doc.setFontSize(20);
+        doc.setTextColor(40, 40, 40);
+        doc.text('LLM Cost Analysis: Executive Report', 14, 22);
 
-          doc.setFontSize(10);
-          doc.setTextColor(100);
-          doc.text(`Generated for: ${this.leadEmail()}`, 14, 30);
-          doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 35);
-          doc.text(`Scenario ID: ${currentScenarioId}`, 14, 40);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Generated for: ${this.leadEmail()}`, 14, 30);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 35);
+        doc.text(`Scenario ID: ${currentScenarioId}`, 14, 40);
 
-          // --- Executive Summary (Winner) ---
-          const winner = this.bestModel();
-          if (winner) {
-            doc.setFillColor(240, 248, 255); // AliceBlue
-            doc.rect(14, 50, pageWidth - 28, 40, 'F');
+        // --- Executive Summary (Winner) ---
+        const winner = this.bestModel();
+        if (winner) {
+          doc.setFillColor(240, 248, 255); // AliceBlue
+          doc.rect(14, 50, pageWidth - 28, 40, 'F');
 
-            doc.setFontSize(14);
-            doc.setTextColor(0);
-            doc.text('Recommendation: ' + winner.modelName, 20, 60);
-
-            doc.setFontSize(11);
-            doc.setTextColor(60);
-            doc.text(
-              `Annual Projected Cost: $${(sensitivity?.annualCost1x || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
-              20,
-              70,
-            );
-
-            if (this.aggressiveComparison()?.savingsPercent) {
-              doc.setTextColor(0, 100, 0); // Green
-              doc.text(
-                `Savings vs Runner-up: ${this.aggressiveComparison()?.savingsPercent}%`,
-                20,
-                80,
-              );
-            }
-          }
-
-          // --- Inputs ---
+          doc.setFontSize(14);
           doc.setTextColor(0);
-          doc.setFontSize(12);
-          doc.text('Scenario Parameters', 14, 105);
+          doc.text('Recommendation: ' + winner.modelName, 20, 60);
 
-          const inputsData = [
-            ['Messages / Day', this.messagesPerDay().toLocaleString()],
-            ['Input Tokens', this.tokensInputPerMessage().toLocaleString()],
-            ['Output Tokens', this.tokensOutputPerMessage().toLocaleString()],
-            ['Cache Hit Rate', `${Math.round(this.cacheHitRate() * 100)}%`],
-          ];
-
-          (doc as any).autoTable({
-            startY: 110,
-            head: [['Parameter', 'Value']],
-            body: inputsData,
-            theme: 'plain',
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [220, 220, 220] },
-          });
-
-          // --- Detailed Comparison ---
+          doc.setFontSize(11);
+          doc.setTextColor(60);
           doc.text(
-            'Model Comparison (Monthly TCO)',
-            14,
-            (doc as any).lastAutoTable.finalY + 15,
+            `Annual Projected Cost: $${(sensitivity?.annualCost1x || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+            20,
+            70,
           );
 
-          const comparisonData = this.results().map((r, index) => [
-            r.modelName,
-            `$${r.monthlyCost.toFixed(2)}`,
-            r.valueScore.toFixed(4),
-            index === 0 ? 'WINNER' : `#${index + 1}`,
-          ]);
+          if (this.aggressiveComparison()?.savingsPercent) {
+            doc.setTextColor(0, 100, 0); // Green
+            doc.text(
+              `Savings vs Runner-up: ${this.aggressiveComparison()?.savingsPercent}%`,
+              20,
+              80,
+            );
+          }
+        }
 
-          (doc as any).autoTable({
-            startY: (doc as any).lastAutoTable.finalY + 20,
-            head: [['Model', 'Monthly Cost', 'ValueScore™', 'Rank']],
-            body: comparisonData,
-            theme: 'striped',
-            headStyles: { fillColor: [41, 128, 185] },
-          });
+        // --- Inputs ---
+        doc.setTextColor(0);
+        doc.setFontSize(12);
+        doc.text('Scenario Parameters', 14, 105);
 
-          // --- Disclaimer ---
-          const finalY = (doc as any).lastAutoTable.finalY + 20;
-          doc.setFontSize(8);
-          doc.setTextColor(150);
-          doc.text(
-            'DISCLAIMER: This report is a deterministic engineering simulation based on public pricing.',
-            14,
-            finalY,
-          );
-          doc.text(
-            'It does not constitute financial advice or a binding procurement offer.',
-            14,
-            finalY + 5,
-          );
-          doc.text(
-            'Generated by LLM Cost Engine (Open Source Benchmark).',
-            14,
-            finalY + 10,
-          );
+        const inputsData = [
+          ['Messages / Day', this.messagesPerDay().toLocaleString()],
+          ['Input Tokens', this.tokensInputPerMessage().toLocaleString()],
+          ['Output Tokens', this.tokensOutputPerMessage().toLocaleString()],
+          ['Cache Hit Rate', `${Math.round(this.cacheHitRate() * 100)}%`],
+        ];
 
-          // Save
-          doc.save(`LLM_Analysis_${currentScenarioId}.pdf`);
+        // Use functional call: autoTable(doc, options)
+        autoTable(doc, {
+          startY: 110,
+          head: [['Parameter', 'Value']],
+          body: inputsData,
+          theme: 'plain',
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: [220, 220, 220] },
+        });
 
-          this.leadSubmitStatus.set('success');
-        },
-      );
+        // --- Detailed Comparison ---
+        // Get finalY from doc.lastAutoTable (set by autoTable function)
+        const firstTableY = (doc as any).lastAutoTable?.finalY || 150;
+        doc.text('Model Comparison (Monthly TCO)', 14, firstTableY + 15);
+
+        const comparisonData = this.results().map((r, index) => [
+          r.modelName,
+          `$${r.monthlyCost.toFixed(2)}`,
+          r.valueScore.toFixed(4),
+          index === 0 ? 'WINNER' : `#${index + 1}`,
+        ]);
+
+        autoTable(doc, {
+          startY: firstTableY + 20,
+          head: [['Model', 'Monthly Cost', 'ValueScore™', 'Rank']],
+          body: comparisonData,
+          theme: 'striped',
+          headStyles: { fillColor: [41, 128, 185] },
+        });
+
+        // --- Disclaimer ---
+        const secondTableY = (doc as any).lastAutoTable?.finalY || 200;
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(
+          'DISCLAIMER: This report is a deterministic engineering simulation based on public pricing.',
+          14,
+          secondTableY + 15,
+        );
+        doc.text(
+          'It does not constitute financial advice or a binding procurement offer.',
+          14,
+          secondTableY + 20,
+        );
+        doc.text(
+          'Generated by LLM Cost Engine (Open Source Benchmark).',
+          14,
+          secondTableY + 25,
+        );
+
+        // Save
+        doc.save(`LLM_Analysis_${currentScenarioId}.pdf`);
+
+        this.leadSubmitStatus.set('success');
+      }).catch((err) => {
+        console.error('PDF generation failed:', err);
+        this.leadSubmitStatus.set('error');
+      });
     } else {
       // Fallback for SSR
       this.leadSubmitStatus.set('success');
