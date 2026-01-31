@@ -1,6 +1,13 @@
 {
-  "last_updated": "2026-01-31",
-  "base_currency": "USD",
+  "metadata": {
+    "version": "1.1.0",
+    "name": "LLM Cost Engine Pricing Registry",
+    "last_updated": "2026-01-31",
+    "base_currency": "USD",
+    "pricing_unit": "per_1M_tokens",
+    "maintained_by": "llm-cost-engine",
+    "source_verification": "Official provider pricing pages"
+  },
   "models": [
     {
       "id": "gpt-4o",
@@ -48,6 +55,38 @@
         "latency_index": 0.92,
         "quality_index": null,
         "source": "https://www.anthropic.com/pricing"
+      }
+    },
+    {
+      "id": "deepseek-chat",
+      "name": "DeepSeek-V3",
+      "provider": "DeepSeek",
+      "pricing": {
+        "input_1m": 0.14,
+        "output_1m": 0.28,
+        "cached_input_1m": 0.014
+      },
+      "capabilities": {
+        "context_window": 64000,
+        "latency_index": 0.9,
+        "quality_index": null,
+        "source": "https://www.deepseek.com/"
+      }
+    },
+    {
+      "id": "meta-llama-3-3-70b",
+      "name": "Llama 3.3 70B",
+      "provider": "Meta (Groq)",
+      "pricing": {
+        "input_1m": 0.59,
+        "output_1m": 0.79,
+        "cached_input_1m": null
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.98,
+        "quality_index": null,
+        "source": "https://groq.com/pricing/"
       }
     }
   ]

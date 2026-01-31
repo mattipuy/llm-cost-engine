@@ -5,10 +5,31 @@ import { Observable, of, tap } from 'rxjs';
 import { LlmModel } from '../../engines/chatbot-simulator/logic.service';
 
 /**
+ * Metadata from the pricing registry JSON.
+ */
+export interface PricingMetadata {
+  version: string;
+  name?: string;
+  last_updated: string;
+  base_currency?: string;
+  pricing_unit?: string;
+  maintained_by?: string;
+  source_verification?: string;
+}
+
+/**
+ * Full pricing data structure including metadata and models.
+ */
+export interface PricingData {
+  metadata?: PricingMetadata;
+  models: LlmModel[];
+}
+
+/**
  * TransferState key for pricing data.
  * This ensures data fetched during SSR is transferred to the client.
  */
-const PRICING_DATA_KEY = makeStateKey<{ models: LlmModel[] }>('llm-pricing-data');
+const PRICING_DATA_KEY = makeStateKey<PricingData>('llm-pricing-data');
 
 /**
  * Service for loading LLM pricing data with SSR support via TransferState.
@@ -29,8 +50,9 @@ export class PricingDataService {
   /**
    * Loads pricing data with TransferState caching.
    * On server: fetches and caches. On client: uses cached data.
+   * Returns both metadata and models from the JSON registry.
    */
-  loadPricingData(): Observable<{ models: LlmModel[] }> {
+  loadPricingData(): Observable<PricingData> {
     // Check if data exists in TransferState (client-side after SSR)
     const cachedData = this.transferState.get(PRICING_DATA_KEY, null);
 
@@ -41,7 +63,7 @@ export class PricingDataService {
     }
 
     // Fetch data (happens on server during SSR, or client if no cache)
-    return this.http.get<{ models: LlmModel[] }>('/data/llm-pricing.json').pipe(
+    return this.http.get<PricingData>('/data/llm-pricing.json').pipe(
       tap((data) => {
         // If on server, store in TransferState for client
         if (isPlatformServer(this.platformId)) {
