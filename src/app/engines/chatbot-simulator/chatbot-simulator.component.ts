@@ -953,6 +953,61 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     this.leadSubmitStatus.set('idle');
   }
 
+  /**
+   * Quick PDF export - No email required.
+   * Generates a basic comparison PDF for casual users.
+   */
+  downloadQuickPdf(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    Promise.all([import('jspdf'), import('jspdf-autotable')])
+      .then(([jsPDFModule, autoTableModule]) => {
+        const jsPDF = jsPDFModule.default;
+        const autoTable = autoTableModule.default;
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFontSize(18);
+        doc.text('LLM Cost Comparison', 14, 20);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+        doc.text(`Scenario: ${this.scenarioId()}`, 14, 33);
+
+        // Quick comparison table
+        const data = this.results().map((r, i) => [
+          i === 0 ? '>> ' + r.modelName : r.modelName,
+          r.provider,
+          `$${r.monthlyCost.toFixed(2)}`,
+          r.valueScore.toFixed(4),
+        ]);
+
+        autoTable(doc, {
+          startY: 45,
+          head: [['Model', 'Provider', 'Monthly Cost', 'ValueScore']],
+          body: data,
+          theme: 'striped',
+          headStyles: { fillColor: [79, 70, 229] },
+        });
+
+        // Footer
+        const finalY = (doc as any).lastAutoTable?.finalY || 100;
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text('Quick export from LLM Cost Engine', 14, finalY + 15);
+        doc.text(
+          'For detailed analysis with sensitivity projections, use "Get Enterprise Report"',
+          14,
+          finalY + 20,
+        );
+
+        doc.save(`LLM_Quick_${this.scenarioId()}.pdf`);
+      })
+      .catch((err) => {
+        console.error('Quick PDF generation failed:', err);
+      });
+  }
+
   retryLoad(): void {
     this.loadError.set(null);
     this.loadPricingData();

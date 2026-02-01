@@ -757,32 +757,49 @@
               </div>
             }
 
-            <!-- No-Friction Flow: Button first, email form appears after click -->
+            <!-- No-Friction Flow: Two options -->
             @if (!showEmailForm()) {
-              <!-- Initial State: Just the Export button -->
               <div class="space-y-4">
-                <button
-                  type="button"
-                  (click)="onExportClick()"
-                  class="w-full sm:w-auto px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-mono text-sm transition-all duration-150"
-                >
-                  Get Your TCO Report
-                </button>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <!-- Quick PDF - No email required -->
+                  <button
+                    type="button"
+                    (click)="downloadQuickPdf()"
+                    class="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded font-mono text-sm transition-all duration-150 border border-gray-600"
+                  >
+                    Quick Export (.PDF)
+                    <span class="block text-xs text-gray-400 mt-1">No email required</span>
+                  </button>
 
-                <!-- Report Contents Preview -->
-                <div
-                  class="text-xs text-gray-500 pt-2 border-t border-gray-800"
-                >
-                  <p class="mb-1">
-                    <span class="text-gray-400">#</span> Analysis includes:
-                  </p>
-                  <ul class="ml-4 space-y-0.5">
-                    <li>→ Executive Summary & Winner Recommendation</li>
-                    <li>→ TCO Breakdown (Cost/Latency/Context)</li>
-                    <li>→ Sensitivity Analysis (2x/3x traffic projections)</li>
-                    <li>→ Vendor Comparison Matrix</li>
-                    <li>→ JSON Implementation Config</li>
-                  </ul>
+                  <!-- Enterprise Report - Email required -->
+                  <button
+                    type="button"
+                    (click)="onExportClick()"
+                    class="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-mono text-sm transition-all duration-150"
+                  >
+                    Get Enterprise Report
+                    <span class="block text-xs text-cyan-200 mt-1">Signed + Sensitivity Analysis</span>
+                  </button>
+                </div>
+
+                <!-- What's in each -->
+                <div class="grid grid-cols-2 gap-4 text-xs text-gray-500 pt-2 border-t border-gray-800">
+                  <div>
+                    <p class="text-gray-400 font-medium mb-1">Quick Export:</p>
+                    <ul class="space-y-0.5">
+                      <li>→ Model comparison table</li>
+                      <li>→ ValueScore ranking</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p class="text-cyan-400 font-medium mb-1">Enterprise Report:</p>
+                    <ul class="space-y-0.5">
+                      <li>→ Executive Summary</li>
+                      <li>→ Sensitivity Analysis (2x/3x)</li>
+                      <li>→ Signed with Version ID</li>
+                      <li>→ Procurement-ready format</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             } @else {
