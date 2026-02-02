@@ -1,170 +1,238 @@
 {
   "metadata": {
-    "version": "1.2.0-2026",
+    "version": "1.2.0",
+    "name": "LLM Cost Engine Pricing Registry",
+    "last_updated": "2026-01-31",
     "last_verified": "2026-01-31",
-    "maintainer": "LLM Cost Engine Team"
+    "base_currency": "USD",
+    "pricing_unit": "per_1M_tokens",
+    "maintained_by": "LLM Cost Engine Team",
+    "source_verification": "Official provider pricing pages",
+    "update_frequency": "weekly"
   },
-  "last_updated": "2026-01-31",
-  "base_currency": "USD",
   "models": [
     {
-      "id": "gpt-5-2",
-      "name": "GPT-5.2",
+      "id": "gpt-4o",
+      "name": "GPT-4o",
       "provider": "OpenAI",
       "pricing": {
-        "input_1m": 1.75,
-        "output_1m": 14.0,
-        "cached_input_1m": 0.175
-      },
-      "capabilities": {
-        "context_window": 272000,
-        "latency_index": 0.95,
-        "quality_index": 0.98,
-        "source": "https://openai.com/pricing"
-      }
-    },
-    {
-      "id": "gpt-5-2-pro",
-      "name": "GPT-5.2 Pro",
-      "provider": "OpenAI",
-      "pricing": {
-        "input_1m": 21.0,
-        "output_1m": 168.0,
-        "cached_input_1m": 10.5
-      },
-      "capabilities": {
-        "context_window": 400000,
-        "latency_index": 0.92,
-        "quality_index": 0.99,
-        "source": "https://openai.com/pricing"
-      }
-    },
-    {
-      "id": "gpt-5-mini",
-      "name": "GPT-5 Mini",
-      "provider": "OpenAI",
-      "pricing": {
-        "input_1m": 0.25,
-        "output_1m": 2.0,
-        "cached_input_1m": 0.025
-      },
-      "capabilities": {
-        "context_window": 400000,
-        "latency_index": 0.96,
-        "quality_index": 0.94,
-        "source": "https://openai.com/pricing"
-      }
-    },
-    {
-      "id": "gemini-3-flash",
-      "name": "Gemini 3 Flash",
-      "provider": "Google",
-      "pricing": {
-        "input_1m": 0.5,
-        "output_1m": 3.0,
-        "cached_input_1m": 0.125
-      },
-      "capabilities": {
-        "context_window": 1000000,
-        "latency_index": 0.96,
-        "quality_index": 0.93,
-        "source": "https://ai.google.dev/pricing"
-      }
-    },
-    {
-      "id": "gemini-3-pro",
-      "name": "Gemini 3 Pro",
-      "provider": "Google",
-      "pricing": {
-        "input_1m": 2.0,
-        "output_1m": 12.0,
-        "cached_input_1m": 0.2
-      },
-      "capabilities": {
-        "context_window": 1000000,
-        "latency_index": 0.92,
-        "quality_index": 0.97,
-        "source": "https://ai.google.dev/pricing"
-      }
-    },
-    {
-      "id": "claude-4-5-haiku",
-      "name": "Claude 4.5 Haiku",
-      "provider": "Anthropic",
-      "pricing": {
-        "input_1m": 1.0,
-        "output_1m": 5.0,
-        "cached_input_1m": 0.1
-      },
-      "capabilities": {
-        "context_window": 200000,
-        "latency_index": 0.98,
-        "quality_index": 0.92,
-        "source": "https://www.anthropic.com/pricing"
-      }
-    },
-    {
-      "id": "claude-4-5-sonnet",
-      "name": "Claude 4.5 Sonnet",
-      "provider": "Anthropic",
-      "pricing": {
-        "input_1m": 3.0,
-        "output_1m": 15.0,
-        "cached_input_1m": 1.5
-      },
-      "capabilities": {
-        "context_window": 200000,
-        "latency_index": 0.94,
-        "quality_index": 0.97,
-        "source": "https://www.anthropic.com/pricing"
-      }
-    },
-    {
-      "id": "claude-4-5-opus",
-      "name": "Claude 4.5 Opus",
-      "provider": "Anthropic",
-      "pricing": {
-        "input_1m": 5.0,
-        "output_1m": 25.0,
-        "cached_input_1m": 2.5
-      },
-      "capabilities": {
-        "context_window": 200000,
-        "latency_index": 0.89,
-        "quality_index": 0.99,
-        "source": "https://www.anthropic.com/pricing"
-      }
-    },
-    {
-      "id": "deepseek-chat",
-      "name": "DeepSeek-V3",
-      "provider": "DeepSeek",
-      "pricing": {
-        "input_1m": 0.14,
-        "output_1m": 0.28,
-        "cached_input_1m": 0.014
-      },
-      "capabilities": {
-        "context_window": 64000,
-        "latency_index": 0.9,
-        "quality_index": null,
-        "source": "https://www.deepseek.com/"
-      }
-    },
-    {
-      "id": "meta-llama-3-3-70b",
-      "name": "Llama 3.3 70B",
-      "provider": "Meta (Groq)",
-      "pricing": {
-        "input_1m": 0.59,
-        "output_1m": 0.79,
-        "cached_input_1m": null
+        "input_1m": 2.50,
+        "output_1m": 10.00,
+        "cached_input_1m": 1.25
       },
       "capabilities": {
         "context_window": 128000,
-        "latency_index": 0.98,
-        "quality_index": null,
-        "source": "https://groq.com/pricing/"
+        "latency_index": 0.95
+      }
+    },
+    {
+      "id": "gpt-4o-mini",
+      "name": "GPT-4o Mini",
+      "provider": "OpenAI",
+      "pricing": {
+        "input_1m": 0.15,
+        "output_1m": 0.60,
+        "cached_input_1m": 0.075
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.98
+      }
+    },
+    {
+      "id": "o1",
+      "name": "o1",
+      "provider": "OpenAI",
+      "pricing": {
+        "input_1m": 15.00,
+        "output_1m": 60.00,
+        "cached_input_1m": 7.50
+      },
+      "capabilities": {
+        "context_window": 200000,
+        "latency_index": 0.60
+      }
+    },
+    {
+      "id": "o3-mini",
+      "name": "o3-mini",
+      "provider": "OpenAI",
+      "pricing": {
+        "input_1m": 1.10,
+        "output_1m": 4.40,
+        "cached_input_1m": 0.55
+      },
+      "capabilities": {
+        "context_window": 200000,
+        "latency_index": 0.80
+      }
+    },
+    {
+      "id": "claude-3.5-sonnet",
+      "name": "Claude 3.5 Sonnet",
+      "provider": "Anthropic",
+      "pricing": {
+        "input_1m": 3.00,
+        "output_1m": 15.00,
+        "cached_input_1m": 0.30
+      },
+      "capabilities": {
+        "context_window": 200000,
+        "latency_index": 0.92
+      }
+    },
+    {
+      "id": "claude-3.5-haiku",
+      "name": "Claude 3.5 Haiku",
+      "provider": "Anthropic",
+      "pricing": {
+        "input_1m": 0.80,
+        "output_1m": 4.00,
+        "cached_input_1m": 0.08
+      },
+      "capabilities": {
+        "context_window": 200000,
+        "latency_index": 0.98
+      }
+    },
+    {
+      "id": "claude-sonnet-4",
+      "name": "Claude Sonnet 4",
+      "provider": "Anthropic",
+      "pricing": {
+        "input_1m": 3.00,
+        "output_1m": 15.00,
+        "cached_input_1m": 0.30
+      },
+      "capabilities": {
+        "context_window": 200000,
+        "latency_index": 0.90
+      }
+    },
+    {
+      "id": "claude-opus-4",
+      "name": "Claude Opus 4",
+      "provider": "Anthropic",
+      "pricing": {
+        "input_1m": 15.00,
+        "output_1m": 75.00,
+        "cached_input_1m": 1.50
+      },
+      "capabilities": {
+        "context_window": 200000,
+        "latency_index": 0.65
+      }
+    },
+    {
+      "id": "gemini-2.0-flash",
+      "name": "Gemini 2.0 Flash",
+      "provider": "Google",
+      "pricing": {
+        "input_1m": 0.10,
+        "output_1m": 0.40,
+        "cached_input_1m": 0.025
+      },
+      "capabilities": {
+        "context_window": 1000000,
+        "latency_index": 0.97
+      }
+    },
+    {
+      "id": "gemini-1.5-pro",
+      "name": "Gemini 1.5 Pro",
+      "provider": "Google",
+      "pricing": {
+        "input_1m": 1.25,
+        "output_1m": 5.00,
+        "cached_input_1m": 0.3125
+      },
+      "capabilities": {
+        "context_window": 2000000,
+        "latency_index": 0.88
+      }
+    },
+    {
+      "id": "gemini-1.5-flash",
+      "name": "Gemini 1.5 Flash",
+      "provider": "Google",
+      "pricing": {
+        "input_1m": 0.075,
+        "output_1m": 0.30,
+        "cached_input_1m": 0.01875
+      },
+      "capabilities": {
+        "context_window": 1000000,
+        "latency_index": 0.96
+      }
+    },
+    {
+      "id": "deepseek-v3",
+      "name": "DeepSeek V3",
+      "provider": "DeepSeek",
+      "pricing": {
+        "input_1m": 0.27,
+        "output_1m": 1.10,
+        "cached_input_1m": 0.07
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.88
+      }
+    },
+    {
+      "id": "deepseek-r1",
+      "name": "DeepSeek R1",
+      "provider": "DeepSeek",
+      "pricing": {
+        "input_1m": 0.55,
+        "output_1m": 2.19,
+        "cached_input_1m": 0.14
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.75
+      }
+    },
+    {
+      "id": "llama-3.3-70b",
+      "name": "Llama 3.3 70B",
+      "provider": "Meta",
+      "pricing": {
+        "input_1m": 0.70,
+        "output_1m": 0.80,
+        "cached_input_1m": 0.35
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.88
+      }
+    },
+    {
+      "id": "mistral-large",
+      "name": "Mistral Large",
+      "provider": "Mistral AI",
+      "pricing": {
+        "input_1m": 2.00,
+        "output_1m": 6.00,
+        "cached_input_1m": 1.00
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.85
+      }
+    },
+    {
+      "id": "mistral-small",
+      "name": "Mistral Small",
+      "provider": "Mistral AI",
+      "pricing": {
+        "input_1m": 0.20,
+        "output_1m": 0.60,
+        "cached_input_1m": 0.10
+      },
+      "capabilities": {
+        "context_window": 32000,
+        "latency_index": 0.92
       }
     }
   ]

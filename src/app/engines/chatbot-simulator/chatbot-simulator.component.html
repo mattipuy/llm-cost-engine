@@ -2,7 +2,7 @@
   <!-- Header -->
   <header class="bg-white border-b border-gray-200 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 flex-wrap">
         <h1 class="text-3xl font-bold text-gray-900">
           {{ engineMeta.fullName }}
         </h1>
@@ -10,6 +10,17 @@
           class="px-2 py-0.5 text-xs font-mono bg-gray-100 text-gray-600 rounded"
           >v{{ engineMeta.version }}</span
         >
+        @if (pricingMetadata()?.last_verified) {
+          <span
+            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200"
+            title="Pricing data verified against official provider pages"
+          >
+            <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            Prices verified {{ pricingMetadata()?.last_verified }}
+          </span>
+        }
       </div>
       <p class="mt-2 text-lg text-gray-600">
         Compare LLM costs instantly. Get a procurement-ready analysis in 60 seconds.
@@ -142,12 +153,21 @@
             }
 
             @if (pricingMetadata()) {
-              <p
-                class="mt-3 text-xs text-gray-500 border-t border-gray-200 pt-2"
+              <div
+                class="mt-3 pt-3 border-t border-gray-200 space-y-2"
               >
-                Pricing Data v{{ pricingMetadata()?.version }} ·
-                {{ pricingMetadata()?.last_updated }}
-              </p>
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Verified {{ pricingMetadata()?.last_verified || pricingMetadata()?.last_updated }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500">
+                  Pricing v{{ pricingMetadata()?.version }} · Updated {{ pricingMetadata()?.update_frequency || 'weekly' }}
+                </p>
+              </div>
             }
           </div>
 
@@ -1053,7 +1073,7 @@
         </p>
         @if (pricingMetadata()) {
           <p class="text-indigo-500 font-medium">
-            Pricing Benchmark v{{ pricingMetadata()?.version }}
+            Pricing Benchmark v{{ pricingMetadata()?.version }} · Verified {{ pricingMetadata()?.last_verified || pricingMetadata()?.last_updated }}
           </p>
         }
         <p class="text-gray-400">

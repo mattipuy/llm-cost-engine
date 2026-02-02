@@ -11,10 +11,12 @@ export interface PricingMetadata {
   version: string;
   name?: string;
   last_updated: string;
+  last_verified?: string;
   base_currency?: string;
   pricing_unit?: string;
   maintained_by?: string;
   source_verification?: string;
+  update_frequency?: string;
 }
 
 /**

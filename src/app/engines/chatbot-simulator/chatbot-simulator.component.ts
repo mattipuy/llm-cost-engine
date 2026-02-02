@@ -242,9 +242,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // All available models from JSON (populated on load)
   availableModels = signal<LlmModel[]>([]);
 
-  // Selected model IDs for comparison (default: first 3 popular models)
+  // Selected model IDs for comparison (default: top 3 popular models)
   selectedModelIds = signal<Set<string>>(
-    new Set(['gpt-5-2', 'gemini-3-flash', 'claude-4-5-sonnet']),
+    new Set(['gpt-4o', 'gemini-2.0-flash', 'claude-3.5-sonnet']),
   );
 
   // Computed: filtered models for display based on user selection

@@ -224,7 +224,7 @@ Each parameter combination generates a unique canonical URL, enabling:
 | Edge Functions | Vercel Edge Runtime                                   |
 | Language       | TypeScript 5.x                                        |
 | Styling        | Tailwind CSS v4                                       |
-| Data Layer     | JSON Registries (`src/assets/data/llm-registry.json`) |
+| Data Layer     | JSON Registries (`public/data/llm-pricing.json`)      |
 
 ### Architecture
 
@@ -378,9 +378,9 @@ The aggregated simulation data collected through the Market Insights API (`/api/
 
 Commercial use of Market Insights data requires a separate license agreement.
 
-### LLM Registry (Attribution Required)
+### LLM Pricing Data (Attribution Required)
 
-The `llm-registry.json` pricing data is provided as-is for educational and research purposes. Requirements for use:
+The `llm-pricing.json` pricing data is provided as-is for educational and research purposes. Requirements for use:
 
 - **Personal/Educational**: Free to use with attribution
 - **Commercial Redistribution**: Requires explicit attribution to LLM Cost Engine
