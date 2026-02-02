@@ -15,6 +15,10 @@ You have a team of specialized sub-agents in `.claude/agents/`. Use them accordi
 - **prompt-engineer**: Use to design and optimize the prompts that the engine sends to LLM APIs.
 - **devops-engineer**: Use for Vercel deployment and CI/CD configuration.
 - **agent-organizer**: The master coordinator. Consult this agent when the workflow involves 3+ sub-agents.
+- **Business Analyst** (@business-analyst.md): Focus su ROI e logiche di pricing.
+- **Competitive Analyst** (@competitive-analyst.md): Focus su benchmark prezzi OpenAI/Google/Anthropic.
+- **Market Researcher** (@market-researcher.md): Focus su segmentazione utenti Enterprise.
+- **Trend Analyst** (@trend-analyst.md): Focus su previsioni costi 2026 e nuove uscite LLM.
 
 ## 🛠 Technical Stack
 
@@ -30,6 +34,17 @@ You have a team of specialized sub-agents in `.claude/agents/`. Use them accordi
 3. **UI Phase**: `angular-architect` builds the reactive UI with Signals.
 4. **Content Phase**: `content-marketer` + `seo-specialist` + `prompt-engineer` finalize the SEO and internal LLM instructions.
 5. **Ship Phase**: `devops-engineer` triggers the deploy.
+
+## 🛠 Workflow Strategico
+
+- Prima di ogni modifica alla UI: Consulta il @Market Researcher per assicurarti che la CTA non rovini il Trust B2B.
+- Prima di ogni aggiornamento prezzi: Invoca il @Competitive Analyst per verificare i listini attuali (2026).
+- Per la monetizzazione: Segui la linea del @Business Analyst (Monetizzazione invisibile/Sponsor B2B) evitando affiliate aggressivi.
+
+## 📈 Obiettivo Rendita Automatica
+
+- Priorità: Autorità Neutrale > Raccolta Dati > Sponsorship B2B.
+- Non implementare mai Tier Pro o Consulting CTA senza aver prima chiesto al @Trend Analyst se il mercato sta virando verso l'Open Source.
 
 ## 📜 Rules to Follow
 
