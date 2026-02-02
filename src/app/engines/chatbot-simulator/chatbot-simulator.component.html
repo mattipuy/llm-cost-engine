@@ -538,6 +538,13 @@
                           | currency: "USD" : "symbol" : "1.2-2"
                       }}
                     </p>
+                    <!-- Price Trend Indicator -->
+                    @if (getTrendIndicator(result.modelId); as trend) {
+                      <p class="mt-1 text-xs {{ trend.color }} flex items-center justify-center gap-1">
+                        <span class="font-bold">{{ trend.icon }}</span>
+                        <span>{{ trend.label }} (30d)</span>
+                      </p>
+                    }
                   </div>
 
                   <!-- ValueScore - CLS Prevention: tabular-nums -->

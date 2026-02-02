@@ -23,6 +23,10 @@ import {
   PricingDataService,
   PricingMetadata,
 } from '../../core/services/pricing-data.service';
+import {
+  PriceHistoryService,
+  PriceTrend,
+} from '../../core/services/price-history.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { MarketInsightsService } from '../../core/services/market-insights.service';
 import {
@@ -234,6 +238,16 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   // Pricing registry metadata (version, last_updated, etc.)
   pricingMetadata = signal<PricingMetadata | null>(null);
+
+  // ============================================================================
+  // SIGNALS - Price Trends (Data Moat)
+  // ============================================================================
+
+  // Historical price trend data for all models
+  priceTrends = signal<Map<string, PriceTrend>>(new Map());
+
+  // Data depth info (how much history we have)
+  priceHistoryDepth = signal<{ snapshots: number; months: number } | null>(null);
 
   // ============================================================================
   // SIGNALS - Dynamic Model Filter
@@ -492,6 +506,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // ============================================================================
 
   private pricingService = inject(PricingDataService);
+  private priceHistoryService = inject(PriceHistoryService);
   private logicService = inject(ChatbotSimulatorLogicService);
   private jsonLdService = inject(JsonLdService);
   private analyticsService = inject(AnalyticsService);
@@ -563,6 +578,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     this.setMetaTags();
     this.injectJsonLd();
     this.loadPricingData();
+    this.loadPriceTrends();
   }
 
   ngOnDestroy(): void {
@@ -1242,5 +1258,69 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         this.loadError.set('Failed to load pricing data. Please check your connection and try again.');
       },
     });
+  }
+
+  /**
+   * Loads historical price trend data for the Data Moat feature.
+   * This runs asynchronously and doesn't block the main UI.
+   */
+  private loadPriceTrends(): void {
+    // Load price trends in background (non-blocking)
+    this.priceHistoryService.calculatePriceTrends().subscribe({
+      next: (trends) => {
+        const trendMap = new Map<string, PriceTrend>();
+        trends.forEach(trend => trendMap.set(trend.model_id, trend));
+        this.priceTrends.set(trendMap);
+      },
+      error: (err) => {
+        // Silently fail - trends are a nice-to-have feature
+        console.warn('Failed to load price trends:', err);
+      },
+    });
+
+    // Load data depth info
+    this.priceHistoryService.getDataDepth().subscribe({
+      next: (depth) => {
+        this.priceHistoryDepth.set({ snapshots: depth.snapshots, months: depth.months });
+      },
+      error: () => {
+        // Silently ignore
+      },
+    });
+  }
+
+  /**
+   * Gets the price trend for a specific model.
+   * Returns null if no trend data available.
+   */
+  getPriceTrend(modelId: string): PriceTrend | null {
+    return this.priceTrends().get(modelId) ?? null;
+  }
+
+  /**
+   * Gets a human-readable trend indicator for a model.
+   */
+  getTrendIndicator(modelId: string): { icon: string; label: string; color: string } | null {
+    const trend = this.getPriceTrend(modelId);
+    if (!trend || trend.change_30d_percent === null) return null;
+
+    if (trend.trend_direction === 'down') {
+      return {
+        icon: '↓',
+        label: `${Math.abs(trend.change_30d_percent)}% cheaper`,
+        color: 'text-green-600'
+      };
+    } else if (trend.trend_direction === 'up') {
+      return {
+        icon: '↑',
+        label: `${Math.abs(trend.change_30d_percent)}% increase`,
+        color: 'text-red-600'
+      };
+    }
+    return {
+      icon: '→',
+      label: 'Stable',
+      color: 'text-gray-500'
+    };
   }
 }
