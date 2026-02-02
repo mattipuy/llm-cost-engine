@@ -10,6 +10,15 @@ export const routes: Routes = [
       ),
     title: 'LLM Cost Engine',
   },
+  // Market Insights page - "The Reddit Report"
+  {
+    path: 'insights',
+    loadComponent: () =>
+      import('./insights/insights.component').then(
+        (m) => m.InsightsComponent,
+      ),
+    title: 'LLM Market Insights | LLM Cost Engine',
+  },
   // Root redirect for convenience
   {
     path: '',

@@ -10,6 +10,7 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser, Location } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import {
   ChatbotSimulatorLogicService,
@@ -72,7 +73,7 @@ interface ComparisonInsight {
 @Component({
   selector: 'app-chatbot-simulator',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './chatbot-simulator.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
