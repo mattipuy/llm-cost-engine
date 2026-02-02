@@ -1,0 +1,148 @@
+name: Weekly Price Snapshot
+
+on:
+  schedule:
+    # Run every Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Take price snapshot
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+
+          // Load current pricing data
+          const pricingData = JSON.parse(fs.readFileSync('public/data/llm-pricing.json', 'utf8'));
+          const historyData = JSON.parse(fs.readFileSync('public/data/price-history.json', 'utf8'));
+
+          const today = new Date().toISOString().split('T')[0];
+
+          // Check if we already have a snapshot for today
+          const existingSnapshot = historyData.snapshots.find(s => s.date === today);
+          if (existingSnapshot) {
+            console.log(`Snapshot for ${today} already exists. Skipping.`);
+            process.exit(0);
+          }
+
+          // Create new snapshot from current pricing
+          const newSnapshot = {
+            date: today,
+            models: pricingData.models.map(m => ({
+              id: m.id,
+              provider: m.provider,
+              input_1m: m.pricing.input_1m,
+              output_1m: m.pricing.output_1m,
+              cached_1m: m.pricing.cached_input_1m || null
+            }))
+          };
+
+          // Detect price changes from last snapshot
+          const lastSnapshot = historyData.snapshots[historyData.snapshots.length - 1];
+          const priceChanges = [];
+
+          if (lastSnapshot) {
+            for (const model of newSnapshot.models) {
+              const oldModel = lastSnapshot.models.find(m => m.id === model.id);
+              if (oldModel) {
+                // Check input price change
+                if (oldModel.input_1m !== model.input_1m) {
+                  const changePercent = ((model.input_1m - oldModel.input_1m) / oldModel.input_1m * 100).toFixed(1);
+                  priceChanges.push({
+                    date: today,
+                    model_id: model.id,
+                    provider: model.provider,
+                    field: 'input_1m',
+                    old_value: oldModel.input_1m,
+                    new_value: model.input_1m,
+                    change_percent: parseFloat(changePercent)
+                  });
+                  console.log(`📊 ${model.id} input: $${oldModel.input_1m} → $${model.input_1m} (${changePercent}%)`);
+                }
+                // Check output price change
+                if (oldModel.output_1m !== model.output_1m) {
+                  const changePercent = ((model.output_1m - oldModel.output_1m) / oldModel.output_1m * 100).toFixed(1);
+                  priceChanges.push({
+                    date: today,
+                    model_id: model.id,
+                    provider: model.provider,
+                    field: 'output_1m',
+                    old_value: oldModel.output_1m,
+                    new_value: model.output_1m,
+                    change_percent: parseFloat(changePercent)
+                  });
+                  console.log(`📊 ${model.id} output: $${oldModel.output_1m} → $${model.output_1m} (${changePercent}%)`);
+                }
+              } else {
+                console.log(`🆕 New model detected: ${model.id}`);
+              }
+            }
+          }
+
+          // Add snapshot and price changes
+          historyData.snapshots.push(newSnapshot);
+          historyData.price_changes.push(...priceChanges);
+          historyData.metadata.last_snapshot = today;
+
+          // Write updated history
+          fs.writeFileSync(
+            'public/data/price-history.json',
+            JSON.stringify(historyData, null, 2)
+          );
+
+          console.log(`✅ Snapshot added for ${today}`);
+          console.log(`📈 Total snapshots: ${historyData.snapshots.length}`);
+          console.log(`📋 Price changes detected: ${priceChanges.length}`);
+
+          // Set output for commit message
+          fs.writeFileSync('snapshot_summary.txt',
+            `Added price snapshot for ${today}. Models: ${newSnapshot.models.length}. Changes: ${priceChanges.length}`
+          );
+          EOF
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet public/data/price-history.json; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push snapshot
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          SUMMARY=$(cat snapshot_summary.txt 2>/dev/null || echo "Weekly price snapshot")
+
+          git add public/data/price-history.json
+          git commit -m "chore(data): $SUMMARY"
+          git push
+
+      - name: Summary
+        run: |
+          echo "## Price Snapshot Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f snapshot_summary.txt ]; then
+            cat snapshot_summary.txt >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No changes detected" >> $GITHUB_STEP_SUMMARY
+          fi

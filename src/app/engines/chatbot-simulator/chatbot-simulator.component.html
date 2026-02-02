@@ -29,45 +29,140 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Preset Case Studies -->
-    <section class="mb-8" aria-labelledby="presets-heading">
-      <div class="flex items-center justify-between mb-3">
-        <h2
-          id="presets-heading"
-          class="text-sm font-medium text-gray-500 uppercase tracking-wide"
+    <!-- Quick Start Cards - Above Fold -->
+    <section class="mb-8" aria-labelledby="quickstart-heading">
+      <h2
+        id="quickstart-heading"
+        class="text-lg font-semibold text-gray-900 mb-4"
+      >
+        What's your scale?
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Startup Card -->
+        <button
+          type="button"
+          (click)="applyPreset(presets[0])"
+          class="relative p-6 rounded-xl border-2 text-left transition-all duration-200 group"
+          [class.border-indigo-600]="activePreset() === 'saas-startup'"
+          [class.bg-indigo-50]="activePreset() === 'saas-startup'"
+          [class.ring-2]="activePreset() === 'saas-startup'"
+          [class.ring-indigo-600]="activePreset() === 'saas-startup'"
+          [class.border-gray-200]="activePreset() !== 'saas-startup'"
+          [class.bg-white]="activePreset() !== 'saas-startup'"
+          [class.hover:border-indigo-300]="activePreset() !== 'saas-startup'"
+          [class.hover:shadow-md]="activePreset() !== 'saas-startup'"
         >
-          Budget Simulation Scenarios
-        </h2>
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-3xl">🚀</span>
+              <h3 class="mt-2 text-lg font-bold text-gray-900">Startup</h3>
+              <p class="text-sm text-gray-500">~2,000 messages/day</p>
+            </div>
+            <span class="text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-700">
+              $50-200/mo
+            </span>
+          </div>
+          <p class="mt-3 text-sm text-gray-600">
+            Customer support chatbot, internal tools, MVP testing
+          </p>
+          @if (activePreset() === 'saas-startup') {
+            <span class="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white text-sm">✓</span>
+          }
+        </button>
+
+        <!-- Growth Card -->
+        <button
+          type="button"
+          (click)="applyPreset(presets[1])"
+          class="relative p-6 rounded-xl border-2 text-left transition-all duration-200 group"
+          [class.border-indigo-600]="activePreset() === 'enterprise-support'"
+          [class.bg-indigo-50]="activePreset() === 'enterprise-support'"
+          [class.ring-2]="activePreset() === 'enterprise-support'"
+          [class.ring-indigo-600]="activePreset() === 'enterprise-support'"
+          [class.border-gray-200]="activePreset() !== 'enterprise-support'"
+          [class.bg-white]="activePreset() !== 'enterprise-support'"
+          [class.hover:border-indigo-300]="activePreset() !== 'enterprise-support'"
+          [class.hover:shadow-md]="activePreset() !== 'enterprise-support'"
+        >
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-3xl">📈</span>
+              <h3 class="mt-2 text-lg font-bold text-gray-900">Growth</h3>
+              <p class="text-sm text-gray-500">~25,000 messages/day</p>
+            </div>
+            <span class="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
+              $500-2K/mo
+            </span>
+          </div>
+          <p class="mt-3 text-sm text-gray-600">
+            Multi-department deployment, high-volume support hub
+          </p>
+          @if (activePreset() === 'enterprise-support') {
+            <span class="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white text-sm">✓</span>
+          }
+        </button>
+
+        <!-- Enterprise Card -->
+        <button
+          type="button"
+          (click)="applyPreset(presets[3])"
+          class="relative p-6 rounded-xl border-2 text-left transition-all duration-200 group"
+          [class.border-indigo-600]="activePreset() === 'rag-knowledge'"
+          [class.bg-indigo-50]="activePreset() === 'rag-knowledge'"
+          [class.ring-2]="activePreset() === 'rag-knowledge'"
+          [class.ring-indigo-600]="activePreset() === 'rag-knowledge'"
+          [class.border-gray-200]="activePreset() !== 'rag-knowledge'"
+          [class.bg-white]="activePreset() !== 'rag-knowledge'"
+          [class.hover:border-indigo-300]="activePreset() !== 'rag-knowledge'"
+          [class.hover:shadow-md]="activePreset() !== 'rag-knowledge'"
+        >
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-3xl">🏢</span>
+              <h3 class="mt-2 text-lg font-bold text-gray-900">Enterprise RAG</h3>
+              <p class="text-sm text-gray-500">Heavy context (15K tokens)</p>
+            </div>
+            <span class="text-xs font-medium px-2 py-1 rounded-full bg-purple-100 text-purple-700">
+              $1K-5K/mo
+            </span>
+          </div>
+          <p class="mt-3 text-sm text-gray-600">
+            Document search, knowledge base, long-context workflows
+          </p>
+          @if (activePreset() === 'rag-knowledge') {
+            <span class="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white text-sm">✓</span>
+          }
+        </button>
       </div>
-      <div class="flex flex-wrap gap-3">
-        @for (preset of presets; track preset.id) {
-          <button
-            type="button"
-            (click)="applyPreset(preset)"
-            class="group relative px-4 py-3 rounded-lg border-2 transition-all duration-150 ease-out"
-            [class.border-indigo-600]="activePreset() === preset.id"
-            [class.bg-indigo-50]="activePreset() === preset.id"
-            [class.border-gray-200]="activePreset() !== preset.id"
-            [class.bg-white]="activePreset() !== preset.id"
-            [class.hover:border-indigo-300]="activePreset() !== preset.id"
-            [class.hover:bg-gray-50]="activePreset() !== preset.id"
-          >
-            <span
-              class="block text-xs font-medium text-indigo-600 uppercase tracking-wide mb-0.5"
-              >{{ preset.description }}</span
-            >
-            <span class="block text-sm font-semibold text-gray-900">{{
-              preset.name
-            }}</span>
-            @if (activePreset() === preset.id) {
-              <span
-                class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white text-xs"
-                >✓</span
+
+      <!-- More scenarios toggle -->
+      <details class="mt-4">
+        <summary class="text-sm text-indigo-600 cursor-pointer hover:text-indigo-800 font-medium">
+          + More scenarios (Dev Tools, Content Generation)
+        </summary>
+        <div class="mt-3 flex flex-wrap gap-3">
+          @for (preset of presets; track preset.id) {
+            @if (preset.id !== 'saas-startup' && preset.id !== 'enterprise-support' && preset.id !== 'rag-knowledge') {
+              <button
+                type="button"
+                (click)="applyPreset(preset)"
+                class="group relative px-4 py-3 rounded-lg border-2 transition-all duration-150 ease-out"
+                [class.border-indigo-600]="activePreset() === preset.id"
+                [class.bg-indigo-50]="activePreset() === preset.id"
+                [class.border-gray-200]="activePreset() !== preset.id"
+                [class.bg-white]="activePreset() !== preset.id"
+                [class.hover:border-indigo-300]="activePreset() !== preset.id"
               >
+                <span class="block text-xs font-medium text-indigo-600 uppercase tracking-wide mb-0.5">{{ preset.description }}</span>
+                <span class="block text-sm font-semibold text-gray-900">{{ preset.name }}</span>
+                @if (activePreset() === preset.id) {
+                  <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white text-xs">✓</span>
+                }
+              </button>
             }
-          </button>
-        }
-      </div>
+          }
+        </div>
+      </details>
     </section>
 
     <div class="lg:grid lg:grid-cols-12 lg:gap-8">
@@ -482,6 +577,116 @@
               </div>
             </div>
           }
+
+          <!-- Model Routing Simulator - Unique Feature -->
+          <div class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🔀</span>
+                <h3 class="text-sm font-semibold text-gray-900">Smart Routing Simulator</h3>
+                <span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">New</span>
+              </div>
+              <button
+                type="button"
+                (click)="toggleRouting()"
+                class="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+                [class.bg-purple-600]="routingEnabled()"
+                [class.text-white]="routingEnabled()"
+                [class.bg-white]="!routingEnabled()"
+                [class.text-purple-600]="!routingEnabled()"
+                [class.border]="!routingEnabled()"
+                [class.border-purple-300]="!routingEnabled()"
+              >
+                {{ routingEnabled() ? 'Enabled' : 'Try It' }}
+              </button>
+            </div>
+
+            @if (!routingEnabled()) {
+              <p class="text-xs text-gray-600">
+                Route simple queries to a cheaper model, complex ones to a smarter model. See your blended cost.
+              </p>
+            } @else {
+              <div class="space-y-4">
+                <!-- Model Selection -->
+                <div class="grid grid-cols-2 gap-4">
+                  <!-- Primary (Cheap) Model -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">
+                      Simple Queries ({{ routingPrimaryPercent() }}%)
+                    </label>
+                    <select
+                      class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white"
+                      [value]="routingPrimaryModelId()"
+                      (change)="setRoutingPrimary($any($event.target).value)"
+                    >
+                      @for (model of activeModels(); track model.id) {
+                        <option [value]="model.id">{{ model.name }}</option>
+                      }
+                    </select>
+                  </div>
+                  <!-- Secondary (Smart) Model -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">
+                      Complex Queries ({{ 100 - routingPrimaryPercent() }}%)
+                    </label>
+                    <select
+                      class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white"
+                      [value]="routingSecondaryModelId()"
+                      (change)="setRoutingSecondary($any($event.target).value)"
+                    >
+                      @for (model of activeModels(); track model.id) {
+                        <option [value]="model.id">{{ model.name }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Routing Slider -->
+                <div>
+                  <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>More to cheap model</span>
+                    <span>More to smart model</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="90"
+                    step="5"
+                    [value]="routingPrimaryPercent()"
+                    (input)="setRoutingPercent($any($event.target).valueAsNumber)"
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                  />
+                </div>
+
+                <!-- Blended Cost Result -->
+                @if (routedMonthlyCost(); as routed) {
+                  <div class="bg-white rounded-lg p-4 border border-purple-200">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-xs text-gray-500 uppercase">Blended Monthly Cost</p>
+                        <p class="text-2xl font-bold text-purple-700 tabular-nums">
+                          {{ routed.blendedCost | currency: 'USD' : 'symbol' : '1.2-2' }}
+                        </p>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-xs text-gray-500">vs {{ routed.secondaryModel }} only</p>
+                        <p class="text-lg font-bold text-green-600">
+                          Save {{ routed.savingsPercent }}%
+                        </p>
+                        <p class="text-xs text-green-600">
+                          ({{ routed.savingsVsSecondary | currency: 'USD' : 'symbol' : '1.0-0' }}/mo)
+                        </p>
+                      </div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">
+                      {{ routingPrimaryPercent() }}% → {{ routed.primaryModel }} ·
+                      {{ 100 - routingPrimaryPercent() }}% → {{ routed.secondaryModel }}
+                    </p>
+                  </div>
+                }
+              </div>
+            }
+          </div>
 
           <!-- All Model Cards Grid -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

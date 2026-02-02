@@ -283,6 +283,56 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   );
 
   // ============================================================================
+  // SIGNALS - Model Routing Simulator (Unique Feature)
+  // ============================================================================
+
+  // Enable/disable routing mode
+  routingEnabled = signal(false);
+
+  // Primary model (handles simple queries) - typically cheaper
+  routingPrimaryModelId = signal<string | null>(null);
+
+  // Secondary model (handles complex queries) - typically smarter
+  routingSecondaryModelId = signal<string | null>(null);
+
+  // Percentage of traffic to primary model (0-100)
+  routingPrimaryPercent = signal(80);
+
+  // Computed: Blended monthly cost when routing is enabled
+  routedMonthlyCost = computed(() => {
+    if (!this.routingEnabled()) return null;
+
+    const primaryId = this.routingPrimaryModelId();
+    const secondaryId = this.routingSecondaryModelId();
+    if (!primaryId || !secondaryId) return null;
+
+    const results = this.results();
+    const primaryResult = results.find(r => r.modelId === primaryId);
+    const secondaryResult = results.find(r => r.modelId === secondaryId);
+    if (!primaryResult || !secondaryResult) return null;
+
+    const primaryPercent = this.routingPrimaryPercent() / 100;
+    const secondaryPercent = 1 - primaryPercent;
+
+    const blendedCost = (primaryResult.monthlyCost * primaryPercent) +
+                        (secondaryResult.monthlyCost * secondaryPercent);
+
+    // Calculate savings vs using secondary model for everything
+    const savingsVsSecondary = secondaryResult.monthlyCost - blendedCost;
+    const savingsPercent = (savingsVsSecondary / secondaryResult.monthlyCost) * 100;
+
+    return {
+      blendedCost: Math.round(blendedCost * 100) / 100,
+      primaryModel: primaryResult.modelName,
+      secondaryModel: secondaryResult.modelName,
+      primaryCost: primaryResult.monthlyCost,
+      secondaryCost: secondaryResult.monthlyCost,
+      savingsVsSecondary: Math.round(savingsVsSecondary * 100) / 100,
+      savingsPercent: Math.round(savingsPercent * 10) / 10
+    };
+  });
+
+  // ============================================================================
   // ENGINE METADATA & TRANSPARENCY
   // ============================================================================
 
@@ -758,6 +808,48 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
    */
   isModelSelected(modelId: string): boolean {
     return this.selectedModelIds().has(modelId);
+  }
+
+  // ============================================================================
+  // MODEL ROUTING HANDLERS
+  // ============================================================================
+
+  /**
+   * Toggles routing mode on/off.
+   * When enabled, allows splitting traffic between two models.
+   */
+  toggleRouting(): void {
+    const newState = !this.routingEnabled();
+    this.routingEnabled.set(newState);
+
+    // Set defaults when enabling
+    if (newState && this.activeModels().length >= 2) {
+      const sorted = [...this.results()].sort((a, b) => a.monthlyCost - b.monthlyCost);
+      // Primary = cheapest, Secondary = most expensive of selected
+      this.routingPrimaryModelId.set(sorted[0]?.modelId ?? null);
+      this.routingSecondaryModelId.set(sorted[sorted.length - 1]?.modelId ?? null);
+    }
+  }
+
+  /**
+   * Sets the primary (cheap) model for routing.
+   */
+  setRoutingPrimary(modelId: string): void {
+    this.routingPrimaryModelId.set(modelId);
+  }
+
+  /**
+   * Sets the secondary (smart) model for routing.
+   */
+  setRoutingSecondary(modelId: string): void {
+    this.routingSecondaryModelId.set(modelId);
+  }
+
+  /**
+   * Updates the routing percentage split.
+   */
+  setRoutingPercent(percent: number): void {
+    this.routingPrimaryPercent.set(Math.min(100, Math.max(0, percent)));
   }
 
   // ============================================================================
