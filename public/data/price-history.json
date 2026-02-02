@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Historical LLM pricing data for trend analysis",
+    "first_snapshot": "2026-01-31",
+    "last_snapshot": "2026-01-31",
+    "snapshot_frequency": "weekly",
+    "data_retention": "24_months"
+  },
+  "snapshots": [
+    {
+      "date": "2026-01-31",
+      "models": [
+        {
+          "id": "gpt-4o",
+          "provider": "OpenAI",
+          "input_1m": 2.50,
+          "output_1m": 10.00,
+          "cached_1m": 1.25
+        },
+        {
+          "id": "gpt-4o-mini",
+          "provider": "OpenAI",
+          "input_1m": 0.15,
+          "output_1m": 0.60,
+          "cached_1m": 0.075
+        },
+        {
+          "id": "o1",
+          "provider": "OpenAI",
+          "input_1m": 15.00,
+          "output_1m": 60.00,
+          "cached_1m": 7.50
+        },
+        {
+          "id": "o3-mini",
+          "provider": "OpenAI",
+          "input_1m": 1.10,
+          "output_1m": 4.40,
+          "cached_1m": 0.55
+        },
+        {
+          "id": "claude-3.5-sonnet",
+          "provider": "Anthropic",
+          "input_1m": 3.00,
+          "output_1m": 15.00,
+          "cached_1m": 0.30
+        },
+        {
+          "id": "claude-3.5-haiku",
+          "provider": "Anthropic",
+          "input_1m": 0.80,
+          "output_1m": 4.00,
+          "cached_1m": 0.08
+        },
+        {
+          "id": "claude-sonnet-4",
+          "provider": "Anthropic",
+          "input_1m": 3.00,
+          "output_1m": 15.00,
+          "cached_1m": 0.30
+        },
+        {
+          "id": "claude-opus-4",
+          "provider": "Anthropic",
+          "input_1m": 15.00,
+          "output_1m": 75.00,
+          "cached_1m": 1.50
+        },
+        {
+          "id": "gemini-2.0-flash",
+          "provider": "Google",
+          "input_1m": 0.10,
+          "output_1m": 0.40,
+          "cached_1m": 0.025
+        },
+        {
+          "id": "gemini-1.5-pro",
+          "provider": "Google",
+          "input_1m": 1.25,
+          "output_1m": 5.00,
+          "cached_1m": 0.3125
+        },
+        {
+          "id": "gemini-1.5-flash",
+          "provider": "Google",
+          "input_1m": 0.075,
+          "output_1m": 0.30,
+          "cached_1m": 0.01875
+        },
+        {
+          "id": "deepseek-v3",
+          "provider": "DeepSeek",
+          "input_1m": 0.27,
+          "output_1m": 1.10,
+          "cached_1m": 0.07
+        },
+        {
+          "id": "deepseek-r1",
+          "provider": "DeepSeek",
+          "input_1m": 0.55,
+          "output_1m": 2.19,
+          "cached_1m": 0.14
+        },
+        {
+          "id": "llama-3.3-70b",
+          "provider": "Meta",
+          "input_1m": 0.70,
+          "output_1m": 0.80,
+          "cached_1m": 0.35
+        },
+        {
+          "id": "mistral-large",
+          "provider": "Mistral AI",
+          "input_1m": 2.00,
+          "output_1m": 6.00,
+          "cached_1m": 1.00
+        },
+        {
+          "id": "mistral-small",
+          "provider": "Mistral AI",
+          "input_1m": 0.20,
+          "output_1m": 0.60,
+          "cached_1m": 0.10
+        }
+      ]
+    }
+  ],
+  "price_changes": []
+}
