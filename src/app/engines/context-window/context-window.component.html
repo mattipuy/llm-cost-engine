@@ -1,0 +1,260 @@
+<article class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 py-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="text-sm text-gray-500 mb-3">
+        <a routerLink="/tools/chatbot-simulator" class="hover:text-indigo-600">LLM Cost Engine</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900">Context Window Comparator</span>
+      </nav>
+      <h1 class="text-3xl font-bold text-gray-900">
+        LLM Context Window Comparator
+      </h1>
+      <p class="mt-2 text-lg text-gray-600">
+        Check which models can handle your content. Green = fits, Red = overflow.
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    @if (isLoading()) {
+      <div class="flex justify-center py-20">
+        <div class="animate-spin w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full"></div>
+      </div>
+    } @else {
+      <!-- Sticky Input Bar -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-0 z-10 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Content Size -->
+          <div>
+            <div class="flex justify-between mb-1">
+              <label class="text-sm font-semibold text-gray-900">Content Size</label>
+              <span class="text-sm font-mono text-indigo-600 tabular-nums">{{ contentSize() | number }}</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="2000000"
+              step="1000"
+              [value]="contentSize()"
+              (input)="onContentSizeChange($any($event.target).valueAsNumber)"
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+            />
+            <div class="flex justify-between text-xs text-gray-400 mt-1">
+              <span>1</span>
+              <span>2M</span>
+            </div>
+          </div>
+
+          <!-- Unit Toggle -->
+          <div>
+            <label class="text-sm font-semibold text-gray-900 mb-2 block">Unit</label>
+            <div class="flex rounded-lg border border-gray-300 overflow-hidden">
+              @for (unit of ['tokens', 'words', 'pages']; track unit) {
+                <button
+                  type="button"
+                  (click)="onUnitChange($any(unit))"
+                  class="flex-1 px-3 py-2 text-sm font-medium transition-colors"
+                  [class.bg-indigo-600]="contentUnit() === unit"
+                  [class.text-white]="contentUnit() === unit"
+                  [class.text-gray-700]="contentUnit() !== unit"
+                  [class.hover:bg-gray-50]="contentUnit() !== unit"
+                >
+                  {{ unit | titlecase }}
+                </button>
+              }
+            </div>
+            <p class="text-xs text-gray-400 mt-1 tabular-nums">
+              = {{ normalizedTokens() | number }} tokens
+            </p>
+          </div>
+
+          <!-- Sort Toggle -->
+          <div>
+            <label class="text-sm font-semibold text-gray-900 mb-2 block">Sort By</label>
+            <div class="flex rounded-lg border border-gray-300 overflow-hidden">
+              @for (mode of ['price', 'size']; track mode) {
+                <button
+                  type="button"
+                  (click)="onSortChange($any(mode))"
+                  class="flex-1 px-3 py-2 text-sm font-medium transition-colors"
+                  [class.bg-indigo-600]="sortMode() === mode"
+                  [class.text-white]="sortMode() === mode"
+                  [class.text-gray-700]="sortMode() !== mode"
+                  [class.hover:bg-gray-50]="sortMode() !== mode"
+                >
+                  {{ mode === 'price' ? 'Cheapest First' : 'Largest First' }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="mt-4 flex items-center gap-4 text-sm">
+          <span class="text-gray-600">
+            <span class="font-semibold text-gray-900">{{ validCount() }}</span> of
+            <span class="font-semibold text-gray-900">{{ sortedResults().length }}</span> models fit your content
+          </span>
+          @if (!hasValidModel()) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 text-xs font-medium rounded-full">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+              No model fits — consider splitting or RAG
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Bar Chart -->
+      <div class="space-y-3">
+        @for (result of sortedResults(); track result.modelId) {
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <!-- Model Header -->
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-gray-900">{{ result.modelName }}</span>
+                <span class="text-xs text-gray-500">({{ result.provider }})</span>
+                <!-- Fits / Overflow Chip -->
+                @if (result.isValid) {
+                  <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                    Fits
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                    Overflow
+                  </span>
+                }
+              </div>
+              <div class="flex items-center gap-3">
+                <!-- Cost Badge -->
+                <span class="text-xs font-medium tabular-nums"
+                  [class.text-green-700]="result.isValid"
+                  [class.text-red-600]="!result.isValid"
+                >
+                  {{ result.inputCost | currency: "USD" : "symbol" : "1.2-4" }} per input
+                </span>
+                <!-- Price Alert Bell -->
+                <button
+                  type="button"
+                  (click)="openPriceAlert(result.modelId, result.modelName, result.pricePerMillion)"
+                  class="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                  [attr.aria-label]="'Track pricing for ' + result.modelName"
+                  title="Track pricing shifts"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Bar Visualization -->
+            <div class="relative h-6 bg-gray-100 rounded-full overflow-hidden">
+              <!-- Context window (full capacity) -->
+              <div
+                class="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
+                [class.bg-green-100]="result.isValid"
+                [class.bg-red-50]="!result.isValid"
+                [style.width.%]="contextBarWidth(result)"
+              ></div>
+              <!-- User input usage -->
+              <div
+                class="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
+                [class.bg-green-500]="result.isValid"
+                [class.bg-red-400]="!result.isValid"
+                [style.width.%]="contextBarWidth(result) * usageBarWidth(result) / 100"
+              ></div>
+            </div>
+
+            <!-- Stats -->
+            <div class="flex items-center justify-between mt-2 text-xs text-gray-500">
+              <span class="tabular-nums">
+                {{ formatTokens(normalizedTokens()) }} / {{ formatTokens(result.contextWindow) }}
+                <span class="ml-1">
+                  ({{ result.usagePercent }}%)
+                </span>
+              </span>
+              @if (!result.isValid) {
+                <span class="text-red-600 font-medium tabular-nums">
+                  +{{ formatTokens(result.overflowTokens) }} overflow
+                </span>
+              }
+              <span class="tabular-nums">
+                ${{ result.pricePerMillion }}/1M input
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Cross-links -->
+      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a
+          routerLink="/tools/chatbot-simulator"
+          class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all group"
+        >
+          <span class="text-2xl">&#x1F9EE;</span>
+          <div>
+            <p class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">Full TCO Calculator</p>
+            <p class="text-xs text-gray-500">Monthly costs with ValueScore ranking</p>
+          </div>
+        </a>
+        <a
+          routerLink="/tools/caching-roi"
+          class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all group"
+        >
+          <span class="text-2xl">&#x1F4BE;</span>
+          <div>
+            <p class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">Prompt Caching ROI</p>
+            <p class="text-xs text-gray-500">Save on repeated prompts with cache analysis</p>
+          </div>
+        </a>
+        <a
+          routerLink="/tools/batch-api"
+          class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all group"
+        >
+          <span class="text-2xl">&#x23F1;</span>
+          <div>
+            <p class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">Batch API Calculator</p>
+            <p class="text-xs text-gray-500">Trade 24h for 50% savings on batch jobs</p>
+          </div>
+        </a>
+      </div>
+    }
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-gray-200">
+    <div class="text-center text-xs text-gray-500 space-y-2">
+      <p>
+        {{ engineMeta.fullName }} v{{ engineMeta.version }} · Deterministic TCO Analysis
+      </p>
+      @if (pricingMetadata(); as meta) {
+        <p class="text-indigo-500 font-medium">
+          Pricing Benchmark v{{ meta.version }} · Verified {{ meta.last_verified || meta.last_updated }}
+        </p>
+      }
+      <p class="pt-2">
+        <a routerLink="/tools/chatbot-simulator" class="hover:text-indigo-600">Full TCO Calculator</a>
+        <span class="mx-2">·</span>
+        <a routerLink="/tools/caching-roi" class="hover:text-indigo-600">Caching ROI</a>
+        <span class="mx-2">·</span>
+        <a routerLink="/insights" class="hover:text-indigo-600">Market Insights</a>
+        <span class="mx-2">·</span>
+        <a href="https://github.com/mattipuy/llm-cost-engine" target="_blank" rel="noopener" class="hover:text-indigo-600">GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Price Alert Modal -->
+  <app-price-alert-modal
+    [modelId]="alertModelId()"
+    [modelName]="alertModelName()"
+    [currentPriceInput]="alertPriceInput()"
+    [currentMonthlyCost]="0"
+    [isOpen]="alertModalOpen()"
+    (closed)="closePriceAlert()"
+  />
+</article>

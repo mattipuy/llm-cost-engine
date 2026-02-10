@@ -19,7 +19,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup_node@v4
         with:
           node-version: '20'
 
@@ -46,6 +46,7 @@ jobs:
             date: today,
             models: pricingData.models.map(m => ({
               id: m.id,
+              name: m.name,
               provider: m.provider,
               input_1m: m.pricing.input_1m,
               output_1m: m.pricing.output_1m,
@@ -56,6 +57,7 @@ jobs:
           // Detect price changes from last snapshot
           const lastSnapshot = historyData.snapshots[historyData.snapshots.length - 1];
           const priceChanges = [];
+          const significantDrops = []; // Drops >= 5% for alert notifications
 
           if (lastSnapshot) {
             for (const model of newSnapshot.models) {
@@ -63,7 +65,7 @@ jobs:
               if (oldModel) {
                 // Check input price change
                 if (oldModel.input_1m !== model.input_1m) {
-                  const changePercent = ((model.input_1m - oldModel.input_1m) / oldModel.input_1m * 100).toFixed(1);
+                  const changePercent = ((model.input_1m - oldModel.input_1m) / oldModel.input_1m * 100);
                   priceChanges.push({
                     date: today,
                     model_id: model.id,
@@ -71,13 +73,26 @@ jobs:
                     field: 'input_1m',
                     old_value: oldModel.input_1m,
                     new_value: model.input_1m,
-                    change_percent: parseFloat(changePercent)
+                    change_percent: parseFloat(changePercent.toFixed(1))
                   });
-                  console.log(`📊 ${model.id} input: $${oldModel.input_1m} → $${model.input_1m} (${changePercent}%)`);
+                  console.log(`📊 ${model.id} input: $${oldModel.input_1m} → $${model.input_1m} (${changePercent.toFixed(1)}%)`);
+
+                  // Track significant drops (>= 5% decrease)
+                  if (changePercent <= -5) {
+                    significantDrops.push({
+                      modelId: model.id,
+                      modelName: model.name || model.id,
+                      provider: model.provider,
+                      oldPrice: oldModel.input_1m,
+                      newPrice: model.input_1m,
+                      changePercent: parseFloat(changePercent.toFixed(1)),
+                      field: 'input_1m'
+                    });
+                  }
                 }
                 // Check output price change
                 if (oldModel.output_1m !== model.output_1m) {
-                  const changePercent = ((model.output_1m - oldModel.output_1m) / oldModel.output_1m * 100).toFixed(1);
+                  const changePercent = ((model.output_1m - oldModel.output_1m) / oldModel.output_1m * 100);
                   priceChanges.push({
                     date: today,
                     model_id: model.id,
@@ -85,9 +100,22 @@ jobs:
                     field: 'output_1m',
                     old_value: oldModel.output_1m,
                     new_value: model.output_1m,
-                    change_percent: parseFloat(changePercent)
+                    change_percent: parseFloat(changePercent.toFixed(1))
                   });
-                  console.log(`📊 ${model.id} output: $${oldModel.output_1m} → $${model.output_1m} (${changePercent}%)`);
+                  console.log(`📊 ${model.id} output: $${oldModel.output_1m} → $${model.output_1m} (${changePercent.toFixed(1)}%)`);
+
+                  // Track significant drops (>= 5% decrease)
+                  if (changePercent <= -5) {
+                    significantDrops.push({
+                      modelId: model.id,
+                      modelName: model.name || model.id,
+                      provider: model.provider,
+                      oldPrice: oldModel.output_1m,
+                      newPrice: model.output_1m,
+                      changePercent: parseFloat(changePercent.toFixed(1)),
+                      field: 'output_1m'
+                    });
+                  }
                 }
               } else {
                 console.log(`🆕 New model detected: ${model.id}`);
@@ -109,11 +137,15 @@ jobs:
           console.log(`✅ Snapshot added for ${today}`);
           console.log(`📈 Total snapshots: ${historyData.snapshots.length}`);
           console.log(`📋 Price changes detected: ${priceChanges.length}`);
+          console.log(`🔔 Significant drops (>= 5%): ${significantDrops.length}`);
 
           // Set output for commit message
           fs.writeFileSync('snapshot_summary.txt',
-            `Added price snapshot for ${today}. Models: ${newSnapshot.models.length}. Changes: ${priceChanges.length}`
+            `Added price snapshot for ${today}. Models: ${newSnapshot.models.length}. Changes: ${priceChanges.length}. Drops: ${significantDrops.length}`
           );
+
+          // Write drops for alert notification step
+          fs.writeFileSync('price_drops.json', JSON.stringify(significantDrops));
           EOF
 
       - name: Check for changes
@@ -123,6 +155,14 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Check if there are significant drops
+          DROPS=$(cat price_drops.json 2>/dev/null || echo "[]")
+          if [ "$DROPS" = "[]" ]; then
+            echo "has_drops=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_drops=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Commit and push snapshot
@@ -137,6 +177,32 @@ jobs:
           git commit -m "chore(data): $SUMMARY"
           git push
 
+      - name: Notify price alert subscribers
+        if: steps.check_changes.outputs.has_drops == 'true'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          DROPS=$(cat price_drops.json)
+          echo "📧 Sending price drop alerts for: $DROPS"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST "${SUPABASE_URL}/functions/v1/check-price-shifts" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"drops\": $DROPS}")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "Response ($HTTP_CODE): $BODY"
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "⚠️ Alert notification failed with status $HTTP_CODE"
+          else
+            echo "✅ Alert notifications sent successfully"
+          fi
+
       - name: Summary
         run: |
           echo "## Price Snapshot Summary" >> $GITHUB_STEP_SUMMARY
@@ -145,4 +211,14 @@ jobs:
             cat snapshot_summary.txt >> $GITHUB_STEP_SUMMARY
           else
             echo "No changes detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f price_drops.json ]; then
+            DROPS=$(cat price_drops.json)
+            if [ "$DROPS" != "[]" ]; then
+              echo "### Price Drops (>= 5%)" >> $GITHUB_STEP_SUMMARY
+              echo '```json' >> $GITHUB_STEP_SUMMARY
+              echo "$DROPS" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "$DROPS" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            fi
           fi

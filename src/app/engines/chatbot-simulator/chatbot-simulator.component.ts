@@ -29,6 +29,7 @@ import {
   PriceTrend,
 } from '../../core/services/price-history.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { PriceAlertModalComponent } from '../../shared/components/price-alert-modal/price-alert-modal.component';
 import { MarketInsightsService } from '../../core/services/market-insights.service';
 import {
   WEIGHT_DESCRIPTIONS,
@@ -73,7 +74,7 @@ interface ComparisonInsight {
 @Component({
   selector: 'app-chatbot-simulator',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PriceAlertModalComponent],
   templateUrl: './chatbot-simulator.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
@@ -272,6 +273,16 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   private explanationUpdatePending = signal(false);
   private explanationVersion = signal(0);
   isExplanationUpdating = computed(() => this.explanationUpdatePending());
+
+  // ============================================================================
+  // SIGNALS - Price Alert Modal
+  // ============================================================================
+
+  alertModalOpen = signal(false);
+  alertModelId = signal('');
+  alertModelName = signal('');
+  alertPriceInput = signal(0);
+  alertMonthlyCost = signal(0);
 
   // ============================================================================
   // SIGNALS - Lead Capture (Export Options) - No-Friction Flow
@@ -851,6 +862,22 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
    */
   setRoutingPercent(percent: number): void {
     this.routingPrimaryPercent.set(Math.min(100, Math.max(0, percent)));
+  }
+
+  // ============================================================================
+  // PRICE ALERT HANDLERS
+  // ============================================================================
+
+  openPriceAlert(modelId: string, modelName: string, priceInput: number, monthlyCost: number): void {
+    this.alertModelId.set(modelId);
+    this.alertModelName.set(modelName);
+    this.alertPriceInput.set(priceInput);
+    this.alertMonthlyCost.set(monthlyCost);
+    this.alertModalOpen.set(true);
+  }
+
+  closePriceAlert(): void {
+    this.alertModalOpen.set(false);
   }
 
   // ============================================================================

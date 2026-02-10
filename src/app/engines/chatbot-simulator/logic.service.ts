@@ -29,6 +29,10 @@ export interface ModelPricing {
   output_1m: number;
   /** Price per 1M cached input tokens (USD) - may be 0 or missing */
   cached_input_1m?: number;
+  /** Price per 1M input tokens via Batch API (USD) - only for batch-capable models */
+  batch_input_1m?: number;
+  /** Price per 1M output tokens via Batch API (USD) - only for batch-capable models */
+  batch_output_1m?: number;
 }
 
 /**
