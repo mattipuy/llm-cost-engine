@@ -1,6 +1,8 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers':
@@ -130,14 +132,16 @@ serve(async (req: Request) => {
 
     // Send verification email via Resend
     console.log('📨 Preparing to send email via Resend');
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    if (resendApiKey) {
+    console.log('🔑 RESEND_API_KEY configured:', RESEND_API_KEY ? 'YES' : 'NO');
+
+    if (RESEND_API_KEY) {
       const verifyUrl = `https://llm-cost-engine.vercel.app/verify?token=${verificationToken}`;
+      console.log('🔗 Verify URL:', verifyUrl);
 
       const emailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${resendApiKey}`,
+          Authorization: `Bearer ${RESEND_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
