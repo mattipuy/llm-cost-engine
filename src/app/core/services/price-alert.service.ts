@@ -44,7 +44,7 @@ export class PriceAlertService {
     }
 
     try {
-      // Direct fetch instead of Supabase client to avoid JWT issues
+      // Direct fetch with proper Supabase headers
       const response = await fetch(
         `${environment.supabaseUrl}/functions/v1/subscribe-to-alert`,
         {
@@ -52,6 +52,7 @@ export class PriceAlertService {
           headers: {
             'Content-Type': 'application/json',
             'apikey': environment.supabaseKey,
+            'Authorization': `Bearer ${environment.supabaseKey}`,
           },
           body: JSON.stringify({ email, modelId, currentStats: stats }),
         }
@@ -94,7 +95,7 @@ export class PriceAlertService {
     }
 
     try {
-      // Direct fetch instead of Supabase client to avoid JWT issues
+      // Direct fetch with proper Supabase headers
       const response = await fetch(
         `${environment.supabaseUrl}/functions/v1/capture-enterprise-lead`,
         {
@@ -102,6 +103,7 @@ export class PriceAlertService {
           headers: {
             'Content-Type': 'application/json',
             'apikey': environment.supabaseKey,
+            'Authorization': `Bearer ${environment.supabaseKey}`,
           },
           body: JSON.stringify(leadData),
         }
