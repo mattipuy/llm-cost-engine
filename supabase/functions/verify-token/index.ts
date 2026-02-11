@@ -26,26 +26,49 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Find alert with valid, non-expired token
+    // Find alert with this token (regardless of expiration or verification status)
     const { data: alert, error: findError } = await supabase
       .from('price_alerts')
-      .select('id')
+      .select('id, email, verified, token_expires_at')
       .eq('verification_token', token)
-      .gt('token_expires_at', new Date().toISOString())
       .single();
 
     if (findError || !alert) {
       return new Response(
-        JSON.stringify({ error: 'Invalid or expired token.' }),
+        JSON.stringify({ error: 'Invalid token.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Mark verified and nullify token
+    // Check if this email is already verified (via another token)
+    const { data: alreadyVerified } = await supabase
+      .from('price_alerts')
+      .select('id')
+      .eq('email', alert.email)
+      .eq('verified', true)
+      .limit(1)
+      .maybeSingle();
+
+    if (alreadyVerified) {
+      return new Response(
+        JSON.stringify({ message: 'Email already verified. All your alerts are active.' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if token is expired
+    if (!alert.token_expires_at || new Date(alert.token_expires_at) < new Date()) {
+      return new Response(
+        JSON.stringify({ error: 'Token expired.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Mark verified ALL records with this email and nullify tokens
     const { error: updateError } = await supabase
       .from('price_alerts')
-      .update({ verified: true, verification_token: null })
-      .eq('id', alert.id);
+      .update({ verified: true, verification_token: null, token_expires_at: null })
+      .eq('email', alert.email);
 
     if (updateError) {
       console.error('Update error:', updateError);
