@@ -20,10 +20,10 @@ jobs:
 
       - name: Deploy Functions
         run: |
-          supabase functions deploy subscribe-to-alert --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-          supabase functions deploy capture-enterprise-lead --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-          supabase functions deploy check-price-shifts --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-          supabase functions deploy unsubscribe --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-          supabase functions deploy verify-token --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+          supabase functions deploy subscribe-to-alert --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --no-verify-jwt
+          supabase functions deploy capture-enterprise-lead --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --no-verify-jwt
+          supabase functions deploy check-price-shifts --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --no-verify-jwt
+          supabase functions deploy unsubscribe --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --no-verify-jwt
+          supabase functions deploy verify-token --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --no-verify-jwt
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
