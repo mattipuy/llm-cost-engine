@@ -13,6 +13,8 @@ export interface PriceAlertResult {
   success: boolean;
   error?: string;
   modelId?: string;
+  autoVerified?: boolean;
+  alreadySubscribed?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -43,11 +45,15 @@ export class PriceAlertService {
     if (!client) return { success: false, error: 'Service unavailable' };
 
     try {
-      const { error } = await client.functions.invoke('subscribe-to-alert', {
+      const { data, error } = await client.functions.invoke('subscribe-to-alert', {
         body: { email, modelId, currentStats: stats },
       });
       if (error) return { success: false, error: error.message };
-      return { success: true };
+      return {
+        success: true,
+        autoVerified: data?.autoVerified,
+        alreadySubscribed: data?.alreadySubscribed,
+      };
     } catch {
       return { success: false, error: 'Network error. Please try again.' };
     }

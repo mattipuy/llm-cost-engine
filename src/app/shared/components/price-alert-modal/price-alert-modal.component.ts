@@ -116,8 +116,16 @@ import {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
               </div>
-              <h2 class="mt-4 text-lg font-bold text-gray-900">Check your email!</h2>
-              <p class="mt-2 text-sm text-gray-600">We sent a verification link. Confirm to activate your alert.</p>
+              @if (successType() === 'auto-verified') {
+                <h2 class="mt-4 text-lg font-bold text-gray-900">Alert activated!</h2>
+                <p class="mt-2 text-sm text-gray-600">You're already verified. We'll notify you of pricing shifts.</p>
+              } @else if (successType() === 'already-subscribed') {
+                <h2 class="mt-4 text-lg font-bold text-gray-900">Already subscribed!</h2>
+                <p class="mt-2 text-sm text-gray-600">You're tracking this model. We'll notify you of pricing shifts.</p>
+              } @else {
+                <h2 class="mt-4 text-lg font-bold text-gray-900">Check your email!</h2>
+                <p class="mt-2 text-sm text-gray-600">We sent a verification link. Confirm to activate your alert.</p>
+              }
             </div>
           } @else {
             <div class="py-8 text-center">
@@ -156,6 +164,7 @@ export class PriceAlertModalComponent {
   email = signal('');
   honeypot = signal('');
   state = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
+  successType = signal<'email-sent' | 'auto-verified' | 'already-subscribed'>('email-sent');
 
   isEmailValid = computed(() => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -187,6 +196,14 @@ export class PriceAlertModalComponent {
     );
 
     if (result.success) {
+      // Determine success type based on backend response
+      if (result.autoVerified) {
+        this.successType.set('auto-verified');
+      } else if (result.alreadySubscribed) {
+        this.successType.set('already-subscribed');
+      } else {
+        this.successType.set('email-sent');
+      }
       this.state.set('success');
       setTimeout(() => this.close(), 3000);
     } else {
