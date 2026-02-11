@@ -104,6 +104,52 @@ export class JsonLdService {
   }
 
   /**
+   * Injects BlogPosting schema for article pages.
+   * Works on both SSR and browser for Google to see structured data.
+   */
+  injectArticleSchema(
+    data: {
+      headline: string;
+      description: string;
+      datePublished: string;
+      url: string;
+      image?: string;
+    },
+    schemaId: string,
+  ): void {
+    this.removeExistingSchema(schemaId);
+
+    const schema: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: data.headline,
+      description: data.description,
+      datePublished: data.datePublished,
+      url: data.url,
+      author: {
+        '@type': 'Organization',
+        name: 'LLM Cost Engine',
+        url: 'https://llm-cost-engine.vercel.app',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'LLM Cost Engine',
+        url: 'https://llm-cost-engine.vercel.app',
+      },
+    };
+
+    if (data.image) {
+      schema['image'] = data.image;
+    }
+
+    const script = this.document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-schema', schemaId);
+    script.text = JSON.stringify(schema);
+    this.document.head.appendChild(script);
+  }
+
+  /**
    * Removes existing schema to avoid duplicates during hydration.
    * Works on both SSR and browser via DOCUMENT token.
    */

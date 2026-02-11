@@ -55,6 +55,15 @@ export const routes: Routes = [
       ),
     title: 'Verify Price Alert | LLM Cost Engine',
   },
+  // Blog: Methodology manifesto
+  {
+    path: 'blog/how-we-calculate-llm-tco',
+    loadComponent: () =>
+      import('./pages/blog/how-we-calculate-llm-tco.component').then(
+        (m) => m.HowWeCalculateLlmTcoComponent,
+      ),
+    title: 'How We Calculate LLM TCO | LLM Cost Engine',
+  },
   // Price alert unsubscribe
   {
     path: 'unsubscribe',
