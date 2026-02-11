@@ -49,7 +49,7 @@ export class HowWeCalculateLlmTcoComponent implements OnInit {
       {
         headline,
         description,
-        datePublished: '2026-02-10',
+        datePublished: '2026-02-10T00:00:00Z',
         url: this.CANONICAL_URL,
         image: this.OG_IMAGE,
       },
