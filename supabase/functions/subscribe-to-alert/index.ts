@@ -47,7 +47,18 @@ serve(async (req: Request) => {
       );
     }
 
-    // Check existing subscription
+    // Check if email is already verified for ANY model
+    const { data: anyVerified } = await supabase
+      .from('price_alerts')
+      .select('id')
+      .eq('email', email)
+      .eq('verified', true)
+      .limit(1)
+      .maybeSingle();
+
+    const isEmailVerified = !!anyVerified;
+
+    // Check existing subscription for THIS model
     const { data: existing } = await supabase
       .from('price_alerts')
       .select('id, verified')
@@ -60,7 +71,10 @@ serve(async (req: Request) => {
     if (existing) {
       if (existing.verified) {
         return new Response(
-          JSON.stringify({ message: 'Already subscribed and verified.' }),
+          JSON.stringify({
+            message: 'Already subscribed and verified.',
+            alreadySubscribed: true
+          }),
           {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -89,13 +103,55 @@ serve(async (req: Request) => {
         })
         .eq('id', existing.id);
     } else {
-      // New subscription
-      verificationToken =
-        crypto.randomUUID().replace(/-/g, '') +
-        crypto.randomUUID().replace(/-/g, '');
+      // New subscription for this model
       const newUnsubToken =
         crypto.randomUUID().replace(/-/g, '') +
         crypto.randomUUID().replace(/-/g, '');
+
+      if (isEmailVerified) {
+        // Email already verified for other models → auto-verify this one
+        const { error: insertError } = await supabase
+          .from('price_alerts')
+          .insert({
+            email,
+            model_id: modelId,
+            base_price_input: currentStats?.priceInput ?? null,
+            base_monthly_cost: currentStats?.monthlyCost ?? null,
+            simulation_hash: currentStats?.simulationHash ?? null,
+            verified: true,
+            verification_token: null,
+            token_expires_at: null,
+            unsubscribe_token: newUnsubToken,
+          });
+
+        if (insertError) {
+          console.error('Insert error:', insertError);
+          return new Response(
+            JSON.stringify({ error: 'Failed to create subscription.' }),
+            {
+              status: 500,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            },
+          );
+        }
+
+        return new Response(
+          JSON.stringify({
+            message: 'Alert added successfully.',
+            autoVerified: true
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          },
+        );
+      }
+
+      // Email NOT verified yet → need verification
+      verificationToken =
+        crypto.randomUUID().replace(/-/g, '') +
+        crypto.randomUUID().replace(/-/g, '');
+
       const { error: insertError } = await supabase
         .from('price_alerts')
         .insert({

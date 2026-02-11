@@ -138,7 +138,7 @@ serve(async (req) => {
             <p><strong>Savings vs Runner-Up:</strong> ${leadData.results.savingsVsRunnerUp}%</p>
           </div>
           
-          <p>You've already downloaded the PDF report. If you need a more detailed analysis or have questions about implementing this in your infrastructure, feel free to reply to this email.</p>
+          <p>You've already downloaded the PDF report. If you need a more detailed analysis or have questions about implementing this in your infrastructure, visit our website to get in touch.</p>
           
           <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB; color: #6B7280; font-size: 14px;">
             LLM Cost Engine - Open Source LLM Pricing Intelligence<br>
