@@ -162,7 +162,7 @@ serve(async (req: Request) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'LLM Cost Engine <alerts@llm-cost-engine.com>',
+            from: 'LLM Cost Engine <alerts@mail.llm-cost-engine.com>',
             to: [digest.email],
             subject,
             html,
