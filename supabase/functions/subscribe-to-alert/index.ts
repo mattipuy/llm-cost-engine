@@ -14,15 +14,18 @@ serve(async (req: Request) => {
 
   try {
     const { email, modelId, currentStats } = await req.json();
+    console.log('📧 subscribe-to-alert called:', { email, modelId });
 
     // Anti-spam: email regex
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
+      console.log('❌ Invalid email format:', email);
       return new Response(JSON.stringify({ error: 'Invalid email format' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+    console.log('✅ Email validation passed');
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -90,6 +93,7 @@ serve(async (req: Request) => {
         .eq('id', existing.id);
     } else {
       // New subscription
+      console.log('📝 Creating new subscription');
       verificationToken =
         crypto.randomUUID().replace(/-/g, '') +
         crypto.randomUUID().replace(/-/g, '');
@@ -112,7 +116,7 @@ serve(async (req: Request) => {
         });
 
       if (insertError) {
-        console.error('Insert error:', insertError);
+        console.error('❌ Insert error:', insertError);
         return new Response(
           JSON.stringify({ error: 'Failed to create subscription.' }),
           {
@@ -121,9 +125,11 @@ serve(async (req: Request) => {
           },
         );
       }
+      console.log('✅ Subscription created successfully');
     }
 
     // Send verification email via Resend
+    console.log('📨 Preparing to send email via Resend');
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     if (resendApiKey) {
       const verifyUrl = `https://llm-cost-engine.vercel.app/verify?token=${verificationToken}`;
