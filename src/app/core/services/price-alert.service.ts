@@ -39,32 +39,16 @@ export class PriceAlertService {
   ): Promise<PriceAlertResult> {
     if (honeypot) return { success: true };
 
-    if (!isPlatformBrowser(this.platformId)) {
-      return { success: false, error: 'Service unavailable' };
-    }
+    const client = this.getClient();
+    if (!client) return { success: false, error: 'Service unavailable' };
 
     try {
-      // Direct fetch with proper Supabase headers
-      const response = await fetch(
-        `${environment.supabaseUrl}/functions/v1/subscribe-to-alert`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': environment.supabaseKey,
-            'Authorization': `Bearer ${environment.supabaseKey}`,
-          },
-          body: JSON.stringify({ email, modelId, currentStats: stats }),
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        return { success: false, error: error.message || 'Request failed' };
-      }
-
+      const { error } = await client.functions.invoke('subscribe-to-alert', {
+        body: { email, modelId, currentStats: stats },
+      });
+      if (error) return { success: false, error: error.message };
       return { success: true };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Network error. Please try again.' };
     }
   }
@@ -90,32 +74,19 @@ export class PriceAlertService {
   async captureEnterpriseLead(
     leadData: Record<string, unknown>,
   ): Promise<PriceAlertResult> {
-    if (!isPlatformBrowser(this.platformId)) {
-      return { success: false, error: 'Service unavailable' };
-    }
+    const client = this.getClient();
+    if (!client) return { success: false, error: 'Service unavailable' };
 
     try {
-      // Direct fetch with proper Supabase headers
-      const response = await fetch(
-        `${environment.supabaseUrl}/functions/v1/capture-enterprise-lead`,
+      const { error } = await client.functions.invoke(
+        'capture-enterprise-lead',
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': environment.supabaseKey,
-            'Authorization': `Bearer ${environment.supabaseKey}`,
-          },
-          body: JSON.stringify(leadData),
-        }
+          body: leadData,
+        },
       );
-
-      if (!response.ok) {
-        const error = await response.json();
-        return { success: false, error: error.message || 'Request failed' };
-      }
-
+      if (error) return { success: false, error: error.message };
       return { success: true };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Network error. Please try again.' };
     }
   }
