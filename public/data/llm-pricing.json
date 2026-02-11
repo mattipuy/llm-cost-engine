@@ -2,8 +2,8 @@
   "metadata": {
     "version": "1.3.0",
     "name": "LLM Cost Engine Pricing Registry",
-    "last_updated": "2026-02-08",
-    "last_verified": "2026-02-08",
+    "last_updated": "2026-02-11",
+    "last_verified": "2026-02-11",
     "base_currency": "USD",
     "pricing_unit": "per_1M_tokens",
     "maintained_by": "LLM Cost Engine Team",
@@ -16,11 +16,11 @@
       "name": "GPT-4o",
       "provider": "OpenAI",
       "pricing": {
-        "input_1m": 2.50,
-        "output_1m": 10.00,
+        "input_1m": 2.5,
+        "output_1m": 10.0,
         "cached_input_1m": 1.25,
         "batch_input_1m": 1.25,
-        "batch_output_1m": 5.00
+        "batch_output_1m": 5.0
       },
       "capabilities": {
         "context_window": 128000,
@@ -33,10 +33,10 @@
       "provider": "OpenAI",
       "pricing": {
         "input_1m": 0.15,
-        "output_1m": 0.60,
+        "output_1m": 0.6,
         "cached_input_1m": 0.075,
         "batch_input_1m": 0.075,
-        "batch_output_1m": 0.30
+        "batch_output_1m": 0.3
       },
       "capabilities": {
         "context_window": 128000,
@@ -48,15 +48,31 @@
       "name": "o1",
       "provider": "OpenAI",
       "pricing": {
-        "input_1m": 15.00,
-        "output_1m": 60.00,
-        "cached_input_1m": 7.50,
-        "batch_input_1m": 7.50,
-        "batch_output_1m": 30.00
+        "input_1m": 15.0,
+        "output_1m": 60.0,
+        "cached_input_1m": 7.5,
+        "batch_input_1m": 7.5,
+        "batch_output_1m": 30.0
       },
       "capabilities": {
         "context_window": 200000,
-        "latency_index": 0.60
+        "latency_index": 0.6
+      }
+    },
+    {
+      "id": "o1-mini",
+      "name": "o1-mini",
+      "provider": "OpenAI",
+      "pricing": {
+        "input_1m": 3.0,
+        "output_1m": 12.0,
+        "cached_input_1m": 1.5,
+        "batch_input_1m": 1.5,
+        "batch_output_1m": 6.0
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.85
       }
     },
     {
@@ -64,15 +80,15 @@
       "name": "o3-mini",
       "provider": "OpenAI",
       "pricing": {
-        "input_1m": 1.10,
-        "output_1m": 4.40,
+        "input_1m": 1.1,
+        "output_1m": 4.4,
         "cached_input_1m": 0.55,
         "batch_input_1m": 0.55,
-        "batch_output_1m": 2.20
+        "batch_output_1m": 2.2
       },
       "capabilities": {
         "context_window": 200000,
-        "latency_index": 0.80
+        "latency_index": 0.8
       }
     },
     {
@@ -80,11 +96,11 @@
       "name": "Claude 3.5 Sonnet",
       "provider": "Anthropic",
       "pricing": {
-        "input_1m": 3.00,
-        "output_1m": 15.00,
-        "cached_input_1m": 0.30,
-        "batch_input_1m": 1.50,
-        "batch_output_1m": 7.50
+        "input_1m": 3.0,
+        "output_1m": 15.0,
+        "cached_input_1m": 0.3,
+        "batch_input_1m": 1.5,
+        "batch_output_1m": 7.5
       },
       "capabilities": {
         "context_window": 200000,
@@ -92,51 +108,51 @@
       }
     },
     {
-      "id": "claude-3.5-haiku",
-      "name": "Claude 3.5 Haiku",
+      "id": "claude-sonnet-4.5",
+      "name": "Claude Sonnet 4.5",
       "provider": "Anthropic",
       "pricing": {
-        "input_1m": 0.80,
-        "output_1m": 4.00,
+        "input_1m": 3.0,
+        "output_1m": 15.0,
+        "cached_input_1m": 0.3,
+        "batch_input_1m": 1.5,
+        "batch_output_1m": 7.5
+      },
+      "capabilities": {
+        "context_window": 500000,
+        "latency_index": 0.95
+      }
+    },
+    {
+      "id": "claude-haiku-4.5",
+      "name": "Claude Haiku 4.5",
+      "provider": "Anthropic",
+      "pricing": {
+        "input_1m": 0.8,
+        "output_1m": 4.0,
         "cached_input_1m": 0.08,
-        "batch_input_1m": 0.40,
-        "batch_output_1m": 2.00
+        "batch_input_1m": 0.4,
+        "batch_output_1m": 2.0
       },
       "capabilities": {
-        "context_window": 200000,
-        "latency_index": 0.98
+        "context_window": 500000,
+        "latency_index": 0.99
       }
     },
     {
-      "id": "claude-sonnet-4",
-      "name": "Claude Sonnet 4",
+      "id": "claude-opus-4.6",
+      "name": "Claude Opus 4.6",
       "provider": "Anthropic",
       "pricing": {
-        "input_1m": 3.00,
-        "output_1m": 15.00,
-        "cached_input_1m": 0.30,
-        "batch_input_1m": 1.50,
-        "batch_output_1m": 7.50
+        "input_1m": 15.0,
+        "output_1m": 75.0,
+        "cached_input_1m": 1.5,
+        "batch_input_1m": 7.5,
+        "batch_output_1m": 37.5
       },
       "capabilities": {
-        "context_window": 200000,
-        "latency_index": 0.90
-      }
-    },
-    {
-      "id": "claude-opus-4",
-      "name": "Claude Opus 4",
-      "provider": "Anthropic",
-      "pricing": {
-        "input_1m": 15.00,
-        "output_1m": 75.00,
-        "cached_input_1m": 1.50,
-        "batch_input_1m": 7.50,
-        "batch_output_1m": 37.50
-      },
-      "capabilities": {
-        "context_window": 200000,
-        "latency_index": 0.65
+        "context_window": 500000,
+        "latency_index": 0.85
       }
     },
     {
@@ -144,8 +160,8 @@
       "name": "Gemini 2.0 Flash",
       "provider": "Google",
       "pricing": {
-        "input_1m": 0.10,
-        "output_1m": 0.40,
+        "input_1m": 0.1,
+        "output_1m": 0.4,
         "cached_input_1m": 0.025
       },
       "capabilities": {
@@ -159,7 +175,7 @@
       "provider": "Google",
       "pricing": {
         "input_1m": 1.25,
-        "output_1m": 5.00,
+        "output_1m": 5.0,
         "cached_input_1m": 0.3125
       },
       "capabilities": {
@@ -173,7 +189,7 @@
       "provider": "Google",
       "pricing": {
         "input_1m": 0.075,
-        "output_1m": 0.30,
+        "output_1m": 0.3,
         "cached_input_1m": 0.01875
       },
       "capabilities": {
@@ -187,7 +203,7 @@
       "provider": "DeepSeek",
       "pricing": {
         "input_1m": 0.27,
-        "output_1m": 1.10,
+        "output_1m": 1.1,
         "cached_input_1m": 0.07
       },
       "capabilities": {
@@ -214,8 +230,8 @@
       "name": "Llama 3.3 70B",
       "provider": "Meta",
       "pricing": {
-        "input_1m": 0.70,
-        "output_1m": 0.80,
+        "input_1m": 0.7,
+        "output_1m": 0.8,
         "cached_input_1m": 0.35
       },
       "capabilities": {
@@ -228,9 +244,9 @@
       "name": "Mistral Large",
       "provider": "Mistral AI",
       "pricing": {
-        "input_1m": 2.00,
-        "output_1m": 6.00,
-        "cached_input_1m": 1.00
+        "input_1m": 2.0,
+        "output_1m": 6.0,
+        "cached_input_1m": 1.0
       },
       "capabilities": {
         "context_window": 128000,
@@ -242,9 +258,9 @@
       "name": "Mistral Small",
       "provider": "Mistral AI",
       "pricing": {
-        "input_1m": 0.20,
-        "output_1m": 0.60,
-        "cached_input_1m": 0.10
+        "input_1m": 0.2,
+        "output_1m": 0.6,
+        "cached_input_1m": 0.1
       },
       "capabilities": {
         "context_window": 32000,
