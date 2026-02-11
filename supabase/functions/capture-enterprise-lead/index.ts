@@ -122,7 +122,7 @@ serve(async (req) => {
 
     // Send confirmation email via Resend
     const emailBody = {
-      from: 'LLM Cost Engine <reports@llm-cost-engine.com>',
+      from: 'LLM Cost Engine <onboarding@resend.dev>',
       to: [leadData.userEmail],
       subject: '📊 Your Enterprise LLM Cost Report',
       html: `

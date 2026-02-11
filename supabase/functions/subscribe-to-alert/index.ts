@@ -3,7 +3,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req: Request) => {
@@ -17,15 +18,15 @@ serve(async (req: Request) => {
     // Anti-spam: email regex
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid email format' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Invalid email format' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
     // Rate limit: count recent unverified inserts (DB-based)
@@ -39,7 +40,10 @@ serve(async (req: Request) => {
     if ((count ?? 0) > 50) {
       return new Response(
         JSON.stringify({ error: 'Too many requests. Please try later.' }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
       );
     }
 
@@ -57,18 +61,27 @@ serve(async (req: Request) => {
       if (existing.verified) {
         return new Response(
           JSON.stringify({ message: 'Already subscribed and verified.' }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          },
         );
       }
 
       // Unverified: refresh token and resend
-      verificationToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
-      const unsubToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+      verificationToken =
+        crypto.randomUUID().replace(/-/g, '') +
+        crypto.randomUUID().replace(/-/g, '');
+      const unsubToken =
+        crypto.randomUUID().replace(/-/g, '') +
+        crypto.randomUUID().replace(/-/g, '');
       await supabase
         .from('price_alerts')
         .update({
           verification_token: verificationToken,
-          token_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          token_expires_at: new Date(
+            Date.now() + 24 * 60 * 60 * 1000,
+          ).toISOString(),
           base_price_input: currentStats?.priceInput ?? null,
           base_monthly_cost: currentStats?.monthlyCost ?? null,
           simulation_hash: currentStats?.simulationHash ?? null,
@@ -77,8 +90,12 @@ serve(async (req: Request) => {
         .eq('id', existing.id);
     } else {
       // New subscription
-      verificationToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
-      const newUnsubToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+      verificationToken =
+        crypto.randomUUID().replace(/-/g, '') +
+        crypto.randomUUID().replace(/-/g, '');
+      const newUnsubToken =
+        crypto.randomUUID().replace(/-/g, '') +
+        crypto.randomUUID().replace(/-/g, '');
       const { error: insertError } = await supabase
         .from('price_alerts')
         .insert({
@@ -88,7 +105,9 @@ serve(async (req: Request) => {
           base_monthly_cost: currentStats?.monthlyCost ?? null,
           simulation_hash: currentStats?.simulationHash ?? null,
           verification_token: verificationToken,
-          token_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          token_expires_at: new Date(
+            Date.now() + 24 * 60 * 60 * 1000,
+          ).toISOString(),
           unsubscribe_token: newUnsubToken,
         });
 
@@ -96,7 +115,10 @@ serve(async (req: Request) => {
         console.error('Insert error:', insertError);
         return new Response(
           JSON.stringify({ error: 'Failed to create subscription.' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          },
         );
       }
     }
@@ -109,11 +131,11 @@ serve(async (req: Request) => {
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
+          Authorization: `Bearer ${resendApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'LLM Cost Engine <alerts@llm-cost-engine.vercel.app>',
+          from: 'LLM Cost Engine <onboarding@resend.dev>',
           to: [email],
           subject: `Verify your Price Alert for ${modelId}`,
           html: `
@@ -130,13 +152,16 @@ serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({ message: 'Verification email sent.' }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      },
     );
   } catch (err) {
     console.error('Subscribe error:', err);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });

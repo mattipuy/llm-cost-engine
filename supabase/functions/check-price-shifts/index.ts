@@ -42,28 +42,33 @@ serve(async (req: Request) => {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
     if (!authHeader || authHeader !== `Bearer ${serviceRoleKey}`) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    const { drops } = await req.json() as { drops: PriceDrop[] };
+    const { drops } = (await req.json()) as { drops: PriceDrop[] };
 
     if (!drops || drops.length === 0) {
       return new Response(
-        JSON.stringify({ drops_detected: 0, emails_sent: 0, errors: 0, message: 'No shifts' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          drops_detected: 0,
+          emails_sent: 0,
+          errors: 0,
+          message: 'No shifts',
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
       );
     }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      serviceRoleKey
+      serviceRoleKey,
     );
 
     // Query verified alerts for affected models
-    const affectedModelIds = [...new Set(drops.map(d => d.modelId))];
+    const affectedModelIds = [...new Set(drops.map((d) => d.modelId))];
 
     const { data: alerts, error: queryError } = await supabase
       .from('price_alerts')
@@ -74,15 +79,23 @@ serve(async (req: Request) => {
     if (queryError) {
       console.error('Query error:', queryError);
       return new Response(
-        JSON.stringify({ error: 'Failed to query alerts', details: queryError.message }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          error: 'Failed to query alerts',
+          details: queryError.message,
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
       );
     }
 
     if (!alerts || alerts.length === 0) {
       return new Response(
-        JSON.stringify({ drops_detected: drops.length, emails_sent: 0, errors: 0, message: 'No subscribers for affected models' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          drops_detected: drops.length,
+          emails_sent: 0,
+          errors: 0,
+          message: 'No subscribers for affected models',
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
       );
     }
 
@@ -90,7 +103,7 @@ serve(async (req: Request) => {
     const digestMap = new Map<string, DigestEntry>();
 
     for (const alert of alerts as AlertRow[]) {
-      const modelDrops = drops.filter(d => d.modelId === alert.model_id);
+      const modelDrops = drops.filter((d) => d.modelId === alert.model_id);
       if (modelDrops.length === 0) continue;
 
       if (!digestMap.has(alert.email)) {
@@ -104,7 +117,11 @@ serve(async (req: Request) => {
       const digest = digestMap.get(alert.email)!;
       for (const drop of modelDrops) {
         // Avoid duplicates if user has multiple alerts for same model
-        if (!digest.drops.find(d => d.modelId === drop.modelId && d.field === drop.field)) {
+        if (
+          !digest.drops.find(
+            (d) => d.modelId === drop.modelId && d.field === drop.field,
+          )
+        ) {
           digest.drops.push(drop);
         }
       }
@@ -120,7 +137,7 @@ serve(async (req: Request) => {
       console.error('RESEND_API_KEY not configured');
       return new Response(
         JSON.stringify({ error: 'Email service not configured' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
       );
     }
 
@@ -129,22 +146,23 @@ serve(async (req: Request) => {
 
     for (const digest of digestMap.values()) {
       try {
-        const modelNames = digest.drops.map(d => d.modelName || d.modelId);
+        const modelNames = digest.drops.map((d) => d.modelName || d.modelId);
         const uniqueNames = [...new Set(modelNames)];
-        const subject = uniqueNames.length === 1
-          ? `Price Drop: ${uniqueNames[0]} is now cheaper`
-          : `Price Drop Alert: ${uniqueNames.length} models dropped`;
+        const subject =
+          uniqueNames.length === 1
+            ? `Price Drop: ${uniqueNames[0]} is now cheaper`
+            : `Price Drop Alert: ${uniqueNames.length} models dropped`;
 
         const html = renderDigestEmail(digest);
 
         const res = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${resendApiKey}`,
+            Authorization: `Bearer ${resendApiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'LLM Cost Engine <alerts@llm-cost-engine.vercel.app>',
+            from: 'LLM Cost Engine <onboarding@resend.dev>',
             to: [digest.email],
             subject,
             html,
@@ -171,14 +189,14 @@ serve(async (req: Request) => {
         emails_sent: emailsSent,
         errors,
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
     );
   } catch (err) {
     console.error('check-price-shifts error:', err);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 });
 
@@ -186,12 +204,13 @@ serve(async (req: Request) => {
  * Renders an HTML digest email for a single user.
  */
 function renderDigestEmail(digest: DigestEntry): string {
-  const rows = digest.drops.map(d => {
-    const arrow = d.changePercent < 0 ? '📉' : '📈';
-    const color = d.changePercent < 0 ? '#16a34a' : '#dc2626';
-    const sign = d.changePercent < 0 ? '' : '+';
-    const fieldLabel = d.field === 'input_1m' ? 'Input' : 'Output';
-    return `
+  const rows = digest.drops
+    .map((d) => {
+      const arrow = d.changePercent < 0 ? '📉' : '📈';
+      const color = d.changePercent < 0 ? '#16a34a' : '#dc2626';
+      const sign = d.changePercent < 0 ? '' : '+';
+      const fieldLabel = d.field === 'input_1m' ? 'Input' : 'Output';
+      return `
       <tr>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${arrow} ${d.modelName || d.modelId}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${fieldLabel}</td>
@@ -199,7 +218,8 @@ function renderDigestEmail(digest: DigestEntry): string {
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-weight:bold;">$${d.newPrice}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:${color};font-weight:bold;">${sign}${d.changePercent.toFixed(1)}%</td>
       </tr>`;
-  }).join('');
+    })
+    .join('');
 
   const unsubLink = digest.unsubscribeToken
     ? `${BASE_URL}/unsubscribe?token=${digest.unsubscribeToken}`
