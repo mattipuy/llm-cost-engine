@@ -63,6 +63,76 @@ thoughts/
 - Prima di ogni aggiornamento prezzi: Usa `multi-agent-coordinator` per lanciare **in parallelo** @Competitive Analyst (listini attuali 2026), @Trend Analyst (direzione prezzi) e @Market Researcher (impatto sulla segmentazione). I tre risultati vengono poi consolidati prima di aggiornare il JSON registry.
 - Per la monetizzazione: Segui la linea del @Business Analyst (Monetizzazione invisibile/Sponsor B2B) evitando affiliate aggressivi.
 
+## 💰 Pricing Update Procedure
+
+**Trigger**: User says "aggiorna prezzi", "update pricing", or "aggiorna modelli"
+
+**MANDATORY PROCEDURE** (follow exactly):
+
+1. **Read Procedure**: `scripts/update-pricing-procedure.md`
+   - Review the 6-phase process
+   - Understand decision criteria for add/remove models
+
+2. **Launch Multi-Agent Research** (parallel execution):
+   ```
+   Task: multi-agent-coordinator
+   Agents: competitive-analyst + trend-analyst + market-researcher
+   Sources: Use URLs from scripts/pricing-sources.json
+   Output: thoughts/research/[DATE]_*.md
+   ```
+
+3. **Use Official Sources**: `scripts/pricing-sources.json`
+   - OpenAI: pricing page + models docs
+   - Anthropic: pricing page + models overview
+   - Google: Gemini API pricing + models docs
+   - DeepSeek, Mistral, Meta: Official APIs/docs
+
+4. **Compare Research vs Current Registry**:
+   - Read: `public/data/llm-pricing.json`
+   - Identify: Price changes, new models, deprecated models
+   - Evaluate: New models (5 criteria), legacy models (6 deprecation triggers)
+
+5. **Generate Review Document**:
+   - Template: `scripts/pricing-update-template.md`
+   - Include: Price changes, models to add/remove, rationale
+   - Save to: `thoughts/decisions/[DATE]_pricing-update-review.md`
+
+6. **Present to User for Validation**:
+   - Summary of changes
+   - Explicit approval required for:
+     - Models to add
+     - Models to remove
+     - Pricing corrections
+   - Do NOT auto-apply changes without user approval
+
+7. **Apply Approved Changes**:
+   - Update `public/data/llm-pricing.json`
+   - Bump version (minor for add/remove, patch for price-only)
+   - Update metadata: last_updated, last_verified
+
+8. **Commit with Structured Changelog**:
+   - Format: `feat|fix: update pricing registry to vX.Y.Z - [summary]`
+   - Include: Breaking changes, added models, pricing changes, fixes, sources
+   - Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+**Key Decision Criteria**:
+- **Add Model**: Production-ready + Official pricing + Mainstream/flagship + API accessible + Stable
+- **Remove Model**: Superseded OR Provider deprecated OR No pricing advantage OR Context exceeded OR Breaking changes
+- **Update Price**: Verified by 2+ sources + From official provider page
+
+**Quality Gates**:
+- [ ] JSON validates (jq .)
+- [ ] No duplicate IDs
+- [ ] All required fields present
+- [ ] Sources cited in commit
+- [ ] User explicitly approved changes
+
+**NEVER**:
+- Auto-update prices without user validation
+- Add experimental/preview models
+- Remove models without replacement path
+- Commit without structured changelog
+
 ## 📈 Obiettivo Rendita Automatica
 
 - Priorità: Autorità Neutrale > Raccolta Dati > Sponsorship B2B.

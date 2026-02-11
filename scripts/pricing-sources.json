@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "name": "LLM Pricing Sources Registry",
+    "description": "Official pricing pages for all supported LLM providers",
+    "last_updated": "2026-02-11",
+    "usage": "Use these URLs to verify and update model pricing"
+  },
+  "providers": {
+    "openai": {
+      "name": "OpenAI",
+      "pricing_page": "https://openai.com/api/pricing/",
+      "models_docs": "https://platform.openai.com/docs/models",
+      "api_docs": "https://developers.openai.com/api/docs/models",
+      "notes": "Pricing page has complete list. Check for prompt caching and batch API discounts."
+    },
+    "anthropic": {
+      "name": "Anthropic (Claude)",
+      "pricing_page": "https://anthropic.com/pricing",
+      "models_docs": "https://platform.claude.com/docs/en/about-claude/models/overview",
+      "api_docs": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "notes": "Models page shows latest generation. Check for extended thinking costs."
+    },
+    "google": {
+      "name": "Google (Gemini)",
+      "pricing_page": "https://ai.google.dev/pricing",
+      "models_docs": "https://ai.google.dev/gemini-api/docs/models",
+      "vertex_pricing": "https://cloud.google.com/vertex-ai/generative-ai/pricing",
+      "notes": "Gemini API pricing differs from Vertex AI. Use Gemini API pricing. Check context-tiered pricing."
+    },
+    "deepseek": {
+      "name": "DeepSeek",
+      "pricing_page": "https://platform.deepseek.com/api-docs/pricing/",
+      "models_docs": "https://platform.deepseek.com/api-docs/quick_start/pricing",
+      "notes": "Check for prompt caching discounts on V3 and R1."
+    },
+    "mistral": {
+      "name": "Mistral AI",
+      "pricing_page": "https://mistral.ai/technology/#pricing",
+      "models_docs": "https://docs.mistral.ai/getting-started/models/",
+      "api_docs": "https://docs.mistral.ai/api/",
+      "notes": "Pricing embedded in technology page. Check for La Plateforme pricing."
+    },
+    "meta": {
+      "name": "Meta (Llama)",
+      "pricing_page": "https://www.llama.com/docs/model-cards-and-prompt-formats/meta-llama-3/",
+      "together_pricing": "https://www.together.ai/pricing",
+      "notes": "Llama is open-source. Use Together AI pricing as reference for hosted pricing."
+    },
+    "cohere": {
+      "name": "Cohere",
+      "pricing_page": "https://cohere.com/pricing",
+      "models_docs": "https://docs.cohere.com/docs/models",
+      "notes": "Consider adding Command R+ if it becomes mainstream."
+    }
+  },
+  "aggregators": {
+    "artificial_analysis": {
+      "url": "https://artificialanalysis.ai/models",
+      "description": "Independent benchmarking and pricing aggregator",
+      "use_case": "Verify pricing, check latency benchmarks"
+    },
+    "price_per_token": {
+      "url": "https://pricepertoken.com/",
+      "description": "Real-time pricing comparison across providers",
+      "use_case": "Quick cross-provider verification"
+    }
+  }
+}
