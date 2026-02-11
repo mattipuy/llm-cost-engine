@@ -2,13 +2,10 @@ import {
   Component,
   OnInit,
   inject,
-  PLATFORM_ID,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
-import { JsonLdService } from '../../core/services/json-ld.service';
+import { JsonLdService, SeoMetaService } from '../../core/services';
 
 @Component({
   selector: 'app-how-we-calculate-llm-tco',
@@ -18,43 +15,43 @@ import { JsonLdService } from '../../core/services/json-ld.service';
   templateUrl: './how-we-calculate-llm-tco.component.html',
 })
 export class HowWeCalculateLlmTcoComponent implements OnInit {
-  private readonly meta = inject(Meta);
-  private readonly title = inject(Title);
+  private readonly seoMeta = inject(SeoMetaService);
   private readonly jsonLd = inject(JsonLdService);
-  private readonly platformId = inject(PLATFORM_ID);
 
   private readonly CANONICAL_URL =
     'https://llm-cost-engine.vercel.app/blog/how-we-calculate-llm-tco';
 
-  ngOnInit(): void {
-    this.title.setTitle(
-      'How We Calculate LLM TCO | LLM Cost Engine',
-    );
+  private readonly OG_IMAGE =
+    'https://llm-cost-engine.vercel.app/assets/og-image.png'; // TODO: Create blog-specific image
 
+  ngOnInit(): void {
+    const title = 'How We Calculate LLM TCO | LLM Cost Engine';
+    const headline = 'We Open-Sourced the Math Behind LLM Cost Rankings';
     const description =
       'A transparent breakdown of our deterministic LLM cost calculation methodology. 16 models, 7 providers, weekly tracking.';
+    const imageAlt =
+      'LLM TCO calculation formula showing input/output token pricing breakdown for GPT-4o, Claude 3.5 Sonnet, and Gemini 1.5 Pro';
 
-    this.meta.updateTag({ name: 'description', content: description });
-    this.meta.updateTag({
-      property: 'og:title',
-      content: 'We Open-Sourced the Math Behind LLM Cost Rankings',
-    });
-    this.meta.updateTag({
-      property: 'og:description',
-      content: description,
-    });
-    this.meta.updateTag({ property: 'og:type', content: 'article' });
-    this.meta.updateTag({
-      property: 'og:url',
-      content: this.CANONICAL_URL,
+    // Update all SEO meta tags (OG + Twitter)
+    this.seoMeta.updateMetaTags({
+      title,
+      description,
+      url: this.CANONICAL_URL,
+      type: 'article',
+      image: this.OG_IMAGE,
+      imageAlt,
+      twitterCard: 'summary_large_image',
+      publishedTime: '2026-02-10T00:00:00Z',
     });
 
+    // Inject JSON-LD Article schema
     this.jsonLd.injectArticleSchema(
       {
-        headline: 'We Open-Sourced the Math Behind LLM Cost Rankings',
+        headline,
         description,
         datePublished: '2026-02-10',
         url: this.CANONICAL_URL,
+        image: this.OG_IMAGE,
       },
       'blog-tco-article',
     );

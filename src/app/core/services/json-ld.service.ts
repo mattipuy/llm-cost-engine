@@ -112,6 +112,7 @@ export class JsonLdService {
       headline: string;
       description: string;
       datePublished: string;
+      dateModified?: string;
       url: string;
       image?: string;
     },
@@ -125,7 +126,12 @@ export class JsonLdService {
       headline: data.headline,
       description: data.description,
       datePublished: data.datePublished,
+      dateModified: data.dateModified || data.datePublished, // Google requires this
       url: data.url,
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': data.url,
+      },
       author: {
         '@type': 'Organization',
         name: 'LLM Cost Engine',
@@ -135,11 +141,23 @@ export class JsonLdService {
         '@type': 'Organization',
         name: 'LLM Cost Engine',
         url: 'https://llm-cost-engine.vercel.app',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://llm-cost-engine.vercel.app/assets/og-image.png',
+          width: 1200,
+          height: 630,
+        },
       },
     };
 
+    // Image as ImageObject (Google best practice)
     if (data.image) {
-      schema['image'] = data.image;
+      schema['image'] = {
+        '@type': 'ImageObject',
+        url: data.image,
+        width: 1200,
+        height: 630,
+      };
     }
 
     const script = this.document.createElement('script');

@@ -7,3 +7,4 @@ export * from './market-insights.service';
 export * from './pricing-data.service';
 export * from './json-ld.service';
 export * from './price-alert.service';
+export * from './seo-meta.service';
