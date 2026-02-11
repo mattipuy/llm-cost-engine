@@ -128,7 +128,7 @@ serve(async (req: Request) => {
     if (resendApiKey) {
       const verifyUrl = `https://llm-cost-engine.vercel.app/verify?token=${verificationToken}`;
 
-      await fetch('https://api.resend.com/emails', {
+      const emailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${resendApiKey}`,
@@ -148,6 +148,16 @@ serve(async (req: Request) => {
           `,
         }),
       });
+
+      if (!emailResponse.ok) {
+        const errorText = await emailResponse.text();
+        console.error('Resend API error:', emailResponse.status, errorText);
+        // Don't fail the request if email fails, subscription is already saved
+      } else {
+        console.log('Verification email sent successfully to:', email);
+      }
+    } else {
+      console.error('RESEND_API_KEY not configured');
     }
 
     return new Response(
