@@ -227,7 +227,7 @@ export class BatchApiComponent implements OnInit {
         name: 'Batch API Cost Calculator',
         description:
           'Calculate batch processing savings on GPT-4o, Claude, and more. Trade 24h turnaround for 50% cost reduction.',
-        url: 'https://llm-cost-engine.vercel.app/tools/batch-api',
+        url: 'https://llm-cost-engine.com/tools/batch-api',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',
         softwareVersion: ENGINE_META.version,

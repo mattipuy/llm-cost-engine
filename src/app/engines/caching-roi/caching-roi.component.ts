@@ -235,7 +235,7 @@ export class CachingRoiComponent implements OnInit {
         name: 'Prompt Caching ROI Calculator',
         description:
           'Calculate prompt caching savings across Claude, GPT-4o, Gemini, and DeepSeek. Deterministic Write/Read split analysis.',
-        url: 'https://llm-cost-engine.vercel.app/tools/caching-roi',
+        url: 'https://llm-cost-engine.com/tools/caching-roi',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',
         softwareVersion: ENGINE_META.version,

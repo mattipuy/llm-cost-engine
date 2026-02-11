@@ -19,10 +19,10 @@ export class HowWeCalculateLlmTcoComponent implements OnInit {
   private readonly jsonLd = inject(JsonLdService);
 
   private readonly CANONICAL_URL =
-    'https://llm-cost-engine.vercel.app/blog/how-we-calculate-llm-tco';
+    'https://llm-cost-engine.com/blog/how-we-calculate-llm-tco';
 
   private readonly OG_IMAGE =
-    'https://llm-cost-engine.vercel.app/assets/og-image.png'; // TODO: Create blog-specific image
+    'https://llm-cost-engine.com/assets/og-image.png'; // TODO: Create blog-specific image
 
   ngOnInit(): void {
     const title = 'How We Calculate LLM TCO | LLM Cost Engine';

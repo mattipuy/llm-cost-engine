@@ -232,7 +232,7 @@ export class ContextWindowComponent implements OnInit {
         name: 'LLM Context Window Comparator',
         description:
           'Compare context window limits across GPT-4o, Claude 3, Gemini, and DeepSeek. Visualize which models fit your document size.',
-        url: 'https://llm-cost-engine.vercel.app/tools/context-window',
+        url: 'https://llm-cost-engine.com/tools/context-window',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',
         softwareVersion: ENGINE_META.version,

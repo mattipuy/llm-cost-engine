@@ -33,7 +33,7 @@ interface DigestEntry {
   unsubscribeToken: string | null;
 }
 
-const BASE_URL = 'https://llm-cost-engine.vercel.app';
+const BASE_URL = 'https://llm-cost-engine.com';
 
 serve(async (req: Request) => {
   try {
@@ -162,7 +162,7 @@ serve(async (req: Request) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'LLM Cost Engine <onboarding@resend.dev>',
+            from: 'LLM Cost Engine <alerts@llm-cost-engine.com>',
             to: [digest.email],
             subject,
             html,

@@ -359,7 +359,7 @@ export class InsightsComponent implements OnInit {
       {
         name: 'LLM Market Insights',
         description: 'Monthly aggregated insights from LLM cost simulations. Anonymous, privacy-safe market intelligence.',
-        url: 'https://llm-cost-engine.vercel.app/insights',
+        url: 'https://llm-cost-engine.com/insights',
         applicationCategory: 'BusinessApplication',
         softwareVersion: ENGINE_META.version,
       },

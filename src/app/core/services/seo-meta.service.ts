@@ -20,7 +20,7 @@ export class SeoMetaService {
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
 
-  private readonly DEFAULT_IMAGE = 'https://llm-cost-engine.vercel.app/assets/og-image.png';
+  private readonly DEFAULT_IMAGE = 'https://llm-cost-engine.com/assets/og-image.png';
   private readonly DEFAULT_IMAGE_ALT = 'LLM Cost Engine - Enterprise TCO analysis for AI deployments';
 
   /**

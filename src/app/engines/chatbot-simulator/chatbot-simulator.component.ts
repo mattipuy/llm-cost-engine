@@ -1276,7 +1276,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     });
 
     // Canonical URL - Critical for Programmatic SEO (prevents duplicate content)
-    const canonicalUrl = `https://llm-cost-engine.vercel.app/tools/chatbot-simulator?m=${m}&ti=${ti}&to=${to}&cr=${Math.round(cr * 100)}`;
+    const canonicalUrl = `https://llm-cost-engine.com/tools/chatbot-simulator?m=${m}&ti=${ti}&to=${to}&cr=${Math.round(cr * 100)}`;
     this.updateCanonicalLink(canonicalUrl);
 
     // Open Graph URL for social sharing
@@ -1310,7 +1310,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         name: ENGINE_META.fullName,
         description:
           'Enterprise-grade TCO analysis for LLM deployments. Compare GPT-4o, Gemini 1.5 Pro, and Claude 3.5 Sonnet with deterministic ValueScore methodology.',
-        url: 'https://llm-cost-engine.vercel.app',
+        url: 'https://llm-cost-engine.com',
         applicationCategory: 'BusinessApplication',
         operatingSystem: 'Web Browser',
         softwareVersion: ENGINE_META.version,

@@ -48,7 +48,7 @@ export class JsonLdService {
       "author": {
         "@type": "Organization",
         "name": "LLM Cost Engine",
-        "url": "https://llm-cost-engine.vercel.app"
+        "url": "https://llm-cost-engine.com"
       },
       "offers": {
         "@type": "Offer",
@@ -135,15 +135,15 @@ export class JsonLdService {
       author: {
         '@type': 'Organization',
         name: 'LLM Cost Engine',
-        url: 'https://llm-cost-engine.vercel.app',
+        url: 'https://llm-cost-engine.com',
       },
       publisher: {
         '@type': 'Organization',
         name: 'LLM Cost Engine',
-        url: 'https://llm-cost-engine.vercel.app',
+        url: 'https://llm-cost-engine.com',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://llm-cost-engine.vercel.app/assets/og-image.png',
+          url: 'https://llm-cost-engine.com/assets/og-image.png',
           width: 1200,
           height: 630,
         },

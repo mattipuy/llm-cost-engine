@@ -122,7 +122,7 @@ serve(async (req) => {
 
     // Send confirmation email via Resend
     const emailBody = {
-      from: 'LLM Cost Engine <onboarding@resend.dev>',
+      from: 'LLM Cost Engine <alerts@llm-cost-engine.com>',
       to: [leadData.userEmail],
       subject: '📊 Your Enterprise LLM Cost Report',
       html: `
@@ -142,7 +142,7 @@ serve(async (req) => {
           
           <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB; color: #6B7280; font-size: 14px;">
             LLM Cost Engine - Open Source LLM Pricing Intelligence<br>
-            <a href="https://llm-cost-engine.vercel.app" style="color: #4F46E5;">llm-cost-engine.vercel.app</a>
+            <a href="https://llm-cost-engine.com" style="color: #4F46E5;">llm-cost-engine.com</a>
           </p>
         </div>
       `,

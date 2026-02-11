@@ -182,7 +182,7 @@ serve(async (req: Request) => {
     // Send verification email via Resend
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     if (resendApiKey) {
-      const verifyUrl = `https://llm-cost-engine.vercel.app/verify?token=${verificationToken}`;
+      const verifyUrl = `https://llm-cost-engine.com/verify?token=${verificationToken}`;
 
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -191,7 +191,7 @@ serve(async (req: Request) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'LLM Cost Engine <onboarding@resend.dev>',
+          from: 'LLM Cost Engine <alerts@llm-cost-engine.com>',
           to: [email],
           subject: `Verify your Price Alert for ${modelId}`,
           html: `
