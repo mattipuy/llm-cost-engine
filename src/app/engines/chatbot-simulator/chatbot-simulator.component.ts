@@ -29,6 +29,7 @@ import {
   PriceTrend,
 } from '../../core/services/price-history.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { PriceAlertService } from '../../core/services/price-alert.service';
 import { PriceAlertModalComponent } from '../../shared/components/price-alert-modal/price-alert-modal.component';
 import { MarketInsightsService } from '../../core/services/market-insights.service';
 import {
@@ -249,7 +250,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   priceTrends = signal<Map<string, PriceTrend>>(new Map());
 
   // Data depth info (how much history we have)
-  priceHistoryDepth = signal<{ snapshots: number; months: number } | null>(null);
+  priceHistoryDepth = signal<{ snapshots: number; months: number } | null>(
+    null,
+  );
 
   // ============================================================================
   // SIGNALS - Dynamic Model Filter
@@ -319,19 +322,21 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     if (!primaryId || !secondaryId) return null;
 
     const results = this.results();
-    const primaryResult = results.find(r => r.modelId === primaryId);
-    const secondaryResult = results.find(r => r.modelId === secondaryId);
+    const primaryResult = results.find((r) => r.modelId === primaryId);
+    const secondaryResult = results.find((r) => r.modelId === secondaryId);
     if (!primaryResult || !secondaryResult) return null;
 
     const primaryPercent = this.routingPrimaryPercent() / 100;
     const secondaryPercent = 1 - primaryPercent;
 
-    const blendedCost = (primaryResult.monthlyCost * primaryPercent) +
-                        (secondaryResult.monthlyCost * secondaryPercent);
+    const blendedCost =
+      primaryResult.monthlyCost * primaryPercent +
+      secondaryResult.monthlyCost * secondaryPercent;
 
     // Calculate savings vs using secondary model for everything
     const savingsVsSecondary = secondaryResult.monthlyCost - blendedCost;
-    const savingsPercent = (savingsVsSecondary / secondaryResult.monthlyCost) * 100;
+    const savingsPercent =
+      (savingsVsSecondary / secondaryResult.monthlyCost) * 100;
 
     return {
       blendedCost: Math.round(blendedCost * 100) / 100,
@@ -340,7 +345,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       primaryCost: primaryResult.monthlyCost,
       secondaryCost: secondaryResult.monthlyCost,
       savingsVsSecondary: Math.round(savingsVsSecondary * 100) / 100,
-      savingsPercent: Math.round(savingsPercent * 10) / 10
+      savingsPercent: Math.round(savingsPercent * 10) / 10,
     };
   });
 
@@ -572,6 +577,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   private logicService = inject(ChatbotSimulatorLogicService);
   private jsonLdService = inject(JsonLdService);
   private analyticsService = inject(AnalyticsService);
+  private priceAlertService = inject(PriceAlertService);
   private marketInsightsService = inject(MarketInsightsService);
   private meta = inject(Meta);
   private title = inject(Title);
@@ -836,10 +842,14 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
     // Set defaults when enabling
     if (newState && this.activeModels().length >= 2) {
-      const sorted = [...this.results()].sort((a, b) => a.monthlyCost - b.monthlyCost);
+      const sorted = [...this.results()].sort(
+        (a, b) => a.monthlyCost - b.monthlyCost,
+      );
       // Primary = cheapest, Secondary = most expensive of selected
       this.routingPrimaryModelId.set(sorted[0]?.modelId ?? null);
-      this.routingSecondaryModelId.set(sorted[sorted.length - 1]?.modelId ?? null);
+      this.routingSecondaryModelId.set(
+        sorted[sorted.length - 1]?.modelId ?? null,
+      );
     }
   }
 
@@ -868,7 +878,12 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // PRICE ALERT HANDLERS
   // ============================================================================
 
-  openPriceAlert(modelId: string, modelName: string, priceInput: number, monthlyCost: number): void {
+  openPriceAlert(
+    modelId: string,
+    modelName: string,
+    priceInput: number,
+    monthlyCost: number,
+  ): void {
     this.alertModelId.set(modelId);
     this.alertModelName.set(modelName);
     this.alertPriceInput.set(priceInput);
@@ -944,8 +959,14 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         : null,
     };
 
-    // Mock execution: log to console
-    console.log('📧 Lead Captured:', leadData);
+    // Send lead to Supabase Edge Function (non-blocking: don't wait for it before generating PDF)
+    this.priceAlertService.captureEnterpriseLead(leadData).then((result) => {
+      if (result.success) {
+        console.log('📧 Lead captured successfully');
+      } else {
+        console.warn('⚠️ Lead capture failed:', result.error);
+      }
+    });
 
     // Dynamic import for client-side PDF generation
     if (isPlatformBrowser(this.platformId)) {
@@ -1375,7 +1396,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Failed to load pricing data', err);
         this.isLoading.set(false);
-        this.loadError.set('Failed to load pricing data. Please check your connection and try again.');
+        this.loadError.set(
+          'Failed to load pricing data. Please check your connection and try again.',
+        );
       },
     });
   }
@@ -1389,7 +1412,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     this.priceHistoryService.calculatePriceTrends().subscribe({
       next: (trends) => {
         const trendMap = new Map<string, PriceTrend>();
-        trends.forEach(trend => trendMap.set(trend.model_id, trend));
+        trends.forEach((trend) => trendMap.set(trend.model_id, trend));
         this.priceTrends.set(trendMap);
       },
       error: (err) => {
@@ -1401,7 +1424,10 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     // Load data depth info
     this.priceHistoryService.getDataDepth().subscribe({
       next: (depth) => {
-        this.priceHistoryDepth.set({ snapshots: depth.snapshots, months: depth.months });
+        this.priceHistoryDepth.set({
+          snapshots: depth.snapshots,
+          months: depth.months,
+        });
       },
       error: () => {
         // Silently ignore
@@ -1420,7 +1446,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   /**
    * Gets a human-readable trend indicator for a model.
    */
-  getTrendIndicator(modelId: string): { icon: string; label: string; color: string } | null {
+  getTrendIndicator(
+    modelId: string,
+  ): { icon: string; label: string; color: string } | null {
     const trend = this.getPriceTrend(modelId);
     if (!trend || trend.change_30d_percent === null) return null;
 
@@ -1428,19 +1456,19 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       return {
         icon: '↓',
         label: `${Math.abs(trend.change_30d_percent)}% cheaper`,
-        color: 'text-green-600'
+        color: 'text-green-600',
       };
     } else if (trend.trend_direction === 'up') {
       return {
         icon: '↑',
         label: `${Math.abs(trend.change_30d_percent)}% increase`,
-        color: 'text-red-600'
+        color: 'text-red-600',
       };
     }
     return {
       icon: '→',
       label: 'Stable',
-      color: 'text-gray-500'
+      color: 'text-gray-500',
     };
   }
 }

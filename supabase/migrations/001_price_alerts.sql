@@ -1,9 +1,9 @@
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
+-- Enable pgcrypto extension for gen_random_bytes()
+create extension if not exists "pgcrypto";
 
 -- Alerts Table - Enhanced for Asset Quality
 create table public.price_alerts (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   email text not null,
   model_id text not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
@@ -19,7 +19,7 @@ create table public.price_alerts (
 
   -- Verification & Security (Double Opt-In)
   verified boolean default false,
-  verification_token text default encode(gen_random_bytes(32), 'hex'),
+  verification_token text default replace(gen_random_uuid()::text, '-', ''),
   token_expires_at timestamp with time zone default (now() + interval '24 hours'),
 
   -- Prevent duplicate subscriptions for same user/model

@@ -23,7 +23,10 @@ export class PriceAlertService {
   private getClient(): SupabaseClient | null {
     if (!isPlatformBrowser(this.platformId)) return null;
     if (!this.supabase) {
-      this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+      this.supabase = createClient(
+        environment.supabaseUrl,
+        environment.supabaseKey,
+      );
     }
     return this.supabase;
   }
@@ -32,7 +35,7 @@ export class PriceAlertService {
     email: string,
     modelId: string,
     stats: PriceAlertStats,
-    honeypot: string
+    honeypot: string,
   ): Promise<PriceAlertResult> {
     if (honeypot) return { success: true };
 
@@ -61,7 +64,30 @@ export class PriceAlertService {
       if (error) return { success: false, error: error.message };
       return { success: true };
     } catch {
-      return { success: false, error: 'Verification failed. Please try again.' };
+      return {
+        success: false,
+        error: 'Verification failed. Please try again.',
+      };
+    }
+  }
+
+  async captureEnterpriseLead(
+    leadData: Record<string, unknown>,
+  ): Promise<PriceAlertResult> {
+    const client = this.getClient();
+    if (!client) return { success: false, error: 'Service unavailable' };
+
+    try {
+      const { error } = await client.functions.invoke(
+        'capture-enterprise-lead',
+        {
+          body: leadData,
+        },
+      );
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Network error. Please try again.' };
     }
   }
 
