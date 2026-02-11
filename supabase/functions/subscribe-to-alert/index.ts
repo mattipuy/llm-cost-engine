@@ -130,44 +130,34 @@ serve(async (req: Request) => {
       console.log('✅ Subscription created successfully');
     }
 
-    // Send verification email via Resend
-    console.log('📨 Preparing to send email via Resend');
-    console.log('🔑 RESEND_API_KEY configured:', RESEND_API_KEY ? 'YES' : 'NO');
+    // Send verification email via Resend (same pattern as capture-enterprise-lead)
+    const verifyUrl = `https://llm-cost-engine.vercel.app/verify?token=${verificationToken}`;
 
-    if (RESEND_API_KEY) {
-      const verifyUrl = `https://llm-cost-engine.vercel.app/verify?token=${verificationToken}`;
-      console.log('🔗 Verify URL:', verifyUrl);
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'LLM Cost Engine <onboarding@resend.dev>',
+        to: [email],
+        subject: `Verify your Price Alert for ${modelId}`,
+        html: `
+          <h2>Verify your Price Alert</h2>
+          <p>You requested to track pricing shifts for <strong>${modelId}</strong>.</p>
+          <p>Click below to confirm:</p>
+          <p><a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">Verify Alert</a></p>
+          <p style="color:#666;font-size:12px;">This link expires in 24 hours.</p>
+          <p style="color:#999;font-size:11px;">LLM Cost Engine - Deterministic TCO Analysis</p>
+        `,
+      }),
+    });
 
-      const emailResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'LLM Cost Engine <onboarding@resend.dev>',
-          to: [email],
-          subject: `Verify your Price Alert for ${modelId}`,
-          html: `
-            <h2>Verify your Price Alert</h2>
-            <p>You requested to track pricing shifts for <strong>${modelId}</strong>.</p>
-            <p>Click below to confirm:</p>
-            <p><a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">Verify Alert</a></p>
-            <p style="color:#666;font-size:12px;">This link expires in 24 hours.</p>
-            <p style="color:#999;font-size:11px;">LLM Cost Engine - Deterministic TCO Analysis</p>
-          `,
-        }),
-      });
-
-      if (!emailResponse.ok) {
-        const errorText = await emailResponse.text();
-        console.error('Resend API error:', emailResponse.status, errorText);
-        // Don't fail the request if email fails, subscription is already saved
-      } else {
-        console.log('Verification email sent successfully to:', email);
-      }
-    } else {
-      console.error('RESEND_API_KEY not configured');
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error('Email send failed:', errorText);
+      // Don't fail the request if email fails, subscription is already saved
     }
 
     return new Response(
