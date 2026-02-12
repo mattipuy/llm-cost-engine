@@ -171,7 +171,13 @@ https://llm-cost-engine.com`,
         'Content-Type': 'application/json',
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify(emailBody),
+      body: JSON.stringify({
+        ...emailBody,
+        headers: {
+          'List-Unsubscribe': '<https://llm-cost-engine.com/unsubscribe>',
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+      }),
     });
 
     if (!emailResponse.ok) {

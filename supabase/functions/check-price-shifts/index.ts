@@ -156,6 +156,10 @@ serve(async (req: Request) => {
         const html = renderDigestEmail(digest);
         const text = renderDigestEmailText(digest);
 
+        const unsubLink = digest.unsubscribeToken
+          ? `${BASE_URL}/unsubscribe?token=${digest.unsubscribeToken}`
+          : `${BASE_URL}/unsubscribe`;
+
         const res = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -168,6 +172,10 @@ serve(async (req: Request) => {
             subject,
             html,
             text,
+            headers: {
+              'List-Unsubscribe': `<${unsubLink}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+            },
           }),
         });
 

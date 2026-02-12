@@ -214,6 +214,10 @@ This link expires in 24 hours.
 ---
 LLM Cost Engine - Deterministic TCO Analysis
 https://llm-cost-engine.com`,
+          headers: {
+            'List-Unsubscribe': '<https://llm-cost-engine.com/unsubscribe>',
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
         }),
       });
     }
