@@ -744,6 +744,68 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     this.tokensInputPerMessage.set(preset.tokensInput);
     this.tokensOutputPerMessage.set(preset.tokensOutput);
     this.cacheHitRate.set(preset.cacheHitRate);
+
+    // Auto-select recommended models for this preset
+    const recommendedModelIds = this.getRecommendedModelsForPreset(preset.id);
+    if (recommendedModelIds.length > 0) {
+      this.selectedModelIds.set(new Set(recommendedModelIds));
+    }
+  }
+
+  /**
+   * Returns recommended model IDs for a given preset.
+   * Logic based on use case characteristics (volume, context, output type).
+   */
+  private getRecommendedModelsForPreset(presetId: string): string[] {
+    const allModels = this.availableModels();
+
+    switch (presetId) {
+      case 'saas-startup':
+        // Startup: Cost-efficient models for moderate volume
+        return this.findModelsByKeywords(allModels, ['flash', 'haiku', 'gpt-4o-mini', 'gpt-4o'], 4);
+
+      case 'enterprise-support':
+        // Growth: Mix of efficiency and quality for high volume
+        return this.findModelsByKeywords(allModels, ['flash', 'haiku', 'gpt-4o', 'deepseek', 'claude-3.5-sonnet'], 5);
+
+      case 'rag-knowledge':
+        // Enterprise RAG: Large context models for heavy input
+        return this.findModelsByKeywords(allModels, ['gemini-2.0-flash', 'claude-3.5-sonnet', 'gpt-4o', 'gemini-1.5-pro'], 4);
+
+      case 'dev-productivity':
+        // Dev tools: Reasoning models for code generation
+        return this.findModelsByKeywords(allModels, ['claude-3.5-sonnet', 'gpt-4o', 'deepseek', 'claude-opus'], 4);
+
+      case 'content-gen':
+        // Content: Quality output models
+        return this.findModelsByKeywords(allModels, ['claude-3.5-sonnet', 'gpt-4o', 'gemini-1.5-pro', 'claude-opus'], 4);
+
+      default:
+        // Fallback: Top 3 popular models
+        return this.findModelsByKeywords(allModels, ['gpt-4o', 'gemini-2.0-flash', 'claude-3.5-sonnet'], 3);
+    }
+  }
+
+  /**
+   * Helper: Find models by keyword matching (case-insensitive, partial match).
+   * Returns up to `limit` model IDs.
+   */
+  private findModelsByKeywords(models: LlmModel[], keywords: string[], limit: number): string[] {
+    const found = new Set<string>();
+
+    for (const keyword of keywords) {
+      const keywordLower = keyword.toLowerCase();
+      for (const model of models) {
+        if (found.size >= limit) break;
+        const modelIdLower = model.id.toLowerCase();
+        if (modelIdLower.includes(keywordLower)) {
+          found.add(model.id);
+        }
+      }
+      if (found.size >= limit) break;
+    }
+
+    return Array.from(found).slice(0, limit);
   }
 
   // ============================================================================

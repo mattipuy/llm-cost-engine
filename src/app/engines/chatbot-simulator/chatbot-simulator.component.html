@@ -814,10 +814,15 @@
             </div>
 
             @if (!routingEnabled()) {
-              <p class="text-xs text-gray-600">
-                Route simple queries to a cheaper model, complex ones to a
-                smarter model. See your blended cost.
-              </p>
+              <div class="space-y-2">
+                <p class="text-xs text-gray-600">
+                  Route simple queries to a cheaper model, complex ones to a
+                  smarter model. See your blended cost.
+                </p>
+                <p class="text-xs text-gray-500 italic">
+                  Example: 80% FAQ queries → Gemini Flash ($0.50/M), 20% debugging → Claude Sonnet ($3/M) = 68% savings
+                </p>
+              </div>
             } @else {
               <div class="space-y-4">
                 <!-- Model Selection -->
@@ -832,7 +837,7 @@
                       [value]="routingPrimaryModelId()"
                       (change)="setRoutingPrimary($any($event.target).value)"
                     >
-                      @for (model of activeModels(); track model.id) {
+                      @for (model of availableModels(); track model.id) {
                         <option [value]="model.id">{{ model.name }}</option>
                       }
                     </select>
@@ -847,7 +852,7 @@
                       [value]="routingSecondaryModelId()"
                       (change)="setRoutingSecondary($any($event.target).value)"
                     >
-                      @for (model of activeModels(); track model.id) {
+                      @for (model of availableModels(); track model.id) {
                         <option [value]="model.id">{{ model.name }}</option>
                       }
                     </select>
