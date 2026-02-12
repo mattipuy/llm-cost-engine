@@ -37,15 +37,20 @@ Prompt: |
   Launch these agents in PARALLEL:
 
   1. competitive-analyst: Research current pricing for:
-     - OpenAI (GPT-4o, GPT-4o mini, o1-mini, o3-mini, GPT-4.1, GPT-4 Turbo)
+     - OpenAI (GPT-5.2, GPT-5.1, GPT-5 Mini, o3-mini, o4-mini)
      - Anthropic (Claude Opus 4.6, Sonnet 4.5, Haiku 4.5)
-     - Google (Gemini 2.0 Flash, 1.5 Pro, 1.5 Flash, 2.5 Pro, 3 Pro, 3 Flash)
+     - Google (Gemini 3 Pro, 3 Flash - check if 2.x/1.x are deprecated)
      - DeepSeek (V3, R1)
      - Mistral (Large, Small)
-     - Meta (Llama 3.3 70B)
+     - Meta (Llama 3.3 70B, check for 3.4/4.0)
 
      Use official sources from scripts/pricing-sources.json
      Focus on: input/output price per 1M tokens, cached pricing, batch pricing
+
+     CRITICAL: Check deprecation pages FIRST:
+     - OpenAI: https://developers.openai.com/api/docs/deprecations
+     - Google: https://ai.google.dev/gemini-api/docs/deprecations
+     - Anthropic: https://platform.claude.com/docs/en/about-claude/model-deprecations
 
   2. trend-analyst: Identify NEW models released since last update:
      - Check provider announcements
@@ -84,7 +89,54 @@ Prompt: |
 | Price drop >20% | Flag for immediate update (user impact) |
 | Price increase >20% | Verify twice (may be error) |
 
+#### 2.1.5 Deprecation Check (MANDATORY)
+
+**Action**: Check official deprecation pages BEFORE evaluating models.
+
+**Official Deprecation Sources**:
+
+| Provider | Deprecation Page | Check For |
+|----------|------------------|-----------|
+| **OpenAI** | [Deprecations](https://developers.openai.com/api/docs/deprecations) | Shutdown dates for gpt-4*, gpt-3.5*, o1* |
+| **Google** | [Gemini Deprecations](https://ai.google.dev/gemini-api/docs/deprecations) | Shutdown dates for gemini-1.5*, 2.0*, 2.5* |
+| **Anthropic** | [Model Deprecations](https://platform.claude.com/docs/en/about-claude/model-deprecations) | Active until dates for claude-* |
+| **DeepSeek** | Check API docs | Usually no deprecation schedule |
+| **Mistral** | Check API docs | Usually no deprecation schedule |
+
+**Deprecation Decision Tree**:
+
+```
+Model in registry?
+├─ YES
+│  └─ Check deprecation page
+│     ├─ Shutdown date < 6 months? → ❌ REMOVE (imminent deprecation)
+│     ├─ Shutdown date < 12 months? → ⚠️ MARK for next update
+│     └─ No shutdown date / Active → ✅ KEEP
+└─ NO (new model candidate)
+   └─ Check if it's replacing deprecated model → ✅ PRIORITIZE
+```
+
+**Example Queries**:
+- "Is gemini-2.0-flash deprecated?" → Check Google deprecation page
+- "When does gpt-4-turbo shut down?" → Check OpenAI deprecations
+- "Is claude-sonnet-4.5 active?" → Check Anthropic model deprecations
+
 #### 2.2 New Models Evaluation
+
+**Philosophy: "Less is More"**
+
+⚠️ **CRITICAL**: We curate, we don't collect. The registry is NOT a comprehensive list of all LLM models.
+
+**Curation Goals**:
+- ✅ 1-2 flagship models per provider
+- ✅ 1 budget model per provider (if available)
+- ✅ 1 reasoning model (if applicable)
+- ❌ No legacy/deprecated models
+- ❌ No redundant variants (e.g., gpt-4.1 when gpt-5.1 exists)
+- ❌ No preview/beta models (wait for GA)
+- ❌ No niche models (RAG-only, code-only, ultra-budget nano variants)
+
+**Target**: ~12-16 models total across all providers
 
 **Action**: Evaluate each new model found by trend-analyst against addition criteria.
 
@@ -125,6 +177,21 @@ Prompt: |
 - Web-only models (no API access)
 - Models without official pricing
 - One-off research models
+
+**Real-World Examples (Feb 2026 Update)**:
+
+✅ **ADDED** (met all criteria):
+- gpt-5.2 → Flagship coding/agentic, replaces gpt-4o
+- gpt-5.1 → Flagship reasoning, replaces gpt-4.1
+- gpt-5-mini → Budget GPT-5, replaces gpt-4o-mini
+
+❌ **SKIPPED** (failed criteria):
+- gpt-5.2-pro → Too expensive, niche use case
+- gpt-5-nano → Ultra-budget niche, overlaps with mistral-small
+- gpt-4.1-mini → Redundant with gpt-5-mini (newer, better)
+- o3 / o3-pro → Too expensive for reasoning ($15/$60)
+- o4-mini → Overlaps with o3-mini, no clear differentiation
+- gemini-2.5-flash → Deprecated Jun 2026 (too soon)
 
 #### 2.3 Legacy Models Evaluation
 
@@ -175,6 +242,29 @@ Prompt: |
 - Superseded by newer version with same/better specs
 - Price/performance no longer competitive
 - Breaking change required (e.g., API endpoint removed)
+
+**Real-World Examples (Feb 2026 Update)**:
+
+❌ **REMOVED** (10 models):
+
+**OpenAI (5 removed)**:
+- gpt-4o → Superseded by gpt-5.2 (cheaper, better)
+- gpt-4o-mini → Superseded by gpt-5-mini
+- o1-mini → No longer in API docs, replaced by o3-mini
+- gpt-4.1 → Redundant with gpt-5.1 (newer generation)
+- gpt-4-turbo → Legacy, expensive ($10/$30 vs gpt-5.2 $1.75/$14)
+
+**Google (4 removed)**:
+- gemini-2.0-flash → Deprecated, shutdown Mar 31, 2026
+- gemini-2.5-pro → Deprecated, shutdown Jun 17, 2026
+- gemini-1.5-pro → Old generation, replaced by gemini-3-pro
+- gemini-1.5-flash → Old generation, replaced by gemini-3-flash
+
+**Anthropic (0 removed)**:
+✅ All claude-4.5/4.6 models active until 2026-2027
+
+**Key Insight**: When a provider releases a new generation (GPT-4 → GPT-5, Gemini 2.x → 3.x),
+remove ALL previous generation models unless they have unique value (e.g., cheaper price point not covered).
 
 #### 2.4 Generate Comparison Summary
 
