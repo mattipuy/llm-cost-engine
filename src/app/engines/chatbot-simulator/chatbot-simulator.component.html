@@ -51,7 +51,7 @@
         <button
           type="button"
           (click)="applyPreset(presets[0])"
-          class="relative p-6 rounded-xl border-2 text-left transition-all duration-200 group"
+          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
           [class.border-indigo-600]="activePreset() === 'saas-startup'"
           [class.bg-indigo-50]="activePreset() === 'saas-startup'"
           [class.ring-2]="activePreset() === 'saas-startup'"
@@ -88,7 +88,7 @@
         <button
           type="button"
           (click)="applyPreset(presets[1])"
-          class="relative p-6 rounded-xl border-2 text-left transition-all duration-200 group"
+          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
           [class.border-indigo-600]="activePreset() === 'enterprise-support'"
           [class.bg-indigo-50]="activePreset() === 'enterprise-support'"
           [class.ring-2]="activePreset() === 'enterprise-support'"
@@ -127,7 +127,7 @@
         <button
           type="button"
           (click)="applyPreset(presets[3])"
-          class="relative p-6 rounded-xl border-2 text-left transition-all duration-200 group"
+          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
           [class.border-indigo-600]="activePreset() === 'rag-knowledge'"
           [class.bg-indigo-50]="activePreset() === 'rag-knowledge'"
           [class.ring-2]="activePreset() === 'rag-knowledge'"
@@ -878,6 +878,21 @@
                   />
                 </div>
 
+                <!-- Same Model Warning -->
+                @if (routingSameModelSelected()) {
+                  <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-3 flex items-start gap-2">
+                    <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-yellow-800">Same model selected</p>
+                      <p class="text-xs text-yellow-700 mt-0.5">
+                        Smart routing works best when you use different models for simple vs complex queries. Choose a cheaper model for simple queries.
+                      </p>
+                    </div>
+                  </div>
+                }
+
                 <!-- Blended Cost Result -->
                 @if (routedMonthlyCost(); as routed) {
                   <div class="bg-white rounded-lg p-4 border border-purple-200">
@@ -1239,13 +1254,48 @@
                 procurement:
                 <span class="text-yellow-400">{{ scenarioId() }}</span>
               </p>
-              <button
-                type="button"
-                (click)="resetLeadForm()"
-                class="mt-4 text-xs text-cyan-400 hover:text-cyan-300 underline"
-              >
-                [new analysis]
-              </button>
+
+              <!-- Next Steps Section -->
+              <div class="mt-6 pt-4 border-t border-gray-700">
+                <p class="text-xs text-gray-500 uppercase mb-3">Next Steps</p>
+
+                <!-- Primary Action: New Analysis -->
+                <button
+                  type="button"
+                  (click)="resetLeadForm()"
+                  class="w-full mb-3 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-mono text-sm transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  [NEW ANALYSIS]
+                </button>
+
+                <!-- Related Tools -->
+                <p class="text-xs text-gray-500 mb-2">
+                  <span class="text-gray-500">#</span> Related Tools
+                </p>
+                <div class="space-y-1.5">
+                  <a
+                    routerLink="/tools/caching-roi"
+                    class="block text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    → Prompt Caching ROI Calculator
+                  </a>
+                  <a
+                    routerLink="/tools/context-window"
+                    class="block text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    → Context Window Comparator
+                  </a>
+                  <a
+                    routerLink="/insights"
+                    class="block text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    → Market Insights & Trends
+                  </a>
+                </div>
+              </div>
             </div>
           } @else if (leadSubmitStatus() === "error") {
             <!-- Error State with Recovery Options -->

@@ -365,6 +365,13 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     };
   });
 
+  // Computed: Detect same model selection in routing simulator (invalid state)
+  routingSameModelSelected = computed(() => {
+    const primaryId = this.routingPrimaryModelId();
+    const secondaryId = this.routingSecondaryModelId();
+    return primaryId && secondaryId && primaryId === secondaryId;
+  });
+
   // ============================================================================
   // ENGINE METADATA & TRANSPARENCY
   // ============================================================================
