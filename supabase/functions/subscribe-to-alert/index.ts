@@ -202,6 +202,18 @@ serve(async (req: Request) => {
             <p style="color:#666;font-size:12px;">This link expires in 24 hours.</p>
             <p style="color:#999;font-size:11px;">LLM Cost Engine - Deterministic TCO Analysis</p>
           `,
+          text: `Verify your Price Alert
+
+You requested to track pricing shifts for ${modelId}.
+
+Click the link below to confirm:
+${verifyUrl}
+
+This link expires in 24 hours.
+
+---
+LLM Cost Engine - Deterministic TCO Analysis
+https://llm-cost-engine.com`,
         }),
       });
     }

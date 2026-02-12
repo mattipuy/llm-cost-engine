@@ -154,6 +154,7 @@ serve(async (req: Request) => {
             : `Price Drop Alert: ${uniqueNames.length} models dropped`;
 
         const html = renderDigestEmail(digest);
+        const text = renderDigestEmailText(digest);
 
         const res = await fetch('https://api.resend.com/emails', {
           method: 'POST',
@@ -166,6 +167,7 @@ serve(async (req: Request) => {
             to: [digest.email],
             subject,
             html,
+            text,
           }),
         });
 
@@ -199,6 +201,37 @@ serve(async (req: Request) => {
     });
   }
 });
+
+/**
+ * Renders a plain text digest email for a single user.
+ */
+function renderDigestEmailText(digest: DigestEntry): string {
+  const rows = digest.drops
+    .map((d) => {
+      const arrow = d.changePercent < 0 ? '↓' : '↑';
+      const sign = d.changePercent < 0 ? '' : '+';
+      const fieldLabel = d.field === 'input_1m' ? 'Input' : 'Output';
+      return `${arrow} ${d.modelName || d.modelId} (${fieldLabel}): $${d.oldPrice} → $${d.newPrice} (${sign}${d.changePercent.toFixed(1)}%)`;
+    })
+    .join('\n');
+
+  const unsubLink = digest.unsubscribeToken
+    ? `${BASE_URL}/unsubscribe?token=${digest.unsubscribeToken}`
+    : `${BASE_URL}`;
+
+  return `LLM Price Drop Alert
+
+We detected price changes on models you're tracking:
+
+${rows}
+
+Recalculate Your TCO:
+${BASE_URL}/tools/chatbot-simulator
+
+---
+LLM Cost Engine · Deterministic TCO Analysis
+Unsubscribe: ${unsubLink}`;
+}
 
 /**
  * Renders an HTML digest email for a single user.

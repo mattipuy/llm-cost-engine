@@ -128,24 +128,41 @@ serve(async (req) => {
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #4F46E5;">Your LLM Cost Analysis Report</h1>
-          
+
           <p>Thank you for your interest in our Enterprise LLM Cost Analysis!</p>
-          
+
           <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h2 style="margin-top: 0; color: #1F2937;">Summary of Your Analysis</h2>
             <p><strong>Winner Model:</strong> ${leadData.results.winnerName}</p>
             <p><strong>Projected Annual Cost:</strong> $${leadData.results.annualProjectedCost.toLocaleString()}</p>
             <p><strong>Savings vs Runner-Up:</strong> ${leadData.results.savingsVsRunnerUp}%</p>
           </div>
-          
+
           <p>You've already downloaded the PDF report. If you need a more detailed analysis or have questions about implementing this in your infrastructure, visit our website to get in touch.</p>
-          
+
           <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB; color: #6B7280; font-size: 14px;">
             LLM Cost Engine - Open Source LLM Pricing Intelligence<br>
             <a href="https://llm-cost-engine.com" style="color: #4F46E5;">llm-cost-engine.com</a>
           </p>
         </div>
       `,
+      text: `Your LLM Cost Analysis Report
+
+Thank you for your interest in our Enterprise LLM Cost Analysis!
+
+=== Summary of Your Analysis ===
+
+Winner Model: ${leadData.results.winnerName}
+Projected Annual Cost: $${leadData.results.annualProjectedCost.toLocaleString()}
+Savings vs Runner-Up: ${leadData.results.savingsVsRunnerUp}%
+
+---
+
+You've already downloaded the PDF report. If you need a more detailed analysis or have questions about implementing this in your infrastructure, visit our website to get in touch.
+
+---
+LLM Cost Engine - Open Source LLM Pricing Intelligence
+https://llm-cost-engine.com`,
     };
 
     const emailResponse = await fetch('https://api.resend.com/emails', {
