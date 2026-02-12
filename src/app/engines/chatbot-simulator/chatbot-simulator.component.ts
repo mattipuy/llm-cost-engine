@@ -103,6 +103,12 @@ interface ComparisonInsight {
         min-height: 180px;
       }
 
+      /* Winner card compact state (when scrolled) */
+      .winner-card-compact {
+        min-height: 60px;
+        max-height: 60px;
+      }
+
       /* CLS Prevention: Loading skeleton placeholder */
       .skeleton-card {
         min-height: 480px;
@@ -276,6 +282,18 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   private explanationUpdatePending = signal(false);
   private explanationVersion = signal(0);
   isExplanationUpdating = computed(() => this.explanationUpdatePending());
+
+  // ============================================================================
+  // SIGNALS - Winner Card Compression
+  // ============================================================================
+
+  // Winner card compacted state (compresses on scroll)
+  isWinnerCardCompacted = signal(false);
+  private scrollThreshold = 150; // px from top before compacting
+
+  // Debounce timers for performance optimization
+  private urlSyncTimer: any = null;
+  private explanationDebounceTimer: any = null;
 
   // ============================================================================
   // SIGNALS - Price Alert Modal
@@ -589,7 +607,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // ============================================================================
 
   constructor() {
-    // Ghost update effect: trigger fade when inputs change
+    // Ghost update effect with debounce (prevent flash on rapid input)
     effect(() => {
       // Track all inputs
       this.messagesPerDay();
@@ -597,28 +615,56 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       this.tokensOutputPerMessage();
       this.cacheHitRate();
 
-      // Trigger ghost update
+      // Clear existing timer
+      if (this.explanationDebounceTimer) {
+        clearTimeout(this.explanationDebounceTimer);
+      }
+
+      // Trigger ghost update immediately
       this.explanationUpdatePending.set(true);
 
-      // Clear after 200ms (matches CSS transition)
-      setTimeout(() => {
+      // Debounce the fade-in (wait for user to stop adjusting)
+      this.explanationDebounceTimer = setTimeout(() => {
         this.explanationUpdatePending.set(false);
         this.explanationVersion.update((v) => v + 1);
-      }, 200);
+      }, 400); // Increased from 200ms to reduce flash
+
+      // Cleanup on effect destruction
+      return () => {
+        if (this.explanationDebounceTimer) {
+          clearTimeout(this.explanationDebounceTimer);
+          this.explanationDebounceTimer = null;
+        }
+      };
     });
 
-    // URL sync effect: update URL when parameters change (browser only)
+    // URL sync effect with debounce (prevent history spam)
     effect(() => {
       const m = this.messagesPerDay();
       const ti = this.tokensInputPerMessage();
       const to = this.tokensOutputPerMessage();
       const cr = this.cacheHitRate();
 
-      // Only update URL in browser (not during SSR)
       if (isPlatformBrowser(this.platformId)) {
-        this.updateUrlParams(m, ti, to, cr);
-        this.updateDynamicMetaTags(m, ti, to, cr);
+        // Clear existing timer
+        if (this.urlSyncTimer) {
+          clearTimeout(this.urlSyncTimer);
+        }
+
+        // Debounce URL updates (wait 300ms after last change)
+        this.urlSyncTimer = setTimeout(() => {
+          this.updateUrlParams(m, ti, to, cr);
+          this.updateDynamicMetaTags(m, ti, to, cr);
+        }, 300);
       }
+
+      // Cleanup on effect destruction
+      return () => {
+        if (this.urlSyncTimer) {
+          clearTimeout(this.urlSyncTimer);
+          this.urlSyncTimer = null;
+        }
+      };
     });
 
     // Analytics effect: track simulation_consensus with 2s debounce
@@ -638,6 +684,40 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           this.tokensInputPerMessage() / this.tokensOutputPerMessage(),
         );
       }
+    });
+
+    // ESC key handler for email form cancellation
+    effect(() => {
+      if (isPlatformBrowser(this.platformId)) {
+        const handleKeydown = (e: KeyboardEvent) => {
+          if (e.key === 'Escape' && this.showEmailForm()) {
+            this.resetLeadForm();
+          }
+        };
+        window.addEventListener('keydown', handleKeydown);
+
+        // Cleanup function
+        return () => window.removeEventListener('keydown', handleKeydown);
+      }
+      return undefined;
+    });
+
+    // Sticky card compression effect: compress winner card on scroll
+    effect(() => {
+      if (isPlatformBrowser(this.platformId)) {
+        const handleScroll = () => {
+          const shouldCompact = window.scrollY > this.scrollThreshold;
+          if (this.isWinnerCardCompacted() !== shouldCompact) {
+            this.isWinnerCardCompacted.set(shouldCompact);
+          }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Cleanup
+        return () => window.removeEventListener('scroll', handleScroll);
+      }
+      return undefined;
     });
   }
 
@@ -733,6 +813,17 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   isBestModel(modelId: string): boolean {
     return this.bestModel()?.modelId === modelId;
+  }
+
+  /**
+   * Expands the winner card and scrolls to top.
+   * Used by the compact card "Expand" button.
+   */
+  expandWinnerCard(): void {
+    this.isWinnerCardCompacted.set(false);
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   /**
