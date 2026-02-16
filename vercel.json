@@ -3,10 +3,22 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "regions": ["fra1"],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index"
+      "src": "/assets/.*",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/data/.*",
+      "dest": "/data/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|json|ico|svg|png|jpg|jpeg|gif|woff|woff2|ttf|eot))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index"
     }
   ],
   "headers": [
