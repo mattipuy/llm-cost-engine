@@ -6,29 +6,32 @@
 
 ## ✅ CRITICAL TESTS (Blockers per launch)
 
-### 1. Analytics Tracking (Plausible)
+### 1. Analytics Tracking (Vercel Analytics)
 
-**Setup** (5 min):
+**Setup** (2 min - auto-configured):
 ```bash
-# 1. Login to Plausible: https://plausible.io
-# 2. Add domain: llm-cost-engine.com
-# 3. Verify script is in index.html (already done ✅)
+# Vercel Analytics is FREE and auto-enabled on Vercel deploys
+# 1. Deploy to Vercel (analytics auto-injected)
+# 2. Enable in Vercel dashboard: Project Settings → Analytics → Enable
+# 3. Done! ✅
 ```
 
 **Test** (dopo deploy):
 ```
 1. Deploy to Vercel
 2. Visit https://llm-cost-engine.com/tools/chatbot-simulator
-3. Check Plausible dashboard → Should see 1 pageview
-4. Click on a model → Should see "Tool Usage" event
+3. Vercel Dashboard → Analytics → Should see 1 pageview
+4. Click on a model → Should track "Tool Usage" event
 5. Click bell icon → enter email → submit
-6. Check Plausible → Should see "Email Signup" event
+6. Vercel Dashboard → Should see "Email Signup" event
 ```
 
 **Expected**:
-- ✅ Pageview tracked
-- ✅ "Tool Usage" event fires on tool load
-- ✅ "Email Signup" event fires on successful subscription
+- ✅ Pageview tracked automatically
+- ✅ Custom events visible in Vercel Analytics dashboard
+- ✅ Real-time visitor count
+
+**Dashboard**: https://vercel.com/mattipuy/llm-cost-engine/analytics
 
 ---
 
@@ -244,10 +247,11 @@ https://llm-cost-engine.com/models/gpt-5-mini
 
 ### Analytics not tracking?
 ```
-1. Check Plausible dashboard: Is domain added?
-2. Check browser console: Any blocked requests to plausible.io?
-3. Check index.html: Is script tag present?
-4. Try incognito mode (some ad blockers block Plausible)
+1. Check Vercel Dashboard → Analytics → Is it enabled?
+2. Enable if needed: Project Settings → Analytics → Toggle ON
+3. Check browser console: Any errors?
+4. Verify script loads: DevTools → Network → Filter "_vercel"
+5. Wait 5-10 min for data to appear (not real-time for free tier)
 ```
 
 ### Email not received?

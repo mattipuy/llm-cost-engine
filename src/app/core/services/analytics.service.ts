@@ -211,20 +211,23 @@ export class AnalyticsService {
     return this.marketInsights;
   }
 
-  // ==================== Plausible Analytics Integration ====================
+  // ==================== Vercel Analytics Integration ====================
 
   /**
-   * Tracks custom event in Plausible Analytics.
-   * Safe to call even if Plausible is not loaded (graceful degradation).
+   * Tracks custom event in Vercel Analytics.
+   * Safe to call even if Vercel Analytics is not loaded (graceful degradation).
+   *
+   * Note: Vercel Analytics auto-tracks pageviews. Custom events are tracked via window.va().
    *
    * @param eventName Event name (e.g., "Email Signup", "PDF Export")
-   * @param props Optional event properties (max 30 keys, values must be strings)
+   * @param props Optional event properties (values must be strings or numbers)
    */
   trackEvent(eventName: string, props?: Record<string, string | number>): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (typeof window !== 'undefined' && (window as any).plausible) {
-      (window as any).plausible(eventName, { props });
+    // Vercel Analytics custom events
+    if (typeof window !== 'undefined' && (window as any).va) {
+      (window as any).va('track', eventName, props);
     }
   }
 
@@ -262,19 +265,16 @@ export class AnalyticsService {
 
   /**
    * Tracks page view for SPA navigation.
-   * Plausible auto-tracks initial pageload, but SPA route changes need manual tracking.
+   * Vercel Analytics auto-tracks pageviews, so this is optional for SPA route changes.
    *
    * @param path Page path (e.g., "/models/gpt-4o")
    */
   trackPageView(path?: string): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (typeof window !== 'undefined' && (window as any).plausible) {
-      if (path) {
-        (window as any).plausible('pageview', { u: window.location.origin + path });
-      } else {
-        (window as any).plausible('pageview');
-      }
+    // Vercel Analytics auto-tracks pageviews, but you can manually track if needed
+    if (typeof window !== 'undefined' && (window as any).va && path) {
+      (window as any).va('pageview', { path });
     }
   }
 }
