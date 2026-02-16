@@ -232,7 +232,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     tokensInputPerMessage: 150,
     tokensOutputPerMessage: 300,
     cacheHitRate: 0.2,
-  } as const;
+  };
 
   // ============================================================================
   // SIGNALS - User Inputs
