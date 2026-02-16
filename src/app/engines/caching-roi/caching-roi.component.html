@@ -105,7 +105,18 @@
 
           <!-- Token Configuration -->
           <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-            <h2 class="text-sm font-semibold text-gray-900 mb-4">Token Configuration</h2>
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-semibold text-gray-900">Token Configuration</h2>
+              <button
+                type="button"
+                (click)="resetToDefaults()"
+                class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+                aria-label="Reset all inputs to default values"
+                title="Reset to defaults"
+              >
+                Reset
+              </button>
+            </div>
             <div class="space-y-5">
               <!-- Static Tokens -->
               <div>
@@ -207,7 +218,7 @@
                   <span class="text-sm font-mono text-indigo-600 tabular-nums">{{ cacheHitRate() }}%</span>
                 </div>
                 <p class="text-xs text-gray-500 mb-2">
-                  How often the cache is warm. Higher = more savings. ({{ cacheWritePercent() }}% cold / {{ cacheHitRate() }}% warm)
+                  Percentage of requests that reuse cached data. Higher = more cache hits, fewer writes, bigger savings. ({{ cacheWritePercent() }}% miss, {{ cacheHitRate() }}% hit)
                 </p>
                 <input
                   type="range"
@@ -251,16 +262,16 @@
                   </div>
                 </div>
 
-                <!-- Break-even -->
+                <!-- Cache Efficiency -->
                 <div class="mt-3 pt-3 border-t border-green-200">
                   <div class="flex justify-between text-sm">
-                    <span class="text-green-700">Break-even</span>
+                    <span class="text-green-700">Cache Efficiency</span>
                     <span class="font-bold text-green-800 tabular-nums">
-                      {{ r.breakEvenRequests | number }} requests
+                      {{ r.breakEvenRequests | number }}:1 ratio
                     </span>
                   </div>
                   <p class="text-xs text-green-600 mt-1">
-                    After {{ r.breakEvenRequests }} requests, caching pays for itself.
+                    Every {{ r.breakEvenRequests }} cache hits offset the cost of 1 cache miss (write). Higher cache hit rate = better efficiency.
                   </p>
                 </div>
               </div>

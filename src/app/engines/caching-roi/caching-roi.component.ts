@@ -45,6 +45,16 @@ import { ENGINE_META } from '../../core/constants/engine-weights';
 })
 export class CachingRoiComponent implements OnInit, OnDestroy {
   // ============================================================================
+  // DEFAULTS & CONSTANTS
+  // ============================================================================
+
+  private readonly DEFAULT_STATIC_TOKENS = 5000;
+  private readonly DEFAULT_DYNAMIC_TOKENS = 100;
+  private readonly DEFAULT_OUTPUT_TOKENS = 200;
+  private readonly DEFAULT_REQUESTS_PER_DAY = 1000;
+  private readonly DEFAULT_CACHE_WRITE_PERCENT = 10;
+
+  // ============================================================================
   // LIFECYCLE & CLEANUP
   // ============================================================================
 
@@ -55,11 +65,11 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
   // ============================================================================
 
   selectedModelId = signal('claude-3.5-sonnet');
-  staticTokens = signal(5000);
-  dynamicTokens = signal(100);
-  outputTokens = signal(200);
-  requestsPerDay = signal(1000);
-  cacheWritePercent = signal(10);
+  staticTokens = signal(this.DEFAULT_STATIC_TOKENS);
+  dynamicTokens = signal(this.DEFAULT_DYNAMIC_TOKENS);
+  outputTokens = signal(this.DEFAULT_OUTPUT_TOKENS);
+  requestsPerDay = signal(this.DEFAULT_REQUESTS_PER_DAY);
+  cacheWritePercent = signal(this.DEFAULT_CACHE_WRITE_PERCENT);
 
   // ============================================================================
   // SIGNALS - Data State
@@ -168,6 +178,14 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
 
   onCacheWriteChange(value: number): void {
     this.cacheWritePercent.set(Math.min(100, Math.max(1, value)));
+  }
+
+  resetToDefaults(): void {
+    this.staticTokens.set(this.DEFAULT_STATIC_TOKENS);
+    this.dynamicTokens.set(this.DEFAULT_DYNAMIC_TOKENS);
+    this.outputTokens.set(this.DEFAULT_OUTPUT_TOKENS);
+    this.requestsPerDay.set(this.DEFAULT_REQUESTS_PER_DAY);
+    this.cacheWritePercent.set(this.DEFAULT_CACHE_WRITE_PERCENT);
   }
 
   // ============================================================================
