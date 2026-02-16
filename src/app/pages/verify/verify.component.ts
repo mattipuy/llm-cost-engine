@@ -67,8 +67,15 @@ export class VerifyComponent implements OnInit {
       this.state.set('error');
       return;
     }
-    // Always verify token (both SSR and browser)
-    this.verifyToken(token);
+
+    // Only verify in browser to avoid double-verification (SSR + browser)
+    // Token can only be used once, so SSR verification would invalidate it for browser
+    if (isPlatformBrowser(this.platformId)) {
+      this.verifyToken(token);
+    } else {
+      // On SSR, keep loading state (will verify on browser hydration)
+      this.state.set('loading');
+    }
   }
 
   private async verifyToken(token: string): Promise<void> {
