@@ -280,7 +280,7 @@
                   <div class="flex-1 min-w-0">
                     <a
                       [routerLink]="['/models', model.id]"
-                      class="text-sm text-gray-900 block truncate hover:text-indigo-600 transition-colors cursor-pointer"
+                      class="text-sm text-gray-900 block truncate hover:text-indigo-600 hover:underline transition-colors cursor-pointer font-medium"
                     >
                       {{ model.name }}
                       @if (isRecommendedForContext(model.id)) {
@@ -624,7 +624,7 @@
                         <div class="flex items-center gap-2">
                           <a
                             [routerLink]="['/models', winner.modelId]"
-                            class="hover:text-indigo-600 transition-colors"
+                            class="hover:text-indigo-600 hover:underline transition-colors cursor-pointer"
                           >
                             <h3 class="text-xl font-bold text-gray-900">
                               {{ winner.modelName }}
@@ -792,7 +792,7 @@
                     <div>
                       <a
                         [routerLink]="['/models', winner.modelId]"
-                        class="text-sm font-bold text-gray-900 hover:text-indigo-600 transition-colors"
+                        class="text-sm font-bold text-gray-900 hover:text-indigo-600 hover:underline transition-colors cursor-pointer"
                       >{{ winner.modelName }}</a>
                       <span class="text-xs text-gray-600 ml-2">{{ winner.provider }}</span>
                     </div>
@@ -1057,7 +1057,7 @@
                     <div>
                       <a
                         [routerLink]="['/models', result.modelId]"
-                        class="hover:text-indigo-600 transition-colors"
+                        class="hover:text-indigo-600 hover:underline transition-colors cursor-pointer"
                       >
                         <h3 class="text-lg font-bold text-gray-900">
                           {{ result.modelName }}
