@@ -45,6 +45,14 @@ import { ENGINE_META } from '../../core/constants/engine-weights';
 })
 export class BatchApiComponent implements OnInit, OnDestroy {
   // ============================================================================
+  // DEFAULTS & CONSTANTS
+  // ============================================================================
+
+  private readonly DEFAULT_RECORDS = 10000;
+  private readonly DEFAULT_AVG_INPUT = 500;
+  private readonly DEFAULT_AVG_OUTPUT = 100;
+
+  // ============================================================================
   // LIFECYCLE & CLEANUP
   // ============================================================================
 
@@ -55,9 +63,9 @@ export class BatchApiComponent implements OnInit, OnDestroy {
   // ============================================================================
 
   selectedModelId = signal('gpt-4o');
-  records = signal(10000);
-  avgInputTokens = signal(500);
-  avgOutputTokens = signal(100);
+  records = signal(this.DEFAULT_RECORDS);
+  avgInputTokens = signal(this.DEFAULT_AVG_INPUT);
+  avgOutputTokens = signal(this.DEFAULT_AVG_OUTPUT);
 
   // ============================================================================
   // SIGNALS - Data State
@@ -160,6 +168,12 @@ export class BatchApiComponent implements OnInit, OnDestroy {
     if (tokens >= 1_000_000) return (tokens / 1_000_000).toFixed(1) + 'M';
     if (tokens >= 1_000) return (tokens / 1_000).toFixed(0) + 'K';
     return tokens.toString();
+  }
+
+  resetToDefaults(): void {
+    this.records.set(this.DEFAULT_RECORDS);
+    this.avgInputTokens.set(this.DEFAULT_AVG_INPUT);
+    this.avgOutputTokens.set(this.DEFAULT_AVG_OUTPUT);
   }
 
   // ============================================================================
