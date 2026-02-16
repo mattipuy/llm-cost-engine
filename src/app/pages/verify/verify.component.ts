@@ -62,20 +62,21 @@ export class VerifyComponent implements OnInit {
   state = signal<'loading' | 'success' | 'error'>('loading');
 
   ngOnInit(): void {
+    // During SSR, ALWAYS show loading state (query params not available server-side)
+    // All verification logic runs client-side only
+    if (!isPlatformBrowser(this.platformId)) {
+      this.state.set('loading');
+      return;
+    }
+
+    // Browser-only logic: check token and verify
     const token = this.route.snapshot.queryParamMap.get('token');
     if (!token) {
       this.state.set('error');
       return;
     }
 
-    // Only verify in browser to avoid double-verification (SSR + browser)
-    // Token can only be used once, so SSR verification would invalidate it for browser
-    if (isPlatformBrowser(this.platformId)) {
-      this.verifyToken(token);
-    } else {
-      // On SSR, keep loading state (will verify on browser hydration)
-      this.state.set('loading');
-    }
+    this.verifyToken(token);
   }
 
   private async verifyToken(token: string): Promise<void> {
