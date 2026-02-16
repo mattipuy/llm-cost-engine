@@ -1,9 +1,8 @@
-import { Injectable, inject, PLATFORM_ID, TransferState, makeStateKey, Optional } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { isPlatformServer, isPlatformBrowser } from '@angular/common';
+import { isPlatformServer } from '@angular/common';
 import { Observable, of, tap } from 'rxjs';
 import { LlmModel } from '../../engines/chatbot-simulator/logic.service';
-import { SSR_PRICING_DATA } from '../tokens/ssr-pricing.token';
 
 /**
  * Metadata from the pricing registry JSON.
@@ -49,17 +48,6 @@ export class PricingDataService {
   private http = inject(HttpClient);
   private transferState = inject(TransferState);
   private platformId = inject(PLATFORM_ID);
-  private ssrPricingData = inject(SSR_PRICING_DATA, { optional: true });
-
-  constructor() {
-    // DEBUG: Log whether SSR data was injected
-    const isServer = !isPlatformBrowser(this.platformId);
-    console.log('[PricingService DEBUG] Platform:', isServer ? 'SERVER' : 'BROWSER');
-    console.log('[PricingService DEBUG] SSR_PRICING_DATA present:', !!this.ssrPricingData);
-    if (this.ssrPricingData) {
-      console.log('[PricingService DEBUG] SSR data model count:', this.ssrPricingData.models?.length);
-    }
-  }
 
   /**
    * Loads pricing data with TransferState caching.
@@ -67,31 +55,17 @@ export class PricingDataService {
    * Returns both metadata and models from the JSON registry.
    */
   loadPricingData(): Observable<PricingData> {
-    console.log('[PricingService] loadPricingData called');
-
     // 1. Check TransferState first (client hydration after SSR)
     const cachedData = this.transferState.get(PRICING_DATA_KEY, null);
     if (cachedData) {
-      console.log('[PricingService] ✅ Using TransferState cache');
       this.transferState.remove(PRICING_DATA_KEY);
       return of(cachedData);
     }
 
-    // 2. Check SSR injected data (server processing)
-    if (this.ssrPricingData) {
-      console.log('[PricingService] ✅ Using SSR injected data');
-      // We're on server and have injected data - use it
-      this.transferState.set(PRICING_DATA_KEY, this.ssrPricingData);
-      return of(this.ssrPricingData);
-    }
-
-    // 3. Fallback to HTTP fetch (client-side navigation, no SSR)
-    console.log('[PricingService] ⚠️ Falling back to HTTP fetch');
+    // 2. Fallback to HTTP fetch (client-side navigation or SSR)
     return this.http.get<PricingData>('/data/llm-pricing.json').pipe(
       tap((data) => {
-        console.log('[PricingService] HTTP fetch successful');
         // If on server, store in TransferState for client
-        // (This path shouldn't happen with SSR token, but keep as fallback)
         if (isPlatformServer(this.platformId)) {
           this.transferState.set(PRICING_DATA_KEY, data);
         }

@@ -33,10 +33,7 @@
             "styles": ["src/styles.scss"],
             "scripts": [],
             "server": "src/main.server.ts",
-            "prerender": {
-              "discoverRoutes": false,
-              "routesFile": "routes.txt"
-            },
+            "prerender": true,
             "ssr": {
               "entry": "src/server.ts"
             }
