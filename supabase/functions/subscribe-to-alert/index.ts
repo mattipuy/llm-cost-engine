@@ -195,12 +195,31 @@ serve(async (req: Request) => {
           to: [email],
           subject: `Verify your Price Alert for ${modelId}`,
           html: `
-            <h2>Verify your Price Alert</h2>
-            <p>You requested to track pricing shifts for <strong>${modelId}</strong>.</p>
-            <p>Click below to confirm:</p>
-            <p><a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">Verify Alert</a></p>
-            <p style="color:#666;font-size:12px;">This link expires in 24 hours.</p>
-            <p style="color:#999;font-size:11px;">LLM Cost Engine - Deterministic TCO Analysis</p>
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h1 style="color: #4F46E5; margin-bottom: 24px;">Verify Your Price Alert</h1>
+
+              <p style="color: #374151; font-size: 16px; line-height: 1.6;">You requested to track pricing shifts for <strong>${modelId}</strong>.</p>
+
+              <div style="background: #F3F4F6; padding: 24px; border-radius: 8px; margin: 24px 0;">
+                <p style="margin: 0 0 16px 0; color: #1F2937; font-size: 15px;">You'll receive strategic alerts when:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #4B5563;">
+                  <li style="margin-bottom: 8px;">Price drops ≥5% on this model</li>
+                  <li style="margin-bottom: 8px;">Competitor gets ≥15% cheaper (same category)</li>
+                  <li>Context limits change materially</li>
+                </ul>
+              </div>
+
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="${verifyUrl}" style="display: inline-block; padding: 14px 32px; background: #4F46E5; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">Verify Alert</a>
+              </div>
+
+              <p style="color: #9CA3AF; font-size: 13px; text-align: center;">This link expires in 24 hours</p>
+
+              <p style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #E5E7EB; color: #6B7280; font-size: 14px; text-align: center;">
+                LLM Cost Engine - Deterministic TCO Analysis<br>
+                <a href="https://llm-cost-engine.com" style="color: #4F46E5; text-decoration: none;">llm-cost-engine.com</a>
+              </p>
+            </div>
           `,
           text: `Verify your Price Alert
 

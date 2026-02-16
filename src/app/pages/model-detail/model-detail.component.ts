@@ -96,24 +96,38 @@ export class ModelDetailComponent implements OnInit {
         .loadPricingData()
         .subscribe({
           next: (data: { models: LlmModel[] }) => {
-            this.allModels.set(data.models);
-            const model = data.models.find((m: LlmModel) => m.id === modelId);
+            try {
+              this.allModels.set(data.models);
+              const model = data.models.find((m: LlmModel) => m.id === modelId);
 
-            if (model) {
-              this.model.set(model);
-              this.setMetaTags(model);
-              this.injectJsonLd(model);
-            } else {
+              if (model) {
+                this.model.set(model);
+                // Only update meta tags and JSON-LD in browser to avoid SSR issues
+                if (isPlatformBrowser(this.platformId)) {
+                  this.setMetaTags(model);
+                  this.injectJsonLd(model);
+                } else {
+                  // During SSR, just set basic meta tags
+                  this.title.setTitle(`${model.name} Pricing | LLM Cost Engine`);
+                }
+              } else {
+                this.notFound.set(true);
+              }
+              this.isLoading.set(false);
+            } catch (innerError) {
+              console.error('Error processing model data:', innerError);
               this.notFound.set(true);
+              this.isLoading.set(false);
             }
-            this.isLoading.set(false);
           },
-          error: () => {
+          error: (err) => {
+            console.error('Error loading pricing data:', err);
             this.notFound.set(true);
             this.isLoading.set(false);
           }
         });
     } catch (error) {
+      console.error('Outer error in loadModelData:', error);
       this.notFound.set(true);
       this.isLoading.set(false);
     }
