@@ -210,4 +210,71 @@ export class AnalyticsService {
   getMarketInsights(): MarketInsightsService {
     return this.marketInsights;
   }
+
+  // ==================== Plausible Analytics Integration ====================
+
+  /**
+   * Tracks custom event in Plausible Analytics.
+   * Safe to call even if Plausible is not loaded (graceful degradation).
+   *
+   * @param eventName Event name (e.g., "Email Signup", "PDF Export")
+   * @param props Optional event properties (max 30 keys, values must be strings)
+   */
+  trackEvent(eventName: string, props?: Record<string, string | number>): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (typeof window !== 'undefined' && (window as any).plausible) {
+      (window as any).plausible(eventName, { props });
+    }
+  }
+
+  /**
+   * Tracks email signup for price alerts.
+   * Goal: Measure conversion rate for email capture CTA.
+   *
+   * @param modelId Model ID user subscribed to (e.g., "gpt-4o")
+   * @param source Where signup originated ("model-card-bell" | "banner-cta" | "other")
+   */
+  trackEmailSignup(modelId: string, source: string = 'model-card-bell'): void {
+    this.trackEvent('Email Signup', { model: modelId, source });
+  }
+
+  /**
+   * Tracks PDF export (Enterprise Analysis feature).
+   * Goal: Understand which tools drive PDF downloads.
+   *
+   * @param toolName Tool name ("chatbot-simulator" | "batch-api" | "caching-roi" | "context-window")
+   * @param modelCount Number of models in comparison (1-15)
+   */
+  trackPdfExport(toolName: string, modelCount: number): void {
+    this.trackEvent('PDF Export', { tool: toolName, models: modelCount.toString() });
+  }
+
+  /**
+   * Tracks tool usage (when user interacts with a calculator).
+   * Goal: Understand which tools are most popular.
+   *
+   * @param toolName Tool name
+   */
+  trackToolUsage(toolName: string): void {
+    this.trackEvent('Tool Usage', { tool: toolName });
+  }
+
+  /**
+   * Tracks page view for SPA navigation.
+   * Plausible auto-tracks initial pageload, but SPA route changes need manual tracking.
+   *
+   * @param path Page path (e.g., "/models/gpt-4o")
+   */
+  trackPageView(path?: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (typeof window !== 'undefined' && (window as any).plausible) {
+      if (path) {
+        (window as any).plausible('pageview', { u: window.location.origin + path });
+      } else {
+        (window as any).plausible('pageview');
+      }
+    }
+  }
 }

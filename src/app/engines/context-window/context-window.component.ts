@@ -25,6 +25,7 @@ import {
   PricingMetadata,
 } from '../../core/services/pricing-data.service';
 import { JsonLdService } from '../../core/services/json-ld.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 import { PriceAlertModalComponent } from '../../shared/components/price-alert-modal/price-alert-modal.component';
 import { ENGINE_META } from '../../core/constants/engine-weights';
 
@@ -128,6 +129,7 @@ export class ContextWindowComponent implements OnInit, OnDestroy {
   private logicService = inject(ContextWindowLogicService);
   private pricingService = inject(PricingDataService);
   private jsonLdService = inject(JsonLdService);
+  private analytics = inject(AnalyticsService);
   private meta = inject(Meta);
   private title = inject(Title);
   private platformId = inject(PLATFORM_ID);
@@ -143,6 +145,8 @@ export class ContextWindowComponent implements OnInit, OnDestroy {
     this.setMetaTags();
     this.injectJsonLd();
     this.loadPricingData();
+    // Track tool usage for analytics
+    this.analytics.trackToolUsage('context-window');
   }
 
   // ============================================================================

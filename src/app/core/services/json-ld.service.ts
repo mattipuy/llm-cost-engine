@@ -168,6 +168,21 @@ export class JsonLdService {
   }
 
   /**
+   * Injects custom JSON-LD schema.
+   * Generic method for any schema.org type not covered by specific methods.
+   * Works on both SSR and browser.
+   */
+  injectCustomSchema(schema: Record<string, unknown>, schemaId: string): void {
+    this.removeExistingSchema(schemaId);
+
+    const script = this.document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-schema', schemaId);
+    script.text = JSON.stringify(schema);
+    this.document.head.appendChild(script);
+  }
+
+  /**
    * Removes existing schema to avoid duplicates during hydration.
    * Works on both SSR and browser via DOCUMENT token.
    */

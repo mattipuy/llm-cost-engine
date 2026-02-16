@@ -756,6 +756,8 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     this.injectJsonLd();
     this.loadPricingData();
     this.loadPriceTrends();
+    // Track tool usage for analytics
+    this.analyticsService.trackToolUsage('chatbot-simulator');
   }
 
   ngOnDestroy(): void {

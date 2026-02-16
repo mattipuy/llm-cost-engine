@@ -15,6 +15,7 @@ import {
   PriceAlertService,
   PriceAlertStats,
 } from '../../../core/services/price-alert.service';
+import { AnalyticsService } from '../../../core/services/analytics.service';
 
 @Component({
   selector: 'app-price-alert-modal',
@@ -159,6 +160,7 @@ export class PriceAlertModalComponent {
   @Output() closed = new EventEmitter<void>();
 
   private alertService = inject(PriceAlertService);
+  private analytics = inject(AnalyticsService);
   private platformId = inject(PLATFORM_ID);
 
   email = signal('');
@@ -196,6 +198,9 @@ export class PriceAlertModalComponent {
     );
 
     if (result.success) {
+      // Track email signup conversion
+      this.analytics.trackEmailSignup(this.modelId, 'model-card-bell');
+
       // Determine success type based on backend response
       if (result.autoVerified) {
         this.successType.set('auto-verified');

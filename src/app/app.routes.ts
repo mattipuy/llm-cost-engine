@@ -73,6 +73,15 @@ export const routes: Routes = [
       ),
     title: 'Unsubscribe | LLM Cost Engine',
   },
+  // Model detail pages (SEO landing pages)
+  {
+    path: 'models/:modelId',
+    loadComponent: () =>
+      import('./pages/model-detail/model-detail.component').then(
+        (m) => m.ModelDetailComponent,
+      ),
+    title: 'Model Pricing & Cost Analysis | LLM Cost Engine',
+  },
   // Root redirect for convenience
   {
     path: '',
