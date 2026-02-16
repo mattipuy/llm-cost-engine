@@ -65,6 +65,12 @@ export class ModelDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // Skip all logic during SSR to prevent serverless function crashes
+    // Model pages are client-side only (still indexed via sitemap)
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Subscribe to route param changes to handle navigation between models
     this.route.paramMap.subscribe(params => {
       const id = params.get('modelId');
@@ -77,10 +83,8 @@ export class ModelDetailComponent implements OnInit {
       // Load pricing data
       this.loadModelData(id);
 
-      // Track page view (only in browser)
-      if (isPlatformBrowser(this.platformId)) {
-        this.analytics.trackPageView(`/models/${id}`);
-      }
+      // Track page view
+      this.analytics.trackPageView(`/models/${id}`);
     });
   }
 

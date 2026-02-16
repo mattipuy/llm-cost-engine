@@ -65,12 +65,7 @@ export class PricingDataService {
     }
 
     // Fetch data (happens on server during SSR, or client if no cache)
-    // During SSR, use full URL to access the JSON file
-    const url = isPlatformServer(this.platformId)
-      ? 'https://llm-cost-engine.com/data/llm-pricing.json'
-      : '/data/llm-pricing.json';
-
-    return this.http.get<PricingData>(url).pipe(
+    return this.http.get<PricingData>('/data/llm-pricing.json').pipe(
       tap((data) => {
         // If on server, store in TransferState for client
         if (isPlatformServer(this.platformId)) {
