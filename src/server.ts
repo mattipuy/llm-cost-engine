@@ -3,11 +3,24 @@ import { CommonEngine, isMainModule } from '@angular/ssr/node';
 import express from 'express';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import bootstrap from './main.server';
+import { SSR_PRICING_DATA } from './app/core/tokens/ssr-pricing.token';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 const indexHtml = join(serverDistFolder, 'index.server.html');
+
+// Read pricing data from filesystem for SSR (avoids HTTP fetch issues in Vercel)
+let pricingData: any = null;
+try {
+  const pricingPath = join(browserDistFolder, 'data/llm-pricing.json');
+  const pricingContent = readFileSync(pricingPath, 'utf-8');
+  pricingData = JSON.parse(pricingContent);
+  console.log('[SSR] Pricing data loaded from filesystem:', pricingPath);
+} catch (error) {
+  console.error('[SSR] Failed to load pricing data:', error);
+}
 
 const app = express();
 const commonEngine = new CommonEngine();
@@ -47,7 +60,10 @@ app.get('**', (req, res, next) => {
       documentFilePath: indexHtml,
       url: `${protocol}://${headers.host}${originalUrl}`,
       publicPath: browserDistFolder,
-      providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
+      providers: [
+        { provide: APP_BASE_HREF, useValue: baseUrl },
+        ...(pricingData ? [{ provide: SSR_PRICING_DATA, useValue: pricingData }] : []),
+      ],
     })
     .then((html) => res.send(html))
     .catch((err) => next(err));
