@@ -5,10 +5,13 @@ import {
   inject,
   signal,
   OnInit,
+  OnDestroy,
   PLATFORM_ID,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Meta, Title } from '@angular/platform-browser';
 import { LlmModel } from '../chatbot-simulator/logic.service';
 import {
@@ -40,7 +43,13 @@ import { ENGINE_META } from '../../core/constants/engine-weights';
     `,
   ],
 })
-export class BatchApiComponent implements OnInit {
+export class BatchApiComponent implements OnInit, OnDestroy {
+  // ============================================================================
+  // LIFECYCLE & CLEANUP
+  // ============================================================================
+
+  private destroy$ = new Subject<void>();
+
   // ============================================================================
   // SIGNALS - User Inputs
   // ============================================================================
@@ -56,6 +65,8 @@ export class BatchApiComponent implements OnInit {
 
   allModels = signal<LlmModel[]>([]);
   isLoading = signal(true);
+  errorMessage = signal<string | null>(null);
+  isRetrying = signal(false);
   pricingMetadata = signal<PricingMetadata | null>(null);
 
   // ============================================================================
@@ -169,23 +180,46 @@ export class BatchApiComponent implements OnInit {
 
   private loadPricingData(): void {
     this.isLoading.set(true);
-    this.pricingService.loadPricingData().subscribe({
-      next: (data) => {
-        this.allModels.set(data.models);
-        if (data.metadata) this.pricingMetadata.set(data.metadata);
-        this.isLoading.set(false);
+    this.errorMessage.set(null);
+    this.pricingService
+      .loadPricingData()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.allModels.set(data.models);
+          if (data.metadata) this.pricingMetadata.set(data.metadata);
+          this.isLoading.set(false);
+          this.isRetrying.set(false);
 
-        // If default model not in batch list, select first available
-        const batch = this.logicService.filterBatchModels(data.models);
-        if (batch.length > 0 && !batch.find((m) => m.id === this.selectedModelId())) {
-          this.selectedModelId.set(batch[0].id);
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load pricing data', err);
-        this.isLoading.set(false);
-      },
-    });
+          // If default model not in batch list, select first available
+          const batch = this.logicService.filterBatchModels(data.models);
+          if (
+            batch.length > 0 &&
+            !batch.find((m) => m.id === this.selectedModelId())
+          ) {
+            this.selectedModelId.set(batch[0].id);
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load pricing data', err);
+          this.isLoading.set(false);
+          this.isRetrying.set(false);
+          this.errorMessage.set(
+            'Failed to load pricing data. Please check your connection and try again.',
+          );
+        },
+      });
+  }
+
+  retryLoadData(): void {
+    this.errorMessage.set(null);
+    this.isRetrying.set(true);
+    this.loadPricingData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private setMetaTags(): void {
