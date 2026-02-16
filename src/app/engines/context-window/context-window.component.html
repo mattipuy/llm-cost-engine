@@ -119,7 +119,7 @@
                   [class.text-gray-700]="sortMode() !== mode"
                   [class.hover:bg-gray-50]="sortMode() !== mode"
                 >
-                  {{ mode === 'price' ? 'Cheapest First' : 'Largest First' }}
+                  {{ mode === 'price' ? 'Best Value (Price)' : 'Max Context Window' }}
                 </button>
               }
             </div>
@@ -243,21 +243,30 @@
             </div>
 
             <!-- Bar Visualization -->
-            <div class="relative h-6 bg-gray-100 rounded-full overflow-hidden">
-              <!-- Context window (full capacity) -->
+            <div class="relative h-6 bg-gray-100 rounded-full overflow-visible">
+              <!-- Context window (full capacity) - always 100% of bar -->
               <div
                 class="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
                 [class.bg-green-100]="result.isValid"
                 [class.bg-red-50]="!result.isValid"
-                [style.width.%]="contextBarWidth(result)"
+                [style.width.%]="100"
               ></div>
-              <!-- User input usage -->
+              <!-- User input usage (within context window) -->
               <div
                 class="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
                 [class.bg-green-500]="result.isValid"
                 [class.bg-red-400]="!result.isValid"
-                [style.width.%]="contextBarWidth(result) * usageBarWidth(result) / 100"
+                [style.width.%]="Math.min(100, result.usagePercent)"
               ></div>
+              <!-- Overflow segment (extends beyond bar when content > context) -->
+              @if (!result.isValid) {
+                <div
+                  class="absolute top-0 h-full bg-red-600 rounded-r-full transition-all duration-300"
+                  [style.left.%]="100"
+                  [style.width.%]="(result.overflowTokens / result.contextWindow) * 100"
+                  [title]="formatTokens(result.overflowTokens) + ' tokens overflow'"
+                ></div>
+              }
             </div>
 
             <!-- Stats -->

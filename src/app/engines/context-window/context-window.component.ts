@@ -133,6 +133,7 @@ export class ContextWindowComponent implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
 
   readonly engineMeta = ENGINE_META;
+  Math = Math; // Expose Math to template for min/max calculations
 
   // ============================================================================
   // LIFECYCLE
