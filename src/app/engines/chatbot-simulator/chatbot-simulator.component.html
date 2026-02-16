@@ -361,6 +361,9 @@
                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 aria-describedby="messages-value"
                 [attr.aria-label]="'Messages per day: ' + messagesPerDay()"
+                [attr.aria-valuemin]="100"
+                [attr.aria-valuemax]="50000"
+                [attr.aria-valuenow]="messagesPerDay()"
               />
               <span
                 id="messages-value"
@@ -400,6 +403,9 @@
                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 aria-describedby="input-tokens-value"
                 [attr.aria-label]="'Input tokens: ' + tokensInputPerMessage()"
+                [attr.aria-valuemin]="50"
+                [attr.aria-valuemax]="2000"
+                [attr.aria-valuenow]="tokensInputPerMessage()"
               />
               <span
                 id="input-tokens-value"
@@ -440,6 +446,9 @@
                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 aria-describedby="output-tokens-value"
                 [attr.aria-label]="'Output tokens: ' + tokensOutputPerMessage()"
+                [attr.aria-valuemin]="50"
+                [attr.aria-valuemax]="4000"
+                [attr.aria-valuenow]="tokensOutputPerMessage()"
               />
               <span
                 id="output-tokens-value"
@@ -458,8 +467,18 @@
           <!-- Cache Hit Rate -->
           <div class="mb-6">
             <div class="flex justify-between items-baseline mb-2">
-              <label class="text-sm font-medium text-gray-700">
+              <label class="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                 Cache Hit Rate
+                <button
+                  type="button"
+                  class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+                  title="Set to 0% if not using prompt caching. Most apps with static prompts achieve 20-50% cache hits."
+                  aria-label="Cache hit rate help: Set to 0% if not using prompt caching. Most apps with static prompts achieve 20-50% cache hits."
+                >
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
               </label>
               <span
                 class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700"
@@ -478,6 +497,9 @@
                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 aria-describedby="cache-value"
                 [attr.aria-label]="'Cache hit rate: ' + formatCacheRate()"
+                [attr.aria-valuemin]="0"
+                [attr.aria-valuemax]="1"
+                [attr.aria-valuenow]="cacheHitRate()"
               />
               <span
                 id="cache-value"
@@ -492,6 +514,15 @@
               <span>100%</span>
             </div>
           </div>
+
+          <!-- Reset Button -->
+          <button
+            type="button"
+            (click)="resetToDefaults()"
+            class="w-full mt-6 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            Reset to Defaults
+          </button>
         </div>
       </aside>
 
@@ -648,6 +679,21 @@
                             </p>
                           </div>
                         </div>
+
+                        <!-- Trivial Savings Warning -->
+                        @if (comparison.monthlySavings < 10 && comparison.monthlySavings > 0) {
+                          <div class="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <div class="flex-1">
+                              <p class="text-xs font-medium text-amber-800">Minimal Savings</p>
+                              <p class="text-xs text-amber-700 mt-0.5">
+                                Migration effort may exceed {{ comparison.monthlySavings | currency: "USD" : "symbol" : "1.2-2" }}/mo savings. Consider if quality/latency differences justify the switch.
+                              </p>
+                            </div>
+                          </div>
+                        }
 
                         <!-- Context Claim (only if multiplier > 1) -->
                         @if (comparison.contextNarration) {

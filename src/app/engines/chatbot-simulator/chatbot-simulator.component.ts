@@ -224,13 +224,24 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   ];
 
   // ============================================================================
+  // DEFAULTS & CONSTANTS
+  // ============================================================================
+
+  readonly DEFAULT_VALUES = {
+    messagesPerDay: 500,
+    tokensInputPerMessage: 150,
+    tokensOutputPerMessage: 300,
+    cacheHitRate: 0.2,
+  } as const;
+
+  // ============================================================================
   // SIGNALS - User Inputs
   // ============================================================================
 
-  messagesPerDay = signal(500);
-  tokensInputPerMessage = signal(150);
-  tokensOutputPerMessage = signal(300);
-  cacheHitRate = signal(0.2);
+  messagesPerDay = signal(this.DEFAULT_VALUES.messagesPerDay);
+  tokensInputPerMessage = signal(this.DEFAULT_VALUES.tokensInputPerMessage);
+  tokensOutputPerMessage = signal(this.DEFAULT_VALUES.tokensOutputPerMessage);
+  cacheHitRate = signal(this.DEFAULT_VALUES.cacheHitRate);
   activePreset = signal<string | null>(null);
 
   // ============================================================================
@@ -704,8 +715,12 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     effect(() => {
       if (isPlatformBrowser(this.platformId)) {
         const handleKeydown = (e: KeyboardEvent) => {
-          if (e.key === 'Escape' && this.showEmailForm()) {
-            this.resetLeadForm();
+          if (e.key === 'Escape') {
+            if (this.showEmailForm()) {
+              this.resetLeadForm();
+            } else if (this.alertModalOpen()) {
+              this.closePriceAlert();
+            }
           }
         };
         window.addEventListener('keydown', handleKeydown);
@@ -849,6 +864,14 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   onCacheRateChange(value: number): void {
     this.activePreset.set(null);
     this.cacheHitRate.set(value);
+  }
+
+  resetToDefaults(): void {
+    this.messagesPerDay.set(this.DEFAULT_VALUES.messagesPerDay);
+    this.tokensInputPerMessage.set(this.DEFAULT_VALUES.tokensInputPerMessage);
+    this.tokensOutputPerMessage.set(this.DEFAULT_VALUES.tokensOutputPerMessage);
+    this.cacheHitRate.set(this.DEFAULT_VALUES.cacheHitRate);
+    this.activePreset.set(null);
   }
 
   // ============================================================================
