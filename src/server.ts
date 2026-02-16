@@ -3,7 +3,7 @@ import { CommonEngine, isMainModule } from '@angular/ssr/node';
 import express from 'express';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import bootstrap from './main.server';
 import { SSR_PRICING_DATA } from './app/core/tokens/ssr-pricing.token';
 
@@ -11,15 +11,33 @@ const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 const indexHtml = join(serverDistFolder, 'index.server.html');
 
+// DEBUG: Log path resolution
+console.log('[SSR DEBUG] import.meta.url:', import.meta.url);
+console.log('[SSR DEBUG] serverDistFolder:', serverDistFolder);
+console.log('[SSR DEBUG] browserDistFolder:', browserDistFolder);
+
+// DEBUG: List files in server folder
+try {
+  console.log('[SSR DEBUG] Files in serverDistFolder:', readdirSync(serverDistFolder).slice(0, 10));
+  console.log('[SSR DEBUG] Files in browserDistFolder:', readdirSync(browserDistFolder).slice(0, 10));
+  const dataFolder = join(browserDistFolder, 'data');
+  console.log('[SSR DEBUG] Files in data folder:', readdirSync(dataFolder));
+} catch (e) {
+  console.error('[SSR DEBUG] Error listing files:', e);
+}
+
 // Read pricing data from filesystem for SSR (avoids HTTP fetch issues in Vercel)
 let pricingData: any = null;
 try {
   const pricingPath = join(browserDistFolder, 'data/llm-pricing.json');
+  console.log('[SSR DEBUG] Attempting to read:', pricingPath);
   const pricingContent = readFileSync(pricingPath, 'utf-8');
+  console.log('[SSR DEBUG] File size:', pricingContent.length, 'bytes');
   pricingData = JSON.parse(pricingContent);
-  console.log('[SSR] Pricing data loaded from filesystem:', pricingPath);
+  console.log('[SSR] ✅ Pricing data loaded successfully. Models count:', pricingData.models?.length);
 } catch (error) {
-  console.error('[SSR] Failed to load pricing data:', error);
+  console.error('[SSR] ❌ Failed to load pricing data:', error);
+  console.error('[SSR] Error stack:', (error as Error).stack);
 }
 
 const app = express();
