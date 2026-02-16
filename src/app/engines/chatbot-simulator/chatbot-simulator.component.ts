@@ -11,6 +11,8 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser, Location } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Meta, Title } from '@angular/platform-browser';
 import {
   ChatbotSimulatorLogicService,
@@ -232,12 +234,19 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   activePreset = signal<string | null>(null);
 
   // ============================================================================
+  // LIFECYCLE & CLEANUP
+  // ============================================================================
+
+  private destroy$ = new Subject<void>();
+
+  // ============================================================================
   // SIGNALS - Data State
   // ============================================================================
 
   models = signal<LlmModel[]>([]);
   isLoading = signal(true);
   loadError = signal<string | null>(null);
+  isRetrying = signal(false);
 
   // ============================================================================
   // SIGNALS - Social Proof
@@ -735,6 +744,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Complete destroy$ Subject to unsubscribe from all observables
+    this.destroy$.next();
+    this.destroy$.complete();
     // Cancel any pending analytics events to prevent memory leaks
     this.analyticsService.cancelPendingEvents();
   }
@@ -1325,6 +1337,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   retryLoad(): void {
     this.loadError.set(null);
+    this.isRetrying.set(true);
     this.loadPricingData();
   }
 
@@ -1539,26 +1552,31 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   private loadPricingData(): void {
     this.isLoading.set(true);
     // Uses TransferState: SSR fetches once, client reuses cached data (zero CLS)
-    this.pricingService.loadPricingData().subscribe({
-      next: (data) => {
-        this.models.set(data.models);
-        // Populate availableModels with all models from JSON for filter UI
-        this.availableModels.set(data.models);
-        // Store metadata if present in the JSON registry
-        if (data.metadata) {
-          this.pricingMetadata.set(data.metadata);
-        }
-        this.isLoading.set(false);
-        this.loadError.set(null);
-      },
-      error: (err) => {
-        console.error('Failed to load pricing data', err);
-        this.isLoading.set(false);
-        this.loadError.set(
-          'Failed to load pricing data. Please check your connection and try again.',
-        );
-      },
-    });
+    this.pricingService
+      .loadPricingData()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.models.set(data.models);
+          // Populate availableModels with all models from JSON for filter UI
+          this.availableModels.set(data.models);
+          // Store metadata if present in the JSON registry
+          if (data.metadata) {
+            this.pricingMetadata.set(data.metadata);
+          }
+          this.isLoading.set(false);
+          this.isRetrying.set(false);
+          this.loadError.set(null);
+        },
+        error: (err) => {
+          console.error('Failed to load pricing data', err);
+          this.isLoading.set(false);
+          this.isRetrying.set(false);
+          this.loadError.set(
+            'Failed to load pricing data. Please check your connection and try again.',
+          );
+        },
+      });
   }
 
   /**
@@ -1567,30 +1585,36 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
    */
   private loadPriceTrends(): void {
     // Load price trends in background (non-blocking)
-    this.priceHistoryService.calculatePriceTrends().subscribe({
-      next: (trends) => {
-        const trendMap = new Map<string, PriceTrend>();
-        trends.forEach((trend) => trendMap.set(trend.model_id, trend));
-        this.priceTrends.set(trendMap);
-      },
-      error: (err) => {
-        // Silently fail - trends are a nice-to-have feature
-        console.warn('Failed to load price trends:', err);
-      },
-    });
+    this.priceHistoryService
+      .calculatePriceTrends()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (trends) => {
+          const trendMap = new Map<string, PriceTrend>();
+          trends.forEach((trend) => trendMap.set(trend.model_id, trend));
+          this.priceTrends.set(trendMap);
+        },
+        error: (err) => {
+          // Silently fail - trends are a nice-to-have feature
+          console.warn('Failed to load price trends:', err);
+        },
+      });
 
     // Load data depth info
-    this.priceHistoryService.getDataDepth().subscribe({
-      next: (depth) => {
-        this.priceHistoryDepth.set({
-          snapshots: depth.snapshots,
-          months: depth.months,
-        });
-      },
-      error: () => {
-        // Silently ignore
-      },
-    });
+    this.priceHistoryService
+      .getDataDepth()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (depth) => {
+          this.priceHistoryDepth.set({
+            snapshots: depth.snapshots,
+            months: depth.months,
+          });
+        },
+        error: () => {
+          // Silently ignore
+        },
+      });
   }
 
   /**
