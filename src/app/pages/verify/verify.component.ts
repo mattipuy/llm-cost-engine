@@ -67,9 +67,8 @@ export class VerifyComponent implements OnInit {
       this.state.set('error');
       return;
     }
-    if (isPlatformBrowser(this.platformId)) {
-      this.verifyToken(token);
-    }
+    // Always verify token (both SSR and browser)
+    this.verifyToken(token);
   }
 
   private async verifyToken(token: string): Promise<void> {

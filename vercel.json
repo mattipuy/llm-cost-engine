@@ -1,8 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "angular",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/llm-cost-engine/browser",
   "installCommand": "npm install",
   "regions": ["fra1"],
   "headers": [
@@ -44,11 +42,6 @@
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
-  ],
-  "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
-    { "source": "/robots.txt", "destination": "/robots.txt" },
-    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "trailingSlash": false
 }

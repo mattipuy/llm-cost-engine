@@ -215,9 +215,12 @@ export class AnalyticsService {
 
   /**
    * Tracks custom event in Vercel Analytics.
-   * Safe to call even if Vercel Analytics is not loaded (graceful degradation).
    *
-   * Note: Vercel Analytics auto-tracks pageviews. Custom events are tracked via window.va().
+   * NOTE: Custom events require Vercel Analytics Pro plan ($10/mo).
+   * Free tier only supports pageviews (auto-tracked).
+   *
+   * For now, this method is a no-op placeholder for future Pro upgrade.
+   * Pageviews are automatically tracked without any code needed.
    *
    * @param eventName Event name (e.g., "Email Signup", "PDF Export")
    * @param props Optional event properties (values must be strings or numbers)
@@ -225,9 +228,15 @@ export class AnalyticsService {
   trackEvent(eventName: string, props?: Record<string, string | number>): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    // Vercel Analytics custom events
-    if (typeof window !== 'undefined' && (window as any).va) {
-      (window as any).va('track', eventName, props);
+    // Custom events require Pro plan - currently disabled for free tier
+    // To enable: upgrade to Pro and uncomment below
+    // if (typeof window !== 'undefined' && (window as any).va) {
+    //   (window as any).va('track', eventName, props);
+    // }
+
+    // For free tier: log to console for debugging
+    if (typeof console !== 'undefined') {
+      console.log(`[Analytics] Event: ${eventName}`, props);
     }
   }
 

@@ -2,10 +2,11 @@
   <!-- Header -->
   <header class="bg-white border-b border-gray-200 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-3 flex-wrap">
-        <h1 class="text-3xl font-bold text-gray-900">
-          {{ engineMeta.fullName }}
-        </h1>
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-3 flex-wrap">
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ engineMeta.fullName }}
+          </h1>
         <span
           class="px-2 py-0.5 text-xs font-mono bg-gray-100 text-gray-600 rounded"
           >v{{ engineMeta.version }}</span
@@ -29,6 +30,23 @@
             Prices verified {{ pricingMetadata()?.last_verified }}
           </span>
         }
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex items-center gap-4">
+          <a
+            routerLink="/blog/how-we-calculate-llm-tco"
+            class="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium"
+          >
+            📖 Methodology
+          </a>
+          <a
+            routerLink="/insights"
+            class="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium"
+          >
+            📊 Insights
+          </a>
+        </nav>
       </div>
       <p class="mt-2 text-lg text-gray-600">
         Compare LLM costs instantly. Get a procurement-ready analysis in 60
