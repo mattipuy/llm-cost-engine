@@ -5,7 +5,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { JsonLdService, SeoMetaService } from '../../core/services';
+import { JsonLdService, SeoMetaService, AnalyticsService } from '../../core/services';
 
 @Component({
   selector: 'app-how-we-calculate-llm-tco',
@@ -17,6 +17,7 @@ import { JsonLdService, SeoMetaService } from '../../core/services';
 export class HowWeCalculateLlmTcoComponent implements OnInit {
   private readonly seoMeta = inject(SeoMetaService);
   private readonly jsonLd = inject(JsonLdService);
+  private readonly analytics = inject(AnalyticsService);
 
   private readonly CANONICAL_URL =
     'https://llm-cost-engine.com/blog/how-we-calculate-llm-tco';
@@ -55,5 +56,8 @@ export class HowWeCalculateLlmTcoComponent implements OnInit {
       },
       'blog-tco-article',
     );
+
+    // Track page view for manifesto blog post
+    this.analytics.trackPageView('/blog/how-we-calculate-llm-tco');
   }
 }

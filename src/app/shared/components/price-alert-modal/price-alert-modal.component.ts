@@ -51,20 +51,23 @@ import { AnalyticsService } from '../../../core/services/analytics.service';
 
           @if (state() === 'idle') {
             <h2 id="alert-modal-title" class="text-lg font-bold text-gray-900 pr-8">
-              Track {{ modelName }} Pricing Intelligence
+              Get notified when {{ modelName }} drops &#x2265;5%
             </h2>
             <p class="mt-3 text-sm text-gray-600">
-              We monitor official API pricing weekly. You'll be notified if:
+              Free weekly price monitoring. We'll email you when:
             </p>
-            <ul class="mt-2 space-y-1 text-sm text-gray-600">
+            <ul class="mt-2 space-y-1.5 text-sm text-gray-600">
               <li class="flex items-center gap-2">
-                <span class="text-green-500">&#x2193;</span> This model drops in price
+                <span class="text-green-600 font-semibold">&#x2193;</span>
+                <span><strong class="text-gray-900">Price drops &#x2265;5%</strong> on this model</span>
               </li>
               <li class="flex items-center gap-2">
-                <span class="text-amber-500">&#x21C4;</span> A competitor becomes &#x2265;15% cheaper
+                <span class="text-amber-600 font-semibold">&#x21C4;</span>
+                <span><strong class="text-gray-900">Competitor gets &#x2265;15% cheaper</strong> (same category)</span>
               </li>
               <li class="flex items-center gap-2">
-                <span class="text-blue-500">&#x26A0;</span> Context or rate limits materially change
+                <span class="text-blue-600 font-semibold">&#x26A0;</span>
+                <span><strong class="text-gray-900">Context limits change</strong> materially</span>
               </li>
             </ul>
 
@@ -99,11 +102,11 @@ import { AnalyticsService } from '../../../core/services/analytics.service';
                 [class.text-gray-400]="!isEmailValid()"
                 [class.cursor-not-allowed]="!isEmailValid()"
               >
-                Track Pricing Shifts
+                Get Free Price Alerts
               </button>
             </form>
             <p class="mt-3 text-xs text-gray-400 text-center">
-              We'll send a verification link. No spam.
+              Double opt-in required. Unsubscribe anytime. No spam.
             </p>
           } @else if (state() === 'loading') {
             <div class="py-8 text-center">

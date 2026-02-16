@@ -1,0 +1,25 @@
+# AI Collaboration - Git Ignore Rules
+
+# Ignore handoff files (temporary communication between AIs)
+handoff/claude-to-gemini.md
+handoff/gemini-to-claude.md
+handoff/shared-context.md
+handoff/archived/*
+
+# Ignore context files (build outputs, search results, etc.)
+context/*
+
+# Ignore metrics (session-specific)
+metrics/*
+
+# Keep directory structure
+!handoff/.gitkeep
+!handoff/archived/.gitkeep
+!context/.gitkeep
+!metrics/.gitkeep
+
+# KEEP templates and documentation (commit these!)
+!templates/
+!templates/**
+!COLLABORATION.md
+!README.md
