@@ -84,7 +84,7 @@
                 <button
                   type="button"
                   (click)="openPriceAlert()"
-                  class="p-2 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="p-2 sm:p-3 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   aria-label="Track pricing shifts for this model"
                   title="Track pricing shifts for this model"
                 >
@@ -240,7 +240,7 @@
 
         <!-- Right Column: Results (2/5, sticky) -->
         <div class="lg:col-span-2">
-          <div class="lg:sticky lg:top-6 space-y-6">
+          <div class="xl:sticky xl:top-8 space-y-6">
             @if (results(); as r) {
               <!-- Big Savings Card -->
               <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-sm border border-green-200 p-6">
