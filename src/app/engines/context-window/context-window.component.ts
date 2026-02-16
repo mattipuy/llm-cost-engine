@@ -212,6 +212,14 @@ export class ContextWindowComponent implements OnInit, OnDestroy {
     this.alertModalOpen.set(false);
   }
 
+  openGlobalPriceAlert(): void {
+    // Open modal without specific model (user can select model inside modal)
+    this.alertModelId.set('');
+    this.alertModelName.set('All Models');
+    this.alertPriceInput.set(0);
+    this.alertModalOpen.set(true);
+  }
+
   // ============================================================================
   // SEO & DATA
   // ============================================================================
