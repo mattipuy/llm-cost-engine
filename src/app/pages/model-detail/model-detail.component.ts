@@ -65,15 +65,23 @@ export class ModelDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Get modelId from route params
-    const id = this.route.snapshot.paramMap.get('modelId');
-    this.modelId.set(id);
+    // Subscribe to route param changes to handle navigation between models
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('modelId');
+      this.modelId.set(id);
 
-    // Load pricing data
-    this.loadModelData(id);
+      // Reset state
+      this.isLoading.set(true);
+      this.notFound.set(false);
 
-    // Track page view
-    this.analytics.trackPageView(`/models/${id}`);
+      // Load pricing data
+      this.loadModelData(id);
+
+      // Track page view (only in browser)
+      if (isPlatformBrowser(this.platformId)) {
+        this.analytics.trackPageView(`/models/${id}`);
+      }
+    });
   }
 
   private async loadModelData(modelId: string | null): Promise<void> {
