@@ -69,7 +69,7 @@
         <button
           type="button"
           (click)="applyPreset(presets[0])"
-          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 cursor-pointer"
           [class.border-indigo-600]="activePreset() === 'saas-startup'"
           [class.bg-indigo-50]="activePreset() === 'saas-startup'"
           [class.ring-2]="activePreset() === 'saas-startup'"
@@ -106,7 +106,7 @@
         <button
           type="button"
           (click)="applyPreset(presets[1])"
-          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 cursor-pointer"
           [class.border-indigo-600]="activePreset() === 'enterprise-support'"
           [class.bg-indigo-50]="activePreset() === 'enterprise-support'"
           [class.ring-2]="activePreset() === 'enterprise-support'"
@@ -145,7 +145,7 @@
         <button
           type="button"
           (click)="applyPreset(presets[3])"
-          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          class="relative p-4 sm:p-6 rounded-xl border-2 text-left transition-all duration-200 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 cursor-pointer"
           [class.border-indigo-600]="activePreset() === 'rag-knowledge'"
           [class.bg-indigo-50]="activePreset() === 'rag-knowledge'"
           [class.ring-2]="activePreset() === 'rag-knowledge'"
@@ -280,7 +280,7 @@
                   <div class="flex-1 min-w-0">
                     <a
                       [routerLink]="['/models', model.id]"
-                      class="text-sm text-gray-900 block truncate hover:text-indigo-600 hover:underline transition-colors cursor-pointer font-medium"
+                      class="text-sm text-gray-900 block truncate hover:text-indigo-600 transition-colors cursor-pointer font-medium"
                     >
                       {{ model.name }}
                       @if (isRecommendedForContext(model.id)) {
@@ -1506,7 +1506,7 @@
                   <button
                     type="button"
                     (click)="downloadQuickPdf()"
-                    class="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded font-mono text-sm transition-all duration-150 border border-gray-600"
+                    class="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded font-mono text-sm transition-all duration-150 border border-gray-600 cursor-pointer"
                   >
                     Quick Export (.PDF)
                     <span class="block text-xs text-gray-400 mt-1"
@@ -1518,7 +1518,7 @@
                   <button
                     type="button"
                     (click)="onExportClick()"
-                    class="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-mono text-sm transition-all duration-150"
+                    class="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-mono text-sm transition-all duration-150 cursor-pointer"
                   >
                     Get Enterprise Report
                     <span class="block text-xs text-cyan-200 mt-1"
