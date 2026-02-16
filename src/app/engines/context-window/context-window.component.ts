@@ -47,6 +47,14 @@ import { ENGINE_META } from '../../core/constants/engine-weights';
 })
 export class ContextWindowComponent implements OnInit, OnDestroy {
   // ============================================================================
+  // DEFAULTS & CONSTANTS
+  // ============================================================================
+
+  private readonly DEFAULT_CONTENT_SIZE = 30000;
+  private readonly DEFAULT_CONTENT_UNIT: ContentUnit = 'tokens';
+  private readonly DEFAULT_SORT_MODE: SortMode = 'price';
+
+  // ============================================================================
   // LIFECYCLE & CLEANUP
   // ============================================================================
 
@@ -56,9 +64,9 @@ export class ContextWindowComponent implements OnInit, OnDestroy {
   // SIGNALS - User Inputs
   // ============================================================================
 
-  contentSize = signal(30000);
-  contentUnit = signal<ContentUnit>('tokens');
-  sortMode = signal<SortMode>('price');
+  contentSize = signal(this.DEFAULT_CONTENT_SIZE);
+  contentUnit = signal<ContentUnit>(this.DEFAULT_CONTENT_UNIT);
+  sortMode = signal<SortMode>(this.DEFAULT_SORT_MODE);
 
   // ============================================================================
   // SIGNALS - Data State
@@ -150,6 +158,12 @@ export class ContextWindowComponent implements OnInit, OnDestroy {
 
   onSortChange(mode: SortMode): void {
     this.sortMode.set(mode);
+  }
+
+  resetToDefaults(): void {
+    this.contentSize.set(this.DEFAULT_CONTENT_SIZE);
+    this.contentUnit.set(this.DEFAULT_CONTENT_UNIT);
+    this.sortMode.set(this.DEFAULT_SORT_MODE);
   }
 
   // ============================================================================

@@ -126,22 +126,70 @@
           </div>
         </div>
 
-        <!-- Summary -->
-        <div class="mt-4 flex items-center gap-4 text-sm">
-          <span class="text-gray-600">
-            <span class="font-semibold text-gray-900">{{ validCount() }}</span> of
-            <span class="font-semibold text-gray-900">{{ sortedResults().length }}</span> models fit your content
-          </span>
-          @if (!hasValidModel()) {
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 text-xs font-medium rounded-full">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-              </svg>
-              No model fits — consider splitting or RAG
+        <!-- Summary + Reset Button -->
+        <div class="mt-4 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-4 text-sm">
+            <span class="text-gray-600">
+              <span class="font-semibold text-gray-900">{{ validCount() }}</span> of
+              <span class="font-semibold text-gray-900">{{ sortedResults().length }}</span> models fit your content
             </span>
-          }
+            @if (!hasValidModel()) {
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 text-xs font-medium rounded-full">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                No model fits — consider splitting or RAG
+              </span>
+            }
+          </div>
+          <button
+            type="button"
+            (click)="resetToDefaults()"
+            class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+            aria-label="Reset all inputs to default values"
+            title="Reset to defaults (30,000 tokens)"
+          >
+            Reset
+          </button>
         </div>
       </div>
+
+      <!-- Empty State Guidance (when no models fit) -->
+      @if (!hasValidModel()) {
+        <div class="mb-6 p-6 bg-amber-50 border-2 border-amber-300 rounded-xl">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-bold text-amber-900">No Model Can Handle This Content Size</h3>
+              <p class="mt-2 text-sm text-amber-800">
+                Your content (<span class="font-semibold tabular-nums">{{ normalizedTokens() | number }} tokens</span>) exceeds all available models.
+                The largest model supports <span class="font-semibold tabular-nums">{{ formatTokens(maxContext()) }} tokens</span>.
+              </p>
+              <div class="mt-4 space-y-2">
+                <p class="text-sm font-semibold text-amber-900">Recommended Solutions:</p>
+                <ul class="space-y-1.5 text-sm text-amber-800">
+                  <li class="flex items-start gap-2">
+                    <span class="text-amber-600 font-bold flex-shrink-0">•</span>
+                    <span><strong>Split content</strong> into chunks under {{ formatTokens(maxContext()) }} tokens each</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-amber-600 font-bold flex-shrink-0">•</span>
+                    <span><strong>Use RAG</strong> (Retrieval-Augmented Generation) to process content selectively</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-amber-600 font-bold flex-shrink-0">•</span>
+                    <span><strong>Reduce content size</strong> using the slider above</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
 
       <!-- Bar Chart -->
       <div class="space-y-3">
@@ -157,6 +205,14 @@
                   <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800">
                     Fits
                   </span>
+                  <a
+                    [routerLink]="['/tools/chatbot-simulator']"
+                    [queryParams]="{model: result.modelId, inputTokens: normalizedTokens()}"
+                    class="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline focus:ring-2 focus:ring-indigo-500 focus:rounded transition-colors"
+                    title="Calculate monthly cost for this model"
+                  >
+                    Calculate Cost →
+                  </a>
                 } @else {
                   <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">
                     Overflow
