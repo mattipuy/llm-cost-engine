@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["fra1"],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
+  ],
   "headers": [
     {
       "source": "/sitemap.xml",
