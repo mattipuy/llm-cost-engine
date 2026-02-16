@@ -26,32 +26,40 @@
         <!-- Left Column: Inputs (3/5) -->
         <div class="lg:col-span-3 space-y-6">
           <!-- Model Selector -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <label class="block text-sm font-semibold text-gray-900 mb-2">LLM Model</label>
-            <div class="flex items-center gap-3">
-              <select
-                class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                [value]="selectedModelId()"
-                (change)="onModelChange($any($event.target).value)"
-              >
-                @for (model of cacheableModels(); track model.id) {
-                  <option [value]="model.id">
-                    {{ model.name }} ({{ model.provider }}) — {{ results()?.cacheDiscount }}% cache discount
-                  </option>
-                }
-              </select>
-              <!-- Price Alert Bell -->
-              <button
-                type="button"
-                (click)="openPriceAlert()"
-                class="p-2 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                title="Track pricing shifts for this model"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                </svg>
-              </button>
-            </div>
+            @if (cacheableModels().length === 0) {
+              <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <p class="text-sm text-amber-800 font-medium">No cacheable models available</p>
+                <p class="text-xs text-amber-600 mt-1">Pricing data may still be loading, or no models support prompt caching.</p>
+              </div>
+            } @else {
+              <div class="flex items-center gap-3">
+                <select
+                  class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  [value]="selectedModelId()"
+                  (change)="onModelChange($any($event.target).value)"
+                >
+                  @for (model of cacheableModels(); track model.id) {
+                    <option [value]="model.id">
+                      {{ model.name }} ({{ model.provider }}) — {{ results()?.cacheDiscount }}% cache discount
+                    </option>
+                  }
+                </select>
+                <!-- Price Alert Bell -->
+                <button
+                  type="button"
+                  (click)="openPriceAlert()"
+                  class="p-2 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  aria-label="Track pricing shifts for this model"
+                  title="Track pricing shifts for this model"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                  </svg>
+                </button>
+              </div>
+            }
             @if (selectedModel(); as model) {
               <p class="mt-2 text-xs text-gray-500">
                 Input: ${{ model.pricing.input_1m }}/1M tokens
@@ -62,7 +70,7 @@
           </div>
 
           <!-- Token Configuration -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-4">Token Configuration</h2>
             <div class="space-y-5">
               <!-- Static Tokens -->
@@ -79,7 +87,7 @@
                   step="100"
                   [value]="staticTokens()"
                   (input)="onStaticTokensChange($any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 />
                 <div class="flex justify-between text-xs text-gray-400 mt-1">
                   <span>100</span>
@@ -101,7 +109,7 @@
                   step="10"
                   [value]="dynamicTokens()"
                   (input)="onDynamicTokensChange($any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 />
                 <div class="flex justify-between text-xs text-gray-400 mt-1">
                   <span>1</span>
@@ -123,7 +131,7 @@
                   step="10"
                   [value]="outputTokens()"
                   (input)="onOutputTokensChange($any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 />
                 <div class="flex justify-between text-xs text-gray-400 mt-1">
                   <span>1</span>
@@ -134,7 +142,7 @@
           </div>
 
           <!-- Volume & Cache Config -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-4">Volume & Cache Settings</h2>
             <div class="space-y-5">
               <!-- Requests Per Day -->
@@ -150,7 +158,7 @@
                   step="100"
                   [value]="requestsPerDay()"
                   (input)="onRequestsChange($any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 />
                 <div class="flex justify-between text-xs text-gray-400 mt-1">
                   <span>1</span>
@@ -174,7 +182,7 @@
                   step="1"
                   [value]="cacheHitRate()"
                   (input)="onCacheWriteChange(100 - $any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 />
                 <div class="flex justify-between text-xs text-gray-400 mt-1">
                   <span>1% (mostly cold)</span>
