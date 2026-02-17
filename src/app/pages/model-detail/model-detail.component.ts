@@ -65,12 +65,6 @@ export class ModelDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Skip all logic during SSR to prevent serverless function crashes
-    // Model pages are client-side only (still indexed via sitemap)
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
     // Subscribe to route param changes to handle navigation between models
     this.route.paramMap.subscribe(params => {
       const id = params.get('modelId');
@@ -80,11 +74,13 @@ export class ModelDetailComponent implements OnInit {
       this.isLoading.set(true);
       this.notFound.set(false);
 
-      // Load pricing data
+      // Load pricing data (works during SSR via TransferState)
       this.loadModelData(id);
 
-      // Track page view
-      this.analytics.trackPageView(`/models/${id}`);
+      // Track page view (browser only)
+      if (isPlatformBrowser(this.platformId)) {
+        this.analytics.trackPageView(`/models/${id}`);
+      }
     });
   }
 
@@ -106,13 +102,11 @@ export class ModelDetailComponent implements OnInit {
 
               if (model) {
                 this.model.set(model);
-                // Only update meta tags and JSON-LD in browser to avoid SSR issues
+                // Set meta tags (works during SSR and browser)
+                this.setMetaTags(model);
+                // JSON-LD injection only in browser (requires DOM manipulation)
                 if (isPlatformBrowser(this.platformId)) {
-                  this.setMetaTags(model);
                   this.injectJsonLd(model);
-                } else {
-                  // During SSR, just set basic meta tags
-                  this.title.setTitle(`${model.name} Pricing | LLM Cost Engine`);
                 }
               } else {
                 this.notFound.set(true);

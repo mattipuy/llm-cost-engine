@@ -42,8 +42,8 @@ interface MonthlyHighlight {
             <h1 class="text-3xl font-bold">LLM Market Insights</h1>
           </div>
           <p class="text-indigo-100 text-lg max-w-2xl">
-            Anonymous, aggregated data from {{ analysisCount() | number }} TCO
-            simulations. Updated monthly. No personal data collected.
+            Illustrative market trends based on {{ analysisCount() | number }} representative scenarios.
+            Updated monthly. <em class="text-indigo-200">Real aggregation coming soon.</em>
           </p>
           <div class="mt-4 flex items-center gap-4 text-sm text-indigo-200">
             <span class="flex items-center gap-1">

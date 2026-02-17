@@ -287,8 +287,10 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // All available models from JSON (populated on load)
   availableModels = signal<LlmModel[]>([]);
 
-  // Selected model IDs for comparison (default: empty, user must choose preset)
-  selectedModelIds = signal<Set<string>>(new Set());
+  // Selected model IDs for comparison (initialized with popular models for good first-visit UX)
+  selectedModelIds = signal<Set<string>>(
+    new Set(['deepseek-v3', 'claude-sonnet-4.5', 'gpt-5.1', 'gemini-3-flash']),
+  );
 
   // Computed: filtered models for display based on user selection
   activeModels = computed(() => {
@@ -827,6 +829,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   /**
    * Returns recommended model IDs for a given preset.
    * Logic based on use case characteristics (volume, context, output type).
+   * Updated for registry v2.0.0 model names.
    */
   private getRecommendedModelsForPreset(presetId: string): string[] {
     const allModels = this.availableModels();
@@ -834,27 +837,51 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     switch (presetId) {
       case 'saas-startup':
         // Startup: Cost-efficient models for moderate volume
-        return this.findModelsByKeywords(allModels, ['flash', 'haiku', 'gpt-4o-mini', 'gpt-4o'], 4);
+        return this.findModelsByKeywords(
+          allModels,
+          ['flash', 'haiku', 'gpt-5-mini', 'deepseek-v3'],
+          4,
+        );
 
       case 'enterprise-support':
         // Growth: Mix of efficiency and quality for high volume
-        return this.findModelsByKeywords(allModels, ['flash', 'haiku', 'gpt-4o', 'deepseek', 'claude-3.5-sonnet'], 5);
+        return this.findModelsByKeywords(
+          allModels,
+          ['flash', 'haiku', 'gpt-5.1', 'deepseek', 'sonnet-4.5'],
+          5,
+        );
 
       case 'rag-knowledge':
         // Enterprise RAG: Large context models for heavy input
-        return this.findModelsByKeywords(allModels, ['gemini-2.0-flash', 'claude-3.5-sonnet', 'gpt-4o', 'gemini-1.5-pro'], 4);
+        return this.findModelsByKeywords(
+          allModels,
+          ['gemini-3-flash', 'sonnet-4.5', 'gpt-5.1', 'gemini-3-pro'],
+          4,
+        );
 
       case 'dev-productivity':
         // Dev tools: Reasoning models for code generation
-        return this.findModelsByKeywords(allModels, ['claude-3.5-sonnet', 'gpt-4o', 'deepseek', 'claude-opus'], 4);
+        return this.findModelsByKeywords(
+          allModels,
+          ['sonnet-4.5', 'gpt-5.1', 'deepseek', 'opus-4.6'],
+          4,
+        );
 
       case 'content-gen':
         // Content: Quality output models
-        return this.findModelsByKeywords(allModels, ['claude-3.5-sonnet', 'gpt-4o', 'gemini-1.5-pro', 'claude-opus'], 4);
+        return this.findModelsByKeywords(
+          allModels,
+          ['sonnet-4.5', 'gpt-5.2', 'gemini-3-pro', 'opus-4.6'],
+          4,
+        );
 
       default:
-        // Fallback: Top 3 popular models
-        return this.findModelsByKeywords(allModels, ['gpt-4o', 'gemini-2.0-flash', 'claude-3.5-sonnet'], 3);
+        // Fallback: Top 4 popular models
+        return this.findModelsByKeywords(
+          allModels,
+          ['deepseek-v3', 'sonnet-4.5', 'gpt-5.1', 'gemini-3-flash'],
+          4,
+        );
     }
   }
 
