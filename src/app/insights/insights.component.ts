@@ -367,7 +367,7 @@ export class InsightsComponent implements OnInit {
   monthlyHighlights = computed((): MonthlyHighlight[] => [
     {
       title: 'Most Simulated Model',
-      value: 'Gemini 2.0 Flash',
+      value: 'Claude Sonnet 4.5',
       subtitle: '34% of all simulations',
       icon: '🏆',
       color: 'text-indigo-600',
@@ -375,13 +375,13 @@ export class InsightsComponent implements OnInit {
     {
       title: 'Biggest Cost Saver',
       value: 'DeepSeek V3',
-      subtitle: 'Avg. 78% cheaper than GPT-4o',
+      subtitle: 'Avg. 78% cheaper than Claude Opus 4.6',
       icon: '💰',
       color: 'text-green-600',
     },
     {
       title: 'Fastest Growing',
-      value: 'Claude 3.5 Haiku',
+      value: 'DeepSeek V3',
       subtitle: '+156% simulations vs last month',
       icon: '📈',
       color: 'text-purple-600',
@@ -396,7 +396,7 @@ export class InsightsComponent implements OnInit {
       label: 'Startup',
       description: 'Early-stage, cost-conscious',
       volumeRange: '< 2K msg/day',
-      topModel: 'Gemini 1.5 Flash',
+      topModel: 'DeepSeek V3',
       avgCost: 45,
     },
     {
@@ -405,7 +405,7 @@ export class InsightsComponent implements OnInit {
       label: 'Scale-up',
       description: 'Growth phase, balancing cost/quality',
       volumeRange: '2K - 10K msg/day',
-      topModel: 'Claude 3.5 Haiku',
+      topModel: 'Claude Sonnet 4.5',
       avgCost: 280,
     },
     {
@@ -414,7 +414,7 @@ export class InsightsComponent implements OnInit {
       label: 'Enterprise',
       description: 'High-volume, quality-focused',
       volumeRange: '> 10K msg/day',
-      topModel: 'GPT-4o',
+      topModel: 'Claude Opus 4.6',
       avgCost: 1850,
     },
   ]);

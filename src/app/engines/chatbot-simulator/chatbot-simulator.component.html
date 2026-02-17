@@ -1034,7 +1034,7 @@
                       [value]="routingPrimaryModelId()"
                       (change)="setRoutingPrimary($any($event.target).value)"
                     >
-                      @for (model of availableModels(); track model.id) {
+                      @for (model of activeModels(); track model.id) {
                         <option [value]="model.id">{{ model.name }}</option>
                       }
                     </select>
@@ -1049,7 +1049,7 @@
                       [value]="routingSecondaryModelId()"
                       (change)="setRoutingSecondary($any($event.target).value)"
                     >
-                      @for (model of availableModels(); track model.id) {
+                      @for (model of activeModels(); track model.id) {
                         <option [value]="model.id">{{ model.name }}</option>
                       }
                     </select>
