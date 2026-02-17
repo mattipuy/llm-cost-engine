@@ -788,6 +788,21 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         this.routingSecondaryModelId.set(null);
       }
     });
+
+    // Browser back/forward navigation: re-hydrate URL params
+    effect(() => {
+      if (isPlatformBrowser(this.platformId)) {
+        const handlePopState = () => {
+          this.hydrateFromUrl();
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        // Cleanup
+        return () => window.removeEventListener('popstate', handlePopState);
+      }
+      return undefined;
+    });
   }
 
   ngOnInit(): void {
@@ -1229,23 +1244,25 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         : null,
     };
 
-    // Send lead to Supabase Edge Function (non-blocking: don't wait for it before generating PDF)
-    this.priceAlertService.captureEnterpriseLead(leadData).then((result) => {
-      if (result.success) {
-        console.log('📧 Lead captured successfully');
-      } else {
-        console.warn('⚠️ Lead capture failed:', result.error);
-      }
-    });
-
     // Dynamic import for client-side PDF generation
     if (isPlatformBrowser(this.platformId)) {
-      // Use functional approach: autoTable(doc, options) instead of doc.autoTable()
-      Promise.all([import('jspdf'), import('jspdf-autotable')])
-        .then(([jsPDFModule, autoTableModule]) => {
-          const jsPDF = jsPDFModule.default;
-          const autoTable = autoTableModule.default;
-          const doc = new jsPDF();
+      // Parallel execution: capture lead AND prepare PDF libraries
+      Promise.all([
+        this.priceAlertService.captureEnterpriseLead(leadData),
+        import('jspdf'),
+        import('jspdf-autotable'),
+      ]).then(([leadResult, jsPDFModule, autoTableModule]) => {
+        // Check lead capture result (non-blocking for UX, but logged for monitoring)
+        if (leadResult.success) {
+          console.log('📧 Lead captured successfully');
+        } else {
+          console.warn('⚠️ Lead capture failed, but generating PDF anyway:', leadResult.error);
+          // TODO: Consider showing non-blocking toast notification to user
+        }
+        // Use functional approach: autoTable(doc, options) instead of doc.autoTable()
+        const jsPDF = jsPDFModule.default;
+        const autoTable = autoTableModule.default;
+        const doc = new jsPDF();
           const pageWidth = doc.internal.pageSize.width;
 
           // --- Header ---
@@ -1359,15 +1376,15 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
             secondTableY + 25,
           );
 
-          // Save
-          doc.save(`LLM_Analysis_${currentScenarioId}.pdf`);
+        // Save
+        doc.save(`LLM_Analysis_${currentScenarioId}.pdf`);
 
-          this.leadSubmitStatus.set('success');
-        })
-        .catch((err) => {
-          console.error('PDF generation failed:', err);
-          this.leadSubmitStatus.set('error');
-        });
+        this.leadSubmitStatus.set('success');
+      })
+      .catch((err) => {
+        console.error('Lead capture or PDF generation failed:', err);
+        this.leadSubmitStatus.set('error');
+      });
     } else {
       // Fallback for SSR
       this.leadSubmitStatus.set('success');

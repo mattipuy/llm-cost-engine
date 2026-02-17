@@ -27,6 +27,16 @@ import { AnalyticsService } from '../../core/services/analytics.service';
 import { PriceAlertModalComponent } from '../../shared/components/price-alert-modal/price-alert-modal.component';
 import { ENGINE_META } from '../../core/constants/engine-weights';
 
+// Preset configuration for common batch scenarios
+interface BatchPreset {
+  id: string;
+  name: string;
+  description: string;
+  records: number;
+  avgInput: number;
+  avgOutput: number;
+}
+
 @Component({
   selector: 'app-batch-api',
   standalone: true,
@@ -52,6 +62,43 @@ export class BatchApiComponent implements OnInit, OnDestroy {
   private readonly DEFAULT_RECORDS = 10000;
   private readonly DEFAULT_AVG_INPUT = 500;
   private readonly DEFAULT_AVG_OUTPUT = 100;
+
+  readonly presets: BatchPreset[] = [
+    {
+      id: 'weekly-emails',
+      name: 'Weekly Email Batch',
+      description: 'Newsletter generation for 50K subscribers',
+      records: 50000,
+      avgInput: 150,
+      avgOutput: 400,
+    },
+    {
+      id: 'monthly-reports',
+      name: 'Monthly Report Generation',
+      description: 'Automated business reports for 1K clients',
+      records: 1000,
+      avgInput: 2000,
+      avgOutput: 800,
+    },
+    {
+      id: 'data-processing',
+      name: 'Data Processing Pipeline',
+      description: 'Classification/tagging of 100K records',
+      records: 100000,
+      avgInput: 200,
+      avgOutput: 50,
+    },
+    {
+      id: 'content-moderation',
+      name: 'Content Moderation',
+      description: 'Review and classify user-generated content',
+      records: 25000,
+      avgInput: 300,
+      avgOutput: 100,
+    },
+  ];
+
+  activePreset = signal<string | null>(null);
 
   // ============================================================================
   // LIFECYCLE & CLEANUP
@@ -178,6 +225,14 @@ export class BatchApiComponent implements OnInit, OnDestroy {
     this.records.set(this.DEFAULT_RECORDS);
     this.avgInputTokens.set(this.DEFAULT_AVG_INPUT);
     this.avgOutputTokens.set(this.DEFAULT_AVG_OUTPUT);
+    this.activePreset.set(null);
+  }
+
+  applyPreset(preset: BatchPreset): void {
+    this.activePreset.set(preset.id);
+    this.records.set(preset.records);
+    this.avgInputTokens.set(preset.avgInput);
+    this.avgOutputTokens.set(preset.avgOutput);
   }
 
   // ============================================================================
