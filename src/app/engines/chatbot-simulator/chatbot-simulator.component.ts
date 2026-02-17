@@ -349,12 +349,41 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // Percentage of traffic to primary model (0-100)
   routingPrimaryPercent = signal(80);
 
+  // Computed: Validated primary model ID (auto-corrects stale references)
+  validatedRoutingPrimaryId = computed(() => {
+    if (!this.routingEnabled()) return null;
+    const id = this.routingPrimaryModelId();
+    const active = this.activeModels();
+
+    // If current ID is valid, keep it; otherwise fallback to cheapest
+    if (id && active.some((m) => m.id === id)) return id;
+    const sorted = [...this.results()].sort(
+      (a, b) => a.monthlyCost - b.monthlyCost,
+    );
+    return sorted[0]?.modelId ?? null;
+  });
+
+  // Computed: Validated secondary model ID (auto-corrects stale references)
+  validatedRoutingSecondaryId = computed(() => {
+    if (!this.routingEnabled()) return null;
+    const id = this.routingSecondaryModelId();
+    const active = this.activeModels();
+    const primaryId = this.validatedRoutingPrimaryId();
+
+    // If current ID is valid and different from primary, keep it; otherwise fallback to most expensive
+    if (id && id !== primaryId && active.some((m) => m.id === id)) return id;
+    const sorted = [...this.results()]
+      .filter((r) => r.modelId !== primaryId)
+      .sort((a, b) => a.monthlyCost - b.monthlyCost);
+    return sorted[sorted.length - 1]?.modelId ?? null;
+  });
+
   // Computed: Blended monthly cost when routing is enabled
   routedMonthlyCost = computed(() => {
     if (!this.routingEnabled()) return null;
 
-    const primaryId = this.routingPrimaryModelId();
-    const secondaryId = this.routingSecondaryModelId();
+    const primaryId = this.validatedRoutingPrimaryId();
+    const secondaryId = this.validatedRoutingSecondaryId();
     if (!primaryId || !secondaryId) return null;
 
     const results = this.results();
@@ -387,8 +416,8 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   // Computed: Detect same model selection in routing simulator (invalid state)
   routingSameModelSelected = computed(() => {
-    const primaryId = this.routingPrimaryModelId();
-    const secondaryId = this.routingSecondaryModelId();
+    const primaryId = this.validatedRoutingPrimaryId();
+    const secondaryId = this.validatedRoutingSecondaryId();
     return primaryId && secondaryId && primaryId === secondaryId;
   });
 
@@ -748,6 +777,15 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       }
       return undefined;
     });
+
+    // Auto-disable routing if insufficient models selected
+    effect(() => {
+      if (this.routingEnabled() && this.activeModels().length < 2) {
+        this.routingEnabled.set(false);
+        this.routingPrimaryModelId.set(null);
+        this.routingSecondaryModelId.set(null);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -1033,18 +1071,28 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
    */
   toggleRouting(): void {
     const newState = !this.routingEnabled();
+
+    // GUARD: Require 2+ models to enable routing
+    if (newState && this.activeModels().length < 2) {
+      console.warn('Smart Routing requires at least 2 models selected');
+      return;
+    }
+
     this.routingEnabled.set(newState);
 
-    // Set defaults when enabling
-    if (newState && this.activeModels().length >= 2) {
+    if (newState) {
+      // Set defaults when enabling: cheapest and most expensive
       const sorted = [...this.results()].sort(
         (a, b) => a.monthlyCost - b.monthlyCost,
       );
-      // Primary = cheapest, Secondary = most expensive of selected
       this.routingPrimaryModelId.set(sorted[0]?.modelId ?? null);
       this.routingSecondaryModelId.set(
         sorted[sorted.length - 1]?.modelId ?? null,
       );
+    } else {
+      // CLEANUP: Reset routing model selections when disabling
+      this.routingPrimaryModelId.set(null);
+      this.routingSecondaryModelId.set(null);
     }
   }
 
