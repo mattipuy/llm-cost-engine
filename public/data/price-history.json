@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "description": "Historical LLM pricing data for trend analysis",
     "first_snapshot": "2026-01-31",
-    "last_snapshot": "2026-02-16",
+    "last_snapshot": "2026-02-22",
     "snapshot_frequency": "weekly",
     "data_retention": "24_months"
   },
@@ -245,6 +245,123 @@
     },
     {
       "date": "2026-02-16",
+      "models": [
+        {
+          "id": "gpt-5.2",
+          "name": "GPT-5.2",
+          "provider": "OpenAI",
+          "input_1m": 1.75,
+          "output_1m": 14,
+          "cached_1m": 0.875
+        },
+        {
+          "id": "gpt-5.1",
+          "name": "GPT-5.1",
+          "provider": "OpenAI",
+          "input_1m": 1.25,
+          "output_1m": 10,
+          "cached_1m": 0.625
+        },
+        {
+          "id": "gpt-5-mini",
+          "name": "GPT-5 Mini",
+          "provider": "OpenAI",
+          "input_1m": 0.25,
+          "output_1m": 2,
+          "cached_1m": 0.125
+        },
+        {
+          "id": "o3-mini",
+          "name": "o3-mini",
+          "provider": "OpenAI",
+          "input_1m": 1.1,
+          "output_1m": 4.4,
+          "cached_1m": 0.55
+        },
+        {
+          "id": "claude-sonnet-4.5",
+          "name": "Claude Sonnet 4.5",
+          "provider": "Anthropic",
+          "input_1m": 3,
+          "output_1m": 15,
+          "cached_1m": 0.3
+        },
+        {
+          "id": "claude-haiku-4.5",
+          "name": "Claude Haiku 4.5",
+          "provider": "Anthropic",
+          "input_1m": 1,
+          "output_1m": 5,
+          "cached_1m": 0.1
+        },
+        {
+          "id": "claude-opus-4.6",
+          "name": "Claude Opus 4.6",
+          "provider": "Anthropic",
+          "input_1m": 5,
+          "output_1m": 25,
+          "cached_1m": 0.5
+        },
+        {
+          "id": "gemini-3-pro",
+          "name": "Gemini 3 Pro",
+          "provider": "Google",
+          "input_1m": 2,
+          "output_1m": 12,
+          "cached_1m": 0.5
+        },
+        {
+          "id": "gemini-3-flash",
+          "name": "Gemini 3 Flash",
+          "provider": "Google",
+          "input_1m": 0.5,
+          "output_1m": 3,
+          "cached_1m": 0.125
+        },
+        {
+          "id": "deepseek-v3",
+          "name": "DeepSeek V3",
+          "provider": "DeepSeek",
+          "input_1m": 0.27,
+          "output_1m": 1.1,
+          "cached_1m": 0.07
+        },
+        {
+          "id": "deepseek-r1",
+          "name": "DeepSeek R1",
+          "provider": "DeepSeek",
+          "input_1m": 0.55,
+          "output_1m": 2.19,
+          "cached_1m": 0.14
+        },
+        {
+          "id": "llama-3.3-70b",
+          "name": "Llama 3.3 70B",
+          "provider": "Meta",
+          "input_1m": 0.7,
+          "output_1m": 0.8,
+          "cached_1m": 0.35
+        },
+        {
+          "id": "mistral-large",
+          "name": "Mistral Large",
+          "provider": "Mistral AI",
+          "input_1m": 2,
+          "output_1m": 6,
+          "cached_1m": 1
+        },
+        {
+          "id": "mistral-small",
+          "name": "Mistral Small",
+          "provider": "Mistral AI",
+          "input_1m": 0.2,
+          "output_1m": 0.6,
+          "cached_1m": 0.1
+        }
+      ]
+    },
+    {
+      "date": "2026-02-22",
       "models": [
         {
           "id": "gpt-5.2",
