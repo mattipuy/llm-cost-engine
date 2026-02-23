@@ -9,7 +9,7 @@ import {
   effect,
   PLATFORM_ID,
 } from '@angular/core';
-import { CommonModule, isPlatformBrowser, Location } from '@angular/common';
+import { CommonModule, DOCUMENT, isPlatformBrowser, Location } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -654,6 +654,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   private title = inject(Title);
   private location = inject(Location);
   private platformId = inject(PLATFORM_ID);
+  private document = inject(DOCUMENT);
 
   // ============================================================================
   // LIFECYCLE
@@ -709,6 +710,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           this.updateUrlParams(m, ti, to, cr);
           this.updateDynamicMetaTags(m, ti, to, cr);
         }, 300);
+      } else {
+        // SSR: set meta tags and canonical immediately so Googlebot receives them
+        this.updateDynamicMetaTags(m, ti, to, cr);
       }
 
       // Cleanup on effect destruction
@@ -1573,13 +1577,13 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
    * Each unique parameter combination = unique canonical URL.
    */
   private updateCanonicalLink(url: string): void {
-    let link = document.querySelector(
+    let link = this.document.querySelector(
       'link[rel="canonical"]',
     ) as HTMLLinkElement;
     if (!link) {
-      link = document.createElement('link');
+      link = this.document.createElement('link');
       link.setAttribute('rel', 'canonical');
-      document.head.appendChild(link);
+      this.document.head.appendChild(link);
     }
     link.setAttribute('href', url);
   }

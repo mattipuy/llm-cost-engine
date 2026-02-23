@@ -29,15 +29,15 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    // Rate limit: count recent unverified inserts (DB-based)
+    // Rate limit: max 5 attempts per email in 5 minutes (per-email, not global)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     const { count } = await supabase
       .from('price_alerts')
       .select('*', { count: 'exact', head: true })
-      .eq('verified', false)
+      .eq('email', email)
       .gte('created_at', fiveMinutesAgo);
 
-    if ((count ?? 0) > 50) {
+    if ((count ?? 0) > 5) {
       return new Response(
         JSON.stringify({ error: 'Too many requests. Please try later.' }),
         {
