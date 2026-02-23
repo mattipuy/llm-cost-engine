@@ -30,13 +30,13 @@ export const WEIGHT_DESCRIPTIONS = {
   costEfficiency: {
     weight: VALUESCORE_ALPHA,
     percentage: Math.round(VALUESCORE_ALPHA * 100),
-    label: 'cost efficiency'
+    label: 'cost efficiency',
   },
   contextCapacity: {
     weight: VALUESCORE_BETA,
     percentage: Math.round(VALUESCORE_BETA * 100),
-    label: 'contextual capacity'
-  }
+    label: 'contextual capacity',
+  },
 } as const;
 
 /**
@@ -45,5 +45,5 @@ export const WEIGHT_DESCRIPTIONS = {
 export const ENGINE_META = {
   name: 'LLM Cost Engine',
   version: '1.0',
-  fullName: 'LLM Cost Engine v1.0'
+  fullName: 'LLM Cost Engine',
 } as const;
