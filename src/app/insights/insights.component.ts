@@ -40,10 +40,10 @@ interface MonthlyHighlight {
           <div class="flex items-center gap-3 mb-2">
             <span class="text-3xl">📊</span>
             <h1 class="text-3xl font-bold">LLM Market Insights</h1>
+            <span class="text-xs font-semibold px-2 py-1 bg-white/20 rounded-full">Feb 2026 Pricing Pulse</span>
           </div>
           <p class="text-indigo-100 text-lg max-w-2xl">
-            Illustrative market trends based on {{ analysisCount() | number }} representative scenarios.
-            Updated monthly. <em class="text-indigo-200">Real aggregation coming soon.</em>
+            Weekly price snapshots across 15 models, 6 providers. Trends, shifts, and cost rankings — updated every Sunday.
           </p>
           <div class="mt-4 flex items-center gap-4 text-sm text-indigo-200">
             <span class="flex items-center gap-1">
@@ -274,6 +274,20 @@ interface MonthlyHighlight {
           </div>
         </section>
 
+        <!-- Email Alert CTA -->
+        <section class="mb-8 bg-white border border-indigo-200 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex-1">
+            <p class="font-semibold text-gray-900">Get this monthly in your inbox</p>
+            <p class="text-sm text-gray-500 mt-0.5">Price drop alerts ≥5% · Free · Double opt-in · Unsubscribe anytime</p>
+          </div>
+          <a
+            routerLink="/tools/chatbot-simulator"
+            class="shrink-0 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            Subscribe to Price Alerts →
+          </a>
+        </section>
+
         <!-- CTA -->
         <section
           class="text-center bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white"
@@ -358,7 +372,6 @@ export class InsightsComponent implements OnInit {
   });
 
   // Simulated analysis count (would come from real analytics in production)
-  analysisCount = signal(14832);
 
   // Price trends from history service
   priceTrends = signal<PriceTrend[]>([]);

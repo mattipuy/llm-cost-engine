@@ -80,6 +80,9 @@
           </div>
         </div>
       </div>
+      <p class="mt-4 text-sm text-gray-500">
+        → <a routerLink="/tools/chatbot-simulator" class="text-indigo-600 hover:text-indigo-800 underline cursor-pointer">Simulate cost at your volume in the TCO calculator</a>
+      </p>
     </section>
 
     <!-- Question 2 -->
@@ -139,6 +142,9 @@
           </tbody>
         </table>
       </div>
+      <p class="mt-4 text-sm text-gray-500">
+        → <a routerLink="/tools/caching-roi" class="text-indigo-600 hover:text-indigo-800 underline cursor-pointer">Calculate your exact cache hit ROI with the Caching ROI Calculator</a>
+      </p>
     </section>
 
     <!-- Question 3 -->
@@ -210,6 +216,20 @@
         </table>
       </div>
     </section>
+
+    <!-- Email Alert CTA dopo Decision Matrix -->
+    <div class="mb-10 bg-indigo-50 border border-indigo-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+      <div class="flex-1">
+        <p class="font-semibold text-indigo-900 text-sm">Get notified when model costs shift</p>
+        <p class="text-indigo-700 text-sm mt-0.5">Price drop alerts ≥5% · Free · No account needed</p>
+      </div>
+      <a
+        routerLink="/tools/chatbot-simulator"
+        class="shrink-0 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors text-center"
+      >
+        Subscribe to Price Alerts →
+      </a>
+    </div>
 
     <!-- Why TCO vs $/token -->
     <section class="mb-12">

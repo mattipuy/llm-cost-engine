@@ -370,8 +370,58 @@
         </div>
       </div>
 
+      <!-- When to Use Batch API -->
+      <div class="mt-10 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4">When Does Batch API Make Sense?</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+          <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p class="font-semibold text-green-900 mb-2">Good fit</p>
+            <ul class="space-y-1.5 text-green-800 text-xs">
+              <li class="flex items-start gap-1.5"><span class="text-green-600 font-bold flex-shrink-0">✓</span> Overnight data pipelines</li>
+              <li class="flex items-start gap-1.5"><span class="text-green-600 font-bold flex-shrink-0">✓</span> Bulk document classification</li>
+              <li class="flex items-start gap-1.5"><span class="text-green-600 font-bold flex-shrink-0">✓</span> Embedding generation jobs</li>
+              <li class="flex items-start gap-1.5"><span class="text-green-600 font-bold flex-shrink-0">✓</span> Weekly report generation</li>
+              <li class="flex items-start gap-1.5"><span class="text-green-600 font-bold flex-shrink-0">✓</span> Fine-tuning data prep</li>
+            </ul>
+          </div>
+          <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p class="font-semibold text-red-900 mb-2">Poor fit</p>
+            <ul class="space-y-1.5 text-red-800 text-xs">
+              <li class="flex items-start gap-1.5"><span class="text-red-500 font-bold flex-shrink-0">✗</span> Real-time user chatbots</li>
+              <li class="flex items-start gap-1.5"><span class="text-red-500 font-bold flex-shrink-0">✗</span> Latency-sensitive APIs</li>
+              <li class="flex items-start gap-1.5"><span class="text-red-500 font-bold flex-shrink-0">✗</span> Interactive tools (&lt;1s SLA)</li>
+              <li class="flex items-start gap-1.5"><span class="text-red-500 font-bold flex-shrink-0">✗</span> Streaming output required</li>
+            </ul>
+          </div>
+          <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <p class="font-semibold text-amber-900 mb-2">Rule of thumb</p>
+            <p class="text-xs text-amber-800">Batch pays off when:</p>
+            <ul class="space-y-1.5 text-amber-800 text-xs mt-1">
+              <li class="flex items-start gap-1.5"><span class="text-amber-600 font-bold flex-shrink-0">→</span> &gt;10,000 records/job</li>
+              <li class="flex items-start gap-1.5"><span class="text-amber-600 font-bold flex-shrink-0">→</span> 24h latency acceptable</li>
+              <li class="flex items-start gap-1.5"><span class="text-amber-600 font-bold flex-shrink-0">→</span> Savings &gt; $10/run</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Alert CTA -->
+      <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="flex-1">
+          <p class="font-semibold text-indigo-900 text-sm">Track batch pricing discounts</p>
+          <p class="text-indigo-700 text-sm mt-0.5">Alert when batch discount changes · Free · Double opt-in · Unsubscribe anytime</p>
+        </div>
+        <a
+          routerLink="/tools/chatbot-simulator"
+          fragment="price-alerts"
+          class="shrink-0 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors text-center"
+        >
+          Subscribe to Price Alerts →
+        </a>
+      </div>
+
       <!-- Cross-links -->
-      <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
         <a
           routerLink="/tools/chatbot-simulator"
           class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all group"

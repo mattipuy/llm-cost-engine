@@ -290,8 +290,23 @@
         }
       </div>
 
+      <!-- Email Alert CTA -->
+      <div class="mt-10 bg-indigo-50 border border-indigo-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="flex-1">
+          <p class="font-semibold text-indigo-900 text-sm">Get notified when context windows expand</p>
+          <p class="text-indigo-700 text-sm mt-0.5">New model alerts · Price changes ≥5% · Free · No spam</p>
+        </div>
+        <a
+          routerLink="/tools/chatbot-simulator"
+          fragment="price-alerts"
+          class="shrink-0 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors text-center"
+        >
+          Subscribe to Model Alerts →
+        </a>
+      </div>
+
       <!-- Cross-links -->
-      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
         <a
           routerLink="/tools/chatbot-simulator"
           class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all group"

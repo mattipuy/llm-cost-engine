@@ -89,6 +89,64 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
   alertModalOpen = signal(false);
 
   // ============================================================================
+  // PRESETS
+  // ============================================================================
+
+  readonly presets = [
+    {
+      id: 'support-bot',
+      name: 'Customer Support Bot',
+      description: 'Shared system prompt, varied user queries',
+      staticTokens: 8000,
+      dynamicTokens: 150,
+      outputTokens: 300,
+      requestsPerDay: 5000,
+      cacheWritePercent: 10,
+    },
+    {
+      id: 'rag-pipeline',
+      name: 'RAG Document Pipeline',
+      description: 'Long document context, frequent reuse',
+      staticTokens: 20000,
+      dynamicTokens: 200,
+      outputTokens: 500,
+      requestsPerDay: 1000,
+      cacheWritePercent: 15,
+    },
+    {
+      id: 'code-assistant',
+      name: 'Code Assistant',
+      description: 'Shared codebase context per session',
+      staticTokens: 15000,
+      dynamicTokens: 250,
+      outputTokens: 400,
+      requestsPerDay: 2000,
+      cacheWritePercent: 20,
+    },
+    {
+      id: 'low-reuse',
+      name: 'Low-Reuse Workload',
+      description: 'Unique prompts, minimal caching benefit',
+      staticTokens: 2000,
+      dynamicTokens: 500,
+      outputTokens: 200,
+      requestsPerDay: 10000,
+      cacheWritePercent: 60,
+    },
+  ] as const;
+
+  activePreset = signal<string | null>(null);
+
+  applyPreset(preset: (typeof this.presets)[number]): void {
+    this.staticTokens.set(preset.staticTokens);
+    this.dynamicTokens.set(preset.dynamicTokens);
+    this.outputTokens.set(preset.outputTokens);
+    this.requestsPerDay.set(preset.requestsPerDay);
+    this.cacheWritePercent.set(preset.cacheWritePercent);
+    this.activePreset.set(preset.id);
+  }
+
+  // ============================================================================
   // COMPUTED
   // ============================================================================
 
