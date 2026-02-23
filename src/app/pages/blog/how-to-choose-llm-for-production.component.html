@@ -1,0 +1,287 @@
+<div class="min-h-screen bg-gray-50">
+  <article class="max-w-3xl mx-auto px-4 py-12 sm:py-16">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-500 mb-8" aria-label="Breadcrumb">
+      <ol class="flex items-center gap-1.5 flex-wrap">
+        <li><a routerLink="/tools/chatbot-simulator" class="hover:text-indigo-600 transition-colors cursor-pointer">Home</a></li>
+        <li class="before:content-['/'] before:mx-1.5">Blog</li>
+        <li class="before:content-['/'] before:mx-1.5 text-gray-900 font-medium">How to Choose an LLM for Production</li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <header class="mb-10">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">
+        How to Choose an LLM for Production: A Decision Framework Based on Real Monthly Costs
+      </h1>
+      <p class="mt-3 text-lg text-gray-600 italic">
+        Three questions that determine your optimal model. Not opinions — math.
+      </p>
+      <time datetime="2026-02-23" class="mt-4 block text-sm text-gray-400">February 23, 2026</time>
+    </header>
+
+    <hr class="border-gray-200 mb-10">
+
+    <!-- Intro -->
+    <div class="space-y-4 text-gray-700 leading-relaxed">
+      <p>
+        Every week, an engineering team somewhere picks an LLM by looking at a comparison table of $/1M tokens.
+        They launch. Three months later, the bill is twice what they expected.
+      </p>
+      <p>
+        The $/token rate is the starting point, not the answer. What actually determines your monthly bill is
+        how your workload interacts with that rate: your volume, your cache hit rate, and your output/input ratio.
+      </p>
+      <p class="font-semibold text-gray-900">
+        This guide gives you a deterministic decision framework. Three questions. Each one eliminates a set of
+        models. At the end, you have a shortlist you can validate in the calculator.
+      </p>
+    </div>
+
+    <hr class="border-gray-200 my-10">
+
+    <!-- Question 1 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-2">Question 1: What's your monthly volume?</h2>
+      <p class="text-gray-500 text-sm mb-6 italic">This determines whether cost optimization is worth engineering time.</p>
+
+      <div class="space-y-4 text-gray-700 leading-relaxed">
+        <p>
+          At low volume (under 500 messages/day), model cost is rarely the constraint. The difference between
+          the cheapest and most expensive model might be $10–$30/month. Pick the one with the best quality
+          for your use case and move on.
+        </p>
+        <p>
+          At medium volume (500–10,000 messages/day), cost differences compound. A 5× price difference between
+          models translates to $100–$1,000/month in real savings. This is where TCO analysis pays off.
+        </p>
+        <p>
+          At high volume (10,000+ messages/day), the model choice can swing your infrastructure budget by
+          tens of thousands of dollars per year. At this scale, cache strategy and smart routing become
+          mandatory, not optional.
+        </p>
+      </div>
+
+      <!-- Decision Box -->
+      <div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-5">
+        <h3 class="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wide">Volume decision guide</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 flex-shrink-0 w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-xs font-bold">→</span>
+            <span><strong class="text-gray-800">&lt;500/day:</strong> Prioritize quality and developer experience over cost. GPT-5.1 or Claude Sonnet 4.6.</span>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 flex-shrink-0 w-5 h-5 bg-yellow-100 text-yellow-700 rounded-full flex items-center justify-center text-xs font-bold">→</span>
+            <span><strong class="text-gray-800">500–10K/day:</strong> Run the TCO calculator with your actual token mix. DeepSeek V3 or Gemini Flash often win here.</span>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 flex-shrink-0 w-5 h-5 bg-red-100 text-red-700 rounded-full flex items-center justify-center text-xs font-bold">→</span>
+            <span><strong class="text-gray-800">&gt;10K/day:</strong> Use smart routing (cheap model for simple queries, premium for complex). Model mix matters more than any single model choice.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Question 2 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-2">Question 2: What's your cache hit rate?</h2>
+      <p class="text-gray-500 text-sm mb-6 italic">The single most underestimated cost lever in LLM deployments.</p>
+
+      <div class="space-y-4 text-gray-700 leading-relaxed">
+        <p>
+          Prompt caching lets providers reuse computed context across requests that share the same prefix —
+          typically your system prompt, shared document chunks, or conversation history. Cached tokens
+          cost 70–90% less than fresh input tokens.
+        </p>
+        <p>
+          If your system prompt is 500 tokens and every request repeats it, a 100% cache hit rate on
+          that prefix reduces your effective input cost dramatically. For a customer support bot with
+          a shared knowledge base, cache hit rates of 40–60% are realistic.
+        </p>
+        <p>
+          Here's the non-obvious implication: <strong class="text-gray-900">a model with aggressive cache pricing can beat
+          a "cheaper" model with no cache discount</strong> once your cache hit rate exceeds 20–30%. This is
+          why comparing raw $/token rates misleads you.
+        </p>
+      </div>
+
+      <!-- Cache Rate Table -->
+      <div class="mt-6 overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="text-left p-3 font-semibold text-gray-700 border border-gray-200">Use case</th>
+              <th class="text-left p-3 font-semibold text-gray-700 border border-gray-200">Typical cache rate</th>
+              <th class="text-left p-3 font-semibold text-gray-700 border border-gray-200">Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="bg-white">
+              <td class="p-3 border border-gray-200 text-gray-700">Customer support (shared FAQ + system prompt)</td>
+              <td class="p-3 border border-gray-200 font-mono text-green-700">30–50%</td>
+              <td class="p-3 border border-gray-200 text-gray-600">High — changes model ranking</td>
+            </tr>
+            <tr class="bg-gray-50">
+              <td class="p-3 border border-gray-200 text-gray-700">RAG / Knowledge base (shared document chunks)</td>
+              <td class="p-3 border border-gray-200 font-mono text-green-700">60–80%</td>
+              <td class="p-3 border border-gray-200 text-gray-600">Very high — cache becomes primary cost driver</td>
+            </tr>
+            <tr class="bg-white">
+              <td class="p-3 border border-gray-200 text-gray-700">Dev assistant / coding bot (unique prompts)</td>
+              <td class="p-3 border border-gray-200 font-mono text-yellow-700">10–20%</td>
+              <td class="p-3 border border-gray-200 text-gray-600">Low — output cost dominates</td>
+            </tr>
+            <tr class="bg-gray-50">
+              <td class="p-3 border border-gray-200 text-gray-700">Content generation (unique per request)</td>
+              <td class="p-3 border border-gray-200 font-mono text-red-700">0–5%</td>
+              <td class="p-3 border border-gray-200 text-gray-600">Negligible — output cost is everything</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Question 3 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-2">Question 3: Is latency a hard constraint?</h2>
+      <p class="text-gray-500 text-sm mb-6 italic">Latency determines whether you can use batch processing or smart routing.</p>
+
+      <div class="space-y-4 text-gray-700 leading-relaxed">
+        <p>
+          If your use case requires real-time responses (interactive chat, user-facing APIs), you're constrained
+          to synchronous inference. This is the most expensive mode and limits your model choices.
+        </p>
+        <p>
+          If latency isn't critical (nightly reports, content generation pipelines, background classification),
+          Batch API pricing gives you 50% off on OpenAI models and similar discounts elsewhere. This changes
+          the math significantly.
+        </p>
+        <p>
+          For interactive use cases at high volume, smart routing is the most effective cost strategy: route
+          simple queries to a fast, cheap model (Gemini Flash, DeepSeek V3) and complex queries to a premium
+          model (Claude Sonnet 4.6, GPT-5.1). Saving 60–70% on 80% of your traffic while maintaining
+          quality where it matters.
+        </p>
+      </div>
+    </section>
+
+    <hr class="border-gray-200 my-10">
+
+    <!-- Decision Matrix -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-6">The Decision Matrix</h2>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-indigo-50">
+              <th class="text-left p-3 font-semibold text-indigo-900 border border-indigo-200">Your profile</th>
+              <th class="text-left p-3 font-semibold text-indigo-900 border border-indigo-200">Priority</th>
+              <th class="text-left p-3 font-semibold text-indigo-900 border border-indigo-200">Start with</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr class="bg-white">
+              <td class="p-3 border border-gray-200 text-gray-700">Low volume · quality matters · no cache</td>
+              <td class="p-3 border border-gray-200 text-gray-600">Output quality</td>
+              <td class="p-3 border border-gray-200 font-medium text-gray-900">Claude Sonnet 4.6 or GPT-5.1</td>
+            </tr>
+            <tr class="bg-gray-50">
+              <td class="p-3 border border-gray-200 text-gray-700">Medium volume · support/FAQ · high cache rate</td>
+              <td class="p-3 border border-gray-200 text-gray-600">Cache efficiency</td>
+              <td class="p-3 border border-gray-200 font-medium text-gray-900">DeepSeek V3 or Gemini 3.1 Pro</td>
+            </tr>
+            <tr class="bg-white">
+              <td class="p-3 border border-gray-200 text-gray-700">High volume · interactive · mixed complexity</td>
+              <td class="p-3 border border-gray-200 text-gray-600">Smart routing</td>
+              <td class="p-3 border border-gray-200 font-medium text-gray-900">Gemini Flash (simple) + Claude (complex)</td>
+            </tr>
+            <tr class="bg-gray-50">
+              <td class="p-3 border border-gray-200 text-gray-700">Any volume · not latency-sensitive</td>
+              <td class="p-3 border border-gray-200 text-gray-600">Batch discount</td>
+              <td class="p-3 border border-gray-200 font-medium text-gray-900">Batch API (50% off synchronous rates)</td>
+            </tr>
+            <tr class="bg-white">
+              <td class="p-3 border border-gray-200 text-gray-700">Enterprise RAG · large shared context</td>
+              <td class="p-3 border border-gray-200 text-gray-600">Context window + cache</td>
+              <td class="p-3 border border-gray-200 font-medium text-gray-900">Gemini 3.1 Pro (2M context, aggressive cache)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Why TCO vs $/token -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">Why $/token comparisons mislead you</h2>
+      <div class="space-y-4 text-gray-700 leading-relaxed">
+        <p>
+          Consider two models: Model A costs $1.00/1M input and $5.00/1M output.
+          Model B costs $0.30/1M input and $1.10/1M output.
+        </p>
+        <p>
+          For a coding assistant with 800 input tokens and 1,200 output tokens per request at 500
+          requests/day, the monthly calculation changes the story completely:
+        </p>
+        <div class="bg-gray-900 text-gray-100 rounded-lg p-4 font-mono text-xs overflow-x-auto">
+          <div class="text-green-400 mb-2"># Monthly cost calculation — 500 requests/day × 30 days</div>
+          <div class="mb-1">Model A: (12M × $1.00 + 18M × $5.00) / 1M = $12 + $90 = <strong class="text-yellow-300">$102/month</strong></div>
+          <div>Model B: (12M × $0.30 + 18M × $1.10) / 1M = $3.60 + $19.80 = <strong class="text-green-300">$23.40/month</strong></div>
+        </div>
+        <p>
+          Model B is 4.4× cheaper in practice, even though it "only" looks 3.3× cheaper on input and
+          4.5× cheaper on output. And this is before any cache discount is applied.
+        </p>
+        <p>
+          The only way to know which model is right for your workload is to calculate with your actual
+          numbers: your volume, your token mix, your cache hit rate.
+        </p>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 text-center">
+      <h3 class="font-bold text-indigo-900 text-lg mb-2">Run the calculation with your numbers</h3>
+      <p class="text-indigo-700 text-sm mb-4">
+        Plug in your daily volume, token mix, and cache hit rate. Get a ranked TCO comparison across 15 models in under 60 seconds.
+      </p>
+      <a
+        routerLink="/tools/chatbot-simulator"
+        class="inline-block px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+      >
+        Calculate My Monthly LLM Cost →
+      </a>
+    </div>
+
+    <hr class="border-gray-200 my-10">
+
+    <!-- Related -->
+    <nav aria-label="Related articles" class="text-sm text-gray-500">
+      <p class="font-medium text-gray-700 mb-3">Related</p>
+      <ul class="space-y-2">
+        <li>
+          <a routerLink="/blog/how-we-calculate-llm-tco" class="text-indigo-600 hover:text-indigo-800 underline cursor-pointer">
+            We Open-Sourced the Math Behind LLM Cost Rankings
+          </a>
+          <span class="ml-2 text-gray-400">— Full methodology breakdown</span>
+        </li>
+        <li>
+          <a routerLink="/insights" class="text-indigo-600 hover:text-indigo-800 underline cursor-pointer">
+            LLM Market Insights
+          </a>
+          <span class="ml-2 text-gray-400">— Weekly pricing trend analysis</span>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Footer meta -->
+    <div class="mt-12 pt-8 border-t border-gray-200 text-xs text-gray-400 text-center space-y-1">
+      <p>v{{ '2.1.0' }} · 15 models · 6 providers · Updated 2026-02-23</p>
+      <p>
+        <a routerLink="/tools/chatbot-simulator" class="hover:text-indigo-600 cursor-pointer">LLM Cost Engine</a>
+        · Deterministic TCO Analysis · No vendor deals
+      </p>
+    </div>
+
+  </article>
+</div>

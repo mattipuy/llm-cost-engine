@@ -64,6 +64,15 @@ export const routes: Routes = [
       ),
     title: 'How We Calculate LLM TCO | LLM Cost Engine',
   },
+  // Blog: Decision guide
+  {
+    path: 'blog/how-to-choose-llm-for-production',
+    loadComponent: () =>
+      import('./pages/blog/how-to-choose-llm-for-production.component').then(
+        (m) => m.HowToChooseLlmForProductionComponent,
+      ),
+    title: 'How to Choose an LLM for Production | LLM Cost Engine',
+  },
   // Price alert unsubscribe
   {
     path: 'unsubscribe',
