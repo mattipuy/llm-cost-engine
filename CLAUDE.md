@@ -57,6 +57,16 @@ thoughts/
 6. **Validate Phase**: Before shipping, run a systematic verification: automated tests, type-checking, `architect-reviewer` code review against the spec, and Lighthouse performance audit. Log results and any deviations in `thoughts/decisions/`.
 7. **Ship Phase**: `devops-engineer` triggers the deploy only after Validate Phase passes.
 
+## 🚀 Supabase Edge Functions Deploy
+
+**MANDATORY**: ALWAYS use `--no-verify-jwt` flag when deploying edge functions.
+
+```bash
+supabase functions deploy <function-name> --no-verify-jwt
+```
+
+Never deploy without this flag — functions are called from the browser without a Supabase session token.
+
 ## 🛠 Workflow Strategico
 
 - Prima di ogni modifica alla UI: Consulta il @Market Researcher per assicurarti che la CTA non rovini il Trust B2B.
