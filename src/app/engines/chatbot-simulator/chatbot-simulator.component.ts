@@ -260,10 +260,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   isRetrying = signal(false);
 
   // ============================================================================
-  // SIGNALS - Social Proof
-  // ============================================================================
 
-  analysisCount = signal(14832); // Start with a realistic number
 
   // Pricing registry metadata (version, last_updated, etc.)
   pricingMetadata = signal<PricingMetadata | null>(null);

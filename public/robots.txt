@@ -1,11 +1,11 @@
 # LLM Cost Engine - Robots.txt
-# https://llm-cost-engine.vercel.app
+# https://llm-cost-engine.com
 
 User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://llm-cost-engine.vercel.app/sitemap.xml
+Sitemap: https://llm-cost-engine.com/sitemap.xml
 
 # Crawl-delay (optional, be nice to servers)
 Crawl-delay: 1
