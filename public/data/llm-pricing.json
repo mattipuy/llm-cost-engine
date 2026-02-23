@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "version": "2.0.0",
+    "version": "2.1.0",
     "name": "LLM Cost Engine Pricing Registry",
-    "last_updated": "2026-02-12",
-    "last_verified": "2026-02-12",
+    "last_updated": "2026-02-23",
+    "last_verified": "2026-02-23",
     "base_currency": "USD",
     "pricing_unit": "per_1M_tokens",
     "maintained_by": "LLM Cost Engine Team",
@@ -76,8 +76,8 @@
       }
     },
     {
-      "id": "claude-sonnet-4.5",
-      "name": "Claude Sonnet 4.5",
+      "id": "claude-sonnet-4.6",
+      "name": "Claude Sonnet 4.6",
       "provider": "Anthropic",
       "pricing": {
         "input_1m": 3.0,
@@ -124,13 +124,13 @@
       }
     },
     {
-      "id": "gemini-3-pro",
-      "name": "Gemini 3 Pro",
+      "id": "gemini-3.1-pro",
+      "name": "Gemini 3.1 Pro",
       "provider": "Google",
       "pricing": {
         "input_1m": 2.0,
         "output_1m": 12.0,
-        "cached_input_1m": 0.5
+        "cached_input_1m": 0.2
       },
       "capabilities": {
         "context_window": 1000000,
