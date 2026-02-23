@@ -1552,8 +1552,8 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       : `LLM Cost Analysis: ${formattedMessages} messages/day | ${ENGINE_META.fullName}`;
 
     const dynamicDescription = winner
-      ? `TCO analysis for ${volumeDesc} deployment (${formattedMessages} msg/day). ${winner.modelName} offers best value at $${winner.monthlyCost.toFixed(2)}/mo. Compare GPT-4o, Claude, Gemini.`
-      : `Calculate LLM costs for ${formattedMessages} messages/day. Compare GPT-4o, Claude 3.5, and Gemini pricing with our deterministic ValueScore algorithm.`;
+      ? `TCO analysis for ${volumeDesc} deployment (${formattedMessages} msg/day). ${winner.modelName} offers best value at $${winner.monthlyCost.toFixed(2)}/mo. Compare Claude Sonnet 4.6, GPT-5.1, Gemini 3.1 Pro, DeepSeek V3.`
+      : `Calculate LLM costs for ${formattedMessages} messages/day. Compare Claude Sonnet 4.6, GPT-5.1, Gemini 3.1 Pro, and DeepSeek V3 pricing with our deterministic ValueScore algorithm.`;
 
     // Update meta tags
     this.title.setTitle(dynamicTitle);
@@ -1598,7 +1598,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       {
         name: ENGINE_META.fullName,
         description:
-          'Enterprise-grade TCO analysis for LLM deployments. Compare GPT-4o, Gemini 1.5 Pro, and Claude 3.5 Sonnet with deterministic ValueScore methodology.',
+          'Enterprise-grade TCO analysis for LLM deployments. Compare Claude Sonnet 4.6, GPT-5.1, Gemini 3.1 Pro, and DeepSeek V3 with deterministic ValueScore methodology.',
         url: 'https://llm-cost-engine.com',
         applicationCategory: 'BusinessApplication',
         operatingSystem: 'Web Browser',
@@ -1611,10 +1611,6 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           'Sensitivity Analysis (2x/3x traffic projections)',
           'Export signed PDF for CTO/CFO approval',
         ],
-        aggregateRating: {
-          ratingValue: '4.8',
-          ratingCount: '127',
-        },
       },
       'llm-cost-engine',
     );
