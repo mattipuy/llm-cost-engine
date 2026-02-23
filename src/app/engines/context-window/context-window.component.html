@@ -3,7 +3,11 @@
   <header class="bg-white border-b border-gray-200 py-8">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <nav class="text-sm text-gray-500 mb-3">
-        <a routerLink="/tools/chatbot-simulator" class="hover:text-indigo-600 cursor-pointer">LLM Cost Engine</a>
+        <a
+          routerLink="/tools/chatbot-simulator"
+          class="hover:text-indigo-600 cursor-pointer"
+          >LLM Cost Engine</a
+        >
         <span class="mx-2">/</span>
         <span class="text-gray-900">Context Window Comparator</span>
       </nav>
@@ -11,7 +15,8 @@
         LLM Context Window Comparator
       </h1>
       <p class="mt-2 text-lg text-gray-600">
-        Check which models can handle your content. Green = fits, Red = overflow.
+        Check which models can handle your content. Green = fits, Red =
+        overflow.
       </p>
     </div>
   </header>
@@ -22,13 +27,28 @@
       <div class="max-w-md mx-auto mt-12">
         <div class="p-6 bg-red-50 border-2 border-red-200 rounded-xl">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 bg-red-200 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-red-200 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-red-700"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             </div>
             <div class="flex-1">
-              <h3 class="text-lg font-bold text-red-900">Failed to Load Pricing Data</h3>
+              <h3 class="text-lg font-bold text-red-900">
+                Failed to Load Pricing Data
+              </h3>
               <p class="mt-2 text-sm text-red-700">{{ errorMessage() }}</p>
               <button
                 type="button"
@@ -39,9 +59,25 @@
               >
                 @if (isRetrying()) {
                   <span class="flex items-center gap-2">
-                    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      class="animate-spin w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Retrying...
                   </span>
@@ -55,17 +91,25 @@
       </div>
     } @else if (isLoading()) {
       <div class="flex justify-center py-20">
-        <div class="animate-spin w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full"></div>
+        <div
+          class="animate-spin w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full"
+        ></div>
       </div>
     } @else {
       <!-- Sticky Input Bar -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sticky top-4 z-10 mb-8">
+      <div
+        class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sticky top-4 z-10 mb-8"
+      >
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Content Size -->
           <div>
             <div class="flex justify-between mb-1">
-              <label class="text-sm font-semibold text-gray-900">Content Size</label>
-              <span class="text-sm font-mono text-indigo-600 tabular-nums">{{ contentSize() | number }}</span>
+              <label class="text-sm font-semibold text-gray-900"
+                >Content Size</label
+              >
+              <span class="text-sm font-mono text-indigo-600 tabular-nums">{{
+                contentSize() | number
+              }}</span>
             </div>
             <input
               type="range"
@@ -84,9 +128,11 @@
 
           <!-- Unit Toggle -->
           <div>
-            <label class="text-sm font-semibold text-gray-900 mb-2 block">Unit</label>
+            <label class="text-sm font-semibold text-gray-900 mb-2 block"
+              >Unit</label
+            >
             <div class="flex rounded-lg border border-gray-300 overflow-hidden">
-              @for (unit of ['tokens', 'words', 'pages']; track unit) {
+              @for (unit of ["tokens", "words"]; track unit) {
                 <button
                   type="button"
                   (click)="onUnitChange($any(unit))"
@@ -107,9 +153,11 @@
 
           <!-- Sort Toggle -->
           <div>
-            <label class="text-sm font-semibold text-gray-900 mb-2 block">Sort By</label>
+            <label class="text-sm font-semibold text-gray-900 mb-2 block"
+              >Sort By</label
+            >
             <div class="flex rounded-lg border border-gray-300 overflow-hidden">
-              @for (mode of ['price', 'size']; track mode) {
+              @for (mode of ["price", "size"]; track mode) {
                 <button
                   type="button"
                   (click)="onSortChange($any(mode))"
@@ -119,7 +167,11 @@
                   [class.text-gray-700]="sortMode() !== mode"
                   [class.hover:bg-gray-50]="sortMode() !== mode"
                 >
-                  {{ mode === 'price' ? 'Best Value (Price)' : 'Max Context Window' }}
+                  {{
+                    mode === "price"
+                      ? "Best Value (Price)"
+                      : "Max Context Window"
+                  }}
                 </button>
               }
             </div>
@@ -130,13 +182,32 @@
         <div class="mt-4 flex items-center justify-between gap-4">
           <div class="flex items-center gap-4 text-sm">
             <span class="text-gray-600">
-              <span class="font-semibold text-gray-900">{{ validCount() }}</span> of
-              <span class="font-semibold text-gray-900">{{ sortedResults().length }}</span> models fit your content
+              <span class="font-semibold text-gray-900">{{
+                validCount()
+              }}</span>
+              of
+              <span class="font-semibold text-gray-900">{{
+                sortedResults().length
+              }}</span>
+              models fit your content
             </span>
             @if (!hasValidModel()) {
-              <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 text-xs font-medium rounded-full">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              <span
+                class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 text-xs font-medium rounded-full"
+              >
+                <svg
+                  class="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
                 </svg>
                 No model fits — consider splitting or RAG
               </span>
@@ -150,8 +221,19 @@
               aria-label="Track pricing shifts for all models"
               title="Set up price alerts"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
               </svg>
               Track Prices
             </button>
@@ -172,31 +254,67 @@
       @if (!hasValidModel()) {
         <div class="mb-6 p-6 bg-amber-50 border-2 border-amber-300 rounded-xl">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-amber-700"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
               </svg>
             </div>
             <div class="flex-1">
-              <h3 class="text-lg font-bold text-amber-900">No Model Can Handle This Content Size</h3>
+              <h3 class="text-lg font-bold text-amber-900">
+                No Model Can Handle This Content Size
+              </h3>
               <p class="mt-2 text-sm text-amber-800">
-                Your content (<span class="font-semibold tabular-nums">{{ normalizedTokens() | number }} tokens</span>) exceeds all available models.
-                The largest model supports <span class="font-semibold tabular-nums">{{ formatTokens(maxContext()) }} tokens</span>.
+                Your content (<span class="font-semibold tabular-nums"
+                  >{{ normalizedTokens() | number }} tokens</span
+                >) exceeds all available models. The largest model supports
+                <span class="font-semibold tabular-nums"
+                  >{{ formatTokens(maxContext()) }} tokens</span
+                >.
               </p>
               <div class="mt-4 space-y-2">
-                <p class="text-sm font-semibold text-amber-900">Recommended Solutions:</p>
+                <p class="text-sm font-semibold text-amber-900">
+                  Recommended Solutions:
+                </p>
                 <ul class="space-y-1.5 text-sm text-amber-800">
                   <li class="flex items-start gap-2">
-                    <span class="text-amber-600 font-bold flex-shrink-0">•</span>
-                    <span><strong>Split content</strong> into chunks under {{ formatTokens(maxContext()) }} tokens each</span>
+                    <span class="text-amber-600 font-bold flex-shrink-0"
+                      >•</span
+                    >
+                    <span
+                      ><strong>Split content</strong> into chunks under
+                      {{ formatTokens(maxContext()) }} tokens each</span
+                    >
                   </li>
                   <li class="flex items-start gap-2">
-                    <span class="text-amber-600 font-bold flex-shrink-0">•</span>
-                    <span><strong>Use RAG</strong> (Retrieval-Augmented Generation) to process content selectively</span>
+                    <span class="text-amber-600 font-bold flex-shrink-0"
+                      >•</span
+                    >
+                    <span
+                      ><strong>Use RAG</strong> (Retrieval-Augmented Generation)
+                      to process content selectively</span
+                    >
                   </li>
                   <li class="flex items-start gap-2">
-                    <span class="text-amber-600 font-bold flex-shrink-0">•</span>
-                    <span><strong>Reduce content size</strong> using the slider above</span>
+                    <span class="text-amber-600 font-bold flex-shrink-0"
+                      >•</span
+                    >
+                    <span
+                      ><strong>Reduce content size</strong> using the slider
+                      above</span
+                    >
                   </li>
                 </ul>
               </div>
@@ -208,42 +326,57 @@
       <!-- Bar Chart -->
       <div class="space-y-3">
         @for (result of sortedResults(); track result.modelId) {
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 hover:shadow-md transition-shadow">
+          <div
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 hover:shadow-md transition-shadow"
+          >
             <!-- Model Header -->
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-semibold text-gray-900">{{ result.modelName }}</span>
-                <span class="text-xs text-gray-500">({{ result.provider }})</span>
+                <span class="text-sm font-semibold text-gray-900">{{
+                  result.modelName
+                }}</span>
+                <span class="text-xs text-gray-500"
+                  >({{ result.provider }})</span
+                >
                 <!-- Fits / Overflow Chip -->
                 @if (result.isValid) {
-                  <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                  <span
+                    class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800"
+                  >
                     Fits
                   </span>
                   <a
                     [routerLink]="['/tools/chatbot-simulator']"
-                    [queryParams]="{model: result.modelId, inputTokens: normalizedTokens()}"
+                    [queryParams]="{
+                      model: result.modelId,
+                      inputTokens: normalizedTokens(),
+                    }"
                     class="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline focus:ring-2 focus:ring-indigo-500 focus:rounded transition-colors"
                     title="Calculate monthly cost for this model"
                   >
                     Calculate Cost →
                   </a>
                 } @else {
-                  <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                  <span
+                    class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800"
+                  >
                     Overflow
                   </span>
                 }
               </div>
               <!-- Cost Badge -->
-              <span class="text-xs font-medium tabular-nums"
+              <span
+                class="text-xs font-medium tabular-nums"
                 [class.text-green-700]="result.isValid"
                 [class.text-red-600]="!result.isValid"
               >
-                {{ result.inputCost | currency: "USD" : "symbol" : "1.2-4" }} per input
+                {{ result.inputCost | currency: "USD" : "symbol" : "1.2-4" }}
+                per input
               </span>
             </div>
 
             <!-- Bar Visualization -->
-            <div class="relative h-6 bg-gray-100 rounded-full overflow-visible">
+            <div class="relative h-6 bg-gray-100 rounded-full overflow-hidden">
               <!-- Context window (full capacity) - always 100% of bar -->
               <div
                 class="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
@@ -258,24 +391,16 @@
                 [class.bg-red-400]="!result.isValid"
                 [style.width.%]="Math.min(100, result.usagePercent)"
               ></div>
-              <!-- Overflow segment (extends beyond bar when content > context) -->
-              @if (!result.isValid) {
-                <div
-                  class="absolute top-0 h-full bg-red-600 rounded-r-full transition-all duration-300"
-                  [style.left.%]="100"
-                  [style.width.%]="(result.overflowTokens / result.contextWindow) * 100"
-                  [title]="formatTokens(result.overflowTokens) + ' tokens overflow'"
-                ></div>
-              }
             </div>
 
             <!-- Stats -->
-            <div class="flex items-center justify-between mt-2 text-xs text-gray-500">
+            <div
+              class="flex items-center justify-between mt-2 text-xs text-gray-500"
+            >
               <span class="tabular-nums">
-                {{ formatTokens(normalizedTokens()) }} / {{ formatTokens(result.contextWindow) }}
-                <span class="ml-1">
-                  ({{ result.usagePercent }}%)
-                </span>
+                {{ formatTokens(normalizedTokens()) }} /
+                {{ formatTokens(result.contextWindow) }}
+                <span class="ml-1"> ({{ result.usagePercent }}%) </span>
               </span>
               @if (!result.isValid) {
                 <span class="text-red-600 font-medium tabular-nums">
@@ -291,10 +416,16 @@
       </div>
 
       <!-- Email Alert CTA -->
-      <div class="mt-10 bg-indigo-50 border border-indigo-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+      <div
+        class="mt-10 bg-indigo-50 border border-indigo-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+      >
         <div class="flex-1">
-          <p class="font-semibold text-indigo-900 text-sm">Get notified when context windows expand</p>
-          <p class="text-indigo-700 text-sm mt-0.5">New model alerts · Price changes ≥5% · Free · No spam</p>
+          <p class="font-semibold text-indigo-900 text-sm">
+            Get notified when context windows expand
+          </p>
+          <p class="text-indigo-700 text-sm mt-0.5">
+            New model alerts · Price changes ≥5% · Free · No spam
+          </p>
         </div>
         <a
           routerLink="/tools/chatbot-simulator"
@@ -313,8 +444,14 @@
         >
           <span class="text-2xl">&#x1F9EE;</span>
           <div>
-            <p class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">Full TCO Calculator</p>
-            <p class="text-xs text-gray-500">Monthly costs with ValueScore ranking</p>
+            <p
+              class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600"
+            >
+              Full TCO Calculator
+            </p>
+            <p class="text-xs text-gray-500">
+              Monthly costs with ValueScore ranking
+            </p>
           </div>
         </a>
         <a
@@ -323,8 +460,14 @@
         >
           <span class="text-2xl">&#x1F4BE;</span>
           <div>
-            <p class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">Prompt Caching ROI</p>
-            <p class="text-xs text-gray-500">Save on repeated prompts with cache analysis</p>
+            <p
+              class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600"
+            >
+              Prompt Caching ROI
+            </p>
+            <p class="text-xs text-gray-500">
+              Save on repeated prompts with cache analysis
+            </p>
           </div>
         </a>
         <a
@@ -333,8 +476,14 @@
         >
           <span class="text-2xl">&#x23F1;</span>
           <div>
-            <p class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">Batch API Calculator</p>
-            <p class="text-xs text-gray-500">Trade 24h for 50% savings on batch jobs</p>
+            <p
+              class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600"
+            >
+              Batch API Calculator
+            </p>
+            <p class="text-xs text-gray-500">
+              Trade 24h for 50% savings on batch jobs
+            </p>
           </div>
         </a>
       </div>
@@ -342,24 +491,44 @@
   </main>
 
   <!-- Footer -->
-  <footer class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-gray-200">
+  <footer
+    class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 border-t border-gray-200"
+  >
     <div class="text-center text-xs text-gray-500 space-y-2">
       <p>
-        {{ engineMeta.fullName }} v{{ engineMeta.version }} · Deterministic TCO Analysis
+        {{ engineMeta.fullName }} v{{ engineMeta.version }} · Deterministic TCO
+        Analysis
       </p>
       @if (pricingMetadata(); as meta) {
         <p class="text-indigo-500 font-medium">
-          Pricing Benchmark v{{ meta.version }} · Verified {{ meta.last_verified || meta.last_updated }}
+          Pricing Benchmark v{{ meta.version }} · Verified
+          {{ meta.last_verified || meta.last_updated }}
         </p>
       }
       <p class="pt-2">
-        <a routerLink="/tools/chatbot-simulator" class="hover:text-indigo-600 cursor-pointer">Full TCO Calculator</a>
+        <a
+          routerLink="/tools/chatbot-simulator"
+          class="hover:text-indigo-600 cursor-pointer"
+          >Full TCO Calculator</a
+        >
         <span class="mx-2">·</span>
-        <a routerLink="/tools/caching-roi" class="hover:text-indigo-600 cursor-pointer">Caching ROI</a>
+        <a
+          routerLink="/tools/caching-roi"
+          class="hover:text-indigo-600 cursor-pointer"
+          >Caching ROI</a
+        >
         <span class="mx-2">·</span>
-        <a routerLink="/insights" class="hover:text-indigo-600 cursor-pointer">Market Insights</a>
+        <a routerLink="/insights" class="hover:text-indigo-600 cursor-pointer"
+          >Market Insights</a
+        >
         <span class="mx-2">·</span>
-        <a href="https://github.com/mattipuy/llm-cost-engine" target="_blank" rel="noopener" class="hover:text-indigo-600 cursor-pointer">GitHub</a>
+        <a
+          href="https://github.com/mattipuy/llm-cost-engine"
+          target="_blank"
+          rel="noopener"
+          class="hover:text-indigo-600 cursor-pointer"
+          >GitHub</a
+        >
       </p>
     </div>
   </footer>

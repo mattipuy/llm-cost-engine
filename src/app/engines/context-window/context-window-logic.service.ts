@@ -5,7 +5,7 @@ import { LlmModel } from '../chatbot-simulator/logic.service';
 // INTERFACES
 // ============================================================================
 
-export type ContentUnit = 'tokens' | 'words' | 'pages';
+export type ContentUnit = 'tokens' | 'words';
 export type SortMode = 'price' | 'size';
 
 export interface ContextWindowResult {
@@ -30,8 +30,6 @@ export interface ContextWindowResult {
 // ============================================================================
 
 const TOKENS_PER_WORD = 1.33;
-const WORDS_PER_PAGE = 500;
-const TOKENS_PER_PAGE = TOKENS_PER_WORD * WORDS_PER_PAGE; // 665
 const TOKENS_DIVISOR = 1_000_000;
 
 // ============================================================================
@@ -49,8 +47,6 @@ export class ContextWindowLogicService {
     switch (unit) {
       case 'words':
         return Math.round(size * TOKENS_PER_WORD);
-      case 'pages':
-        return Math.round(size * TOKENS_PER_PAGE);
       default:
         return size;
     }
