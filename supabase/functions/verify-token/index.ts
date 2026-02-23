@@ -78,6 +78,100 @@ serve(async (req: Request) => {
       );
     }
 
+    // Fetch all model IDs this email is now tracking (for welcome email)
+    const { data: allAlerts } = await supabase
+      .from('price_alerts')
+      .select('model_id, unsubscribe_token')
+      .eq('email', alert.email)
+      .eq('verified', true);
+
+    const trackedModels = (allAlerts ?? []).map((a: { model_id: string }) => a.model_id);
+    const unsubToken = (allAlerts ?? [])[0]?.unsubscribe_token ?? '';
+
+    // Send welcome email via Resend
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (resendApiKey && trackedModels.length > 0) {
+      const modelList = trackedModels
+        .map((m: string) => `<li style="margin-bottom:6px;color:#374151;">📊 <strong>${m}</strong></li>`)
+        .join('');
+      const unsubUrl = `https://llm-cost-engine.com/unsubscribe?token=${unsubToken}`;
+
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'LLM Cost Engine <alerts@mail.llm-cost-engine.com>',
+          to: [alert.email],
+          subject: 'You\'re subscribed to LLM price alerts ✓',
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h1 style="color: #4F46E5; margin-bottom: 8px;">You're in. 🎉</h1>
+              <p style="color: #6B7280; font-size: 14px; margin-bottom: 24px;">Price alerts are active for your account.</p>
+
+              <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+                You'll be notified when any of these models has a significant pricing shift:
+              </p>
+
+              <ul style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px 16px 16px 32px; margin: 16px 0;">
+                ${modelList}
+              </ul>
+
+              <div style="background: #EEF2FF; border-radius: 8px; padding: 16px; margin: 24px 0;">
+                <p style="margin: 0 0 8px 0; color: #3730A3; font-weight: 600; font-size: 15px;">What triggers an alert?</p>
+                <ul style="margin: 0; padding-left: 20px; color: #4338CA; font-size: 14px;">
+                  <li style="margin-bottom: 6px;">Price drop ≥5% on a tracked model</li>
+                  <li style="margin-bottom: 6px;">A competitor gets ≥15% cheaper in the same category</li>
+                  <li>Context window changes that affect your workload</li>
+                </ul>
+              </div>
+
+              <p style="color: #374151; font-size: 15px; line-height: 1.6;">
+                We check prices every Sunday and send alerts only when something material changes.
+                No noise, no weekly newsletters.
+              </p>
+
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="https://llm-cost-engine.com/tools/chatbot-simulator"
+                   style="display: inline-block; padding: 12px 28px; background: #4F46E5; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px;">
+                  Run a TCO analysis →
+                </a>
+              </div>
+
+              <p style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E7EB; color: #9CA3AF; font-size: 13px; text-align: center;">
+                LLM Cost Engine · Deterministic TCO Analysis<br>
+                <a href="${unsubUrl}" style="color: #9CA3AF;">Unsubscribe</a>
+                &nbsp;·&nbsp;
+                <a href="https://llm-cost-engine.com" style="color: #9CA3AF;">llm-cost-engine.com</a>
+              </p>
+            </div>
+          `,
+          text: `You're subscribed to LLM price alerts.
+
+Tracking: ${trackedModels.join(', ')}
+
+What triggers an alert:
+- Price drop ≥5% on a tracked model
+- A competitor gets ≥15% cheaper in the same category
+- Context window changes
+
+We check prices every Sunday. No noise, alerts only when something material changes.
+
+Run a TCO analysis: https://llm-cost-engine.com/tools/chatbot-simulator
+
+---
+Unsubscribe: ${unsubUrl}
+LLM Cost Engine - https://llm-cost-engine.com`,
+          headers: {
+            'List-Unsubscribe': `<${unsubUrl}>`,
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
+        }),
+      });
+    }
+
     return new Response(
       JSON.stringify({ message: 'Alert verified successfully.' }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
