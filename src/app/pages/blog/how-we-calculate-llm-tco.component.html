@@ -15,7 +15,7 @@
         We Open-Sourced the Math Behind LLM Cost Rankings
       </h1>
       <p class="mt-3 text-lg text-gray-600 italic">
-        14 models. 6 providers. Weekly price tracking. Here's the formula.
+        15 models. 6 providers. Weekly price tracking. Here's the formula.
       </p>
       <time datetime="2026-02-10" class="mt-4 block text-sm text-gray-400">February 10, 2026</time>
     </header>
@@ -46,7 +46,7 @@
 
     <!-- The Cost Formula -->
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-4">The Cost Formula</h2>
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">LLM Monthly Cost Estimation: The Math Behind Every Number</h2>
       <p class="text-gray-700 mb-4">Four inputs, three price dimensions, one deterministic output.</p>
 
       <pre class="bg-gray-900 text-green-400 rounded-lg p-5 overflow-x-auto text-sm leading-relaxed"><code>M  = Messages per day
@@ -66,9 +66,137 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
       </p>
     </section>
 
-    <!-- Why Input/Output Separation Matters -->
+    <!-- Real-World Cost Breakdown: 3 Scenarios -->
     <section class="mb-10">
-      <h3 class="text-xl font-semibold text-gray-900 mb-4">Why Input/Output Separation Matters</h3>
+      <h2 class="text-2xl font-semibold text-gray-900 mb-2">LLM Cost Breakdown: 3 Real-World Scenarios</h2>
+      <p class="text-gray-600 text-sm mb-6 italic">Same formula applied to three common production workloads. Numbers verified with the calculator above.</p>
+
+      <!-- Scenario 1: Support Bot -->
+      <div class="mb-6">
+        <h3 class="text-base font-semibold text-gray-800 mb-1">🎧 Customer Support Chatbot — 10K messages/day</h3>
+        <p class="text-sm text-gray-500 mb-3">200 input tokens · 350 output tokens · 30% cache hit rate</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="text-left px-4 py-2.5 font-semibold text-gray-900">Model</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Input/mo</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Output/mo</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Total/mo</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr class="bg-green-50">
+                <td class="px-4 py-2.5 font-medium text-gray-900">DeepSeek V3</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$12.60</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$115.50</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-bold text-green-700">$128</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 text-gray-700">GPT-5.1</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$63.75</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$1,050.00</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-semibold text-gray-700">$1,114</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 text-gray-700">Claude Sonnet 4.6</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$131.40</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$1,575.00</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-semibold text-gray-700">$1,706</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-2 text-xs text-gray-500">Same workload. Same formula. <strong class="text-gray-700">13× cost variance</strong> between cheapest and most expensive model.</p>
+      </div>
+
+      <!-- Scenario 2: RAG -->
+      <div class="mb-6">
+        <h3 class="text-base font-semibold text-gray-800 mb-1">📚 RAG Knowledge Base — 1K messages/day</h3>
+        <p class="text-sm text-gray-500 mb-3">15,000 input tokens · 500 output tokens · 80% cache hit rate</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="text-left px-4 py-2.5 font-semibold text-gray-900">Model</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Input/mo</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Output/mo</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Total/mo</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr class="bg-green-50">
+                <td class="px-4 py-2.5 font-medium text-gray-900">DeepSeek V3</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$49.50</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$16.50</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-bold text-green-700">$66</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 text-gray-700">Gemini 3 Flash</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$90.00</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$45.00</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-semibold text-gray-700">$135</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 text-gray-700">Claude Sonnet 4.6</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$378.00</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$225.00</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-semibold text-gray-700">$603</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-2 text-xs text-gray-500">80% cache rate keeps input costs low even at 15K tokens/request. <strong class="text-gray-700">9× variance</strong> — but without cache, it would be 5× worse.</p>
+      </div>
+
+      <!-- Scenario 3: Dev Bot -->
+      <div class="mb-6">
+        <h3 class="text-base font-semibold text-gray-800 mb-1">⌨️ Internal Dev Productivity Bot — 500 messages/day</h3>
+        <p class="text-sm text-gray-500 mb-3">800 input tokens · 1,200 output tokens · 15% cache hit rate</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="text-left px-4 py-2.5 font-semibold text-gray-900">Model</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Input/mo</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Output/mo</th>
+                <th class="text-right px-4 py-2.5 font-semibold text-gray-900 tabular-nums">Total/mo</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr class="bg-green-50">
+                <td class="px-4 py-2.5 font-medium text-gray-900">DeepSeek V3</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$2.88</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$19.80</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-bold text-green-700">$23</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 text-gray-700">GPT-5.1</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$13.88</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$180.00</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-semibold text-gray-700">$194</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2.5 text-gray-700">Claude Sonnet 4.6</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$31.14</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$270.00</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-semibold text-gray-700">$301</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-2 text-xs text-gray-500">High output ratio (1,200 tokens out) makes output cost dominate. <strong class="text-gray-700">13× variance</strong> driven almost entirely by output price differences.</p>
+      </div>
+
+      <div class="mt-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg flex flex-col sm:flex-row sm:items-center gap-3">
+        <p class="flex-1 text-sm text-indigo-800">Run these scenarios with your own numbers — or adjust parameters to match your exact workload.</p>
+        <a routerLink="/tools/chatbot-simulator" class="shrink-0 text-sm font-semibold text-indigo-600 hover:text-indigo-800 underline cursor-pointer whitespace-nowrap">Try in the simulator →</a>
+      </div>
+    </section>
+
+    <!-- Why $/Token Doesn't Reflect Real Monthly Usage -->
+    <section class="mb-10">
+      <h3 class="text-xl font-semibold text-gray-900 mb-4">Why $/Token Doesn't Reflect Real Monthly Usage</h3>
       <p class="text-gray-700 mb-4">Most calculators treat all tokens equally. They shouldn't.</p>
 
       <div class="overflow-x-auto">
@@ -109,11 +237,14 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
         responses has a fundamentally different cost profile than a pipeline extracting short JSON.
         We separate them because real workloads aren't symmetric.
       </p>
+      <p class="mt-3 text-sm text-gray-500">
+        → <a routerLink="/tools/chatbot-simulator" class="text-indigo-600 hover:text-indigo-800 underline cursor-pointer">Try this scenario with your output/input ratio in the simulator</a>
+      </p>
     </section>
 
-    <!-- The Cache Variable -->
+    <!-- Prompt Caching: The Biggest Hidden Saving -->
     <section class="mb-10">
-      <h3 class="text-xl font-semibold text-gray-900 mb-4">The Cache Variable</h3>
+      <h3 class="text-xl font-semibold text-gray-900 mb-4">Prompt Caching: The Biggest Hidden Saving in LLM Deployments</h3>
       <p class="text-gray-700 mb-4">Prompt caching discounts are the most overlooked cost lever in LLM pricing:</p>
 
       <div class="overflow-x-auto">
@@ -160,13 +291,16 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
         one with dynamic prompts. If a model doesn't publish a cached price, we fall back to the
         standard input price. No assumptions.
       </p>
+      <p class="mt-3 text-sm text-gray-500">
+        → <a routerLink="/tools/chatbot-simulator" class="text-indigo-600 hover:text-indigo-800 underline cursor-pointer">Check how cache hit rate changes your monthly cost estimate</a>
+      </p>
     </section>
 
     <hr class="border-gray-200 my-10">
 
     <!-- ValueScore -->
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-4">ValueScore: Deterministic Ranking</h2>
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">LLM Cost Ranking: A Deterministic, Auditable Method</h2>
       <p class="text-gray-700 mb-4">
         Cost alone doesn't determine the best model. A model at $0.01/month with an 8K context window
         and 3-second latency isn't "best value."
@@ -230,7 +364,7 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
 
     <!-- Deterministic > Opinion -->
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-4">Deterministic &gt; Opinion</h2>
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">Transparent Methodology: Why We Show the Math</h2>
       <p class="text-gray-700 mb-2">This is our design principle.</p>
       <p class="text-gray-700 mb-4">
         Benchmarking tools that hide their methodology ask you to trust them. We'd rather show you the math.
@@ -255,7 +389,7 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
 
     <!-- Routing -->
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-4">Routing: The 80/20 Strategy</h2>
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">LLM Cost Reduction via Smart Routing: The 80/20 Strategy</h2>
       <p class="text-gray-700 mb-4">
         Not every query needs your most expensive model. Route 80% to GPT-5 Mini, 20% to Claude Sonnet 4.6:
       </p>
@@ -274,7 +408,7 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-gray-900 mb-4">Price Tracking: Weekly, Automated, Public</h2>
       <p class="text-gray-700 mb-4">
-        We snapshot all 14 models' pricing every Sunday via automated cron. Every change is recorded
+        We snapshot all 15 models' pricing every Sunday via automated cron. Every change is recorded
         &mdash; even increases.
       </p>
       <p class="text-gray-700 mb-4">
