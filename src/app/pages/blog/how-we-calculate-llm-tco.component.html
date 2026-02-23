@@ -128,7 +128,7 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
           </thead>
           <tbody class="divide-y divide-gray-200">
             <tr>
-              <td class="px-4 py-2.5 text-gray-700">Claude Sonnet 4.5</td>
+              <td class="px-4 py-2.5 text-gray-700">Claude Sonnet 4.6</td>
               <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$3.00</td>
               <td class="px-4 py-2.5 text-right tabular-nums text-gray-700">$0.30</td>
               <td class="px-4 py-2.5 text-right font-semibold text-green-700">90%</td>
@@ -257,7 +257,7 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-gray-900 mb-4">Routing: The 80/20 Strategy</h2>
       <p class="text-gray-700 mb-4">
-        Not every query needs your most expensive model. Route 80% to GPT-5 Mini, 20% to Claude Sonnet 4.5:
+        Not every query needs your most expensive model. Route 80% to GPT-5 Mini, 20% to Claude Sonnet 4.6:
       </p>
 
       <pre class="bg-gray-900 text-green-400 rounded-lg p-5 overflow-x-auto text-sm leading-relaxed"><code>($6.75 &times; 0.80) + ($45.00 &times; 0.20) = $14.40/mo  vs  $45.00/mo = 68% savings</code></pre>
@@ -284,6 +284,19 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
       <p class="text-gray-700">
         The pricing dataset, detection logic, and alert threshold are public. Nothing is hidden behind an API.
       </p>
+
+      <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="flex-1">
+          <p class="font-semibold text-indigo-900 text-sm">Get notified when prices drop ≥5%</p>
+          <p class="text-indigo-700 text-sm mt-0.5">Free. Double opt-in. Unsubscribe anytime.</p>
+        </div>
+        <a
+          routerLink="/tools/chatbot-simulator"
+          class="shrink-0 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors text-center"
+        >
+          Subscribe to Price Alerts
+        </a>
+      </div>
     </section>
 
     <hr class="border-gray-200 my-10">
@@ -338,7 +351,7 @@ Monthly cost = (C_input_fresh + C_input_cached + C_output) &times; 30</code></pr
     <!-- Footer -->
     <footer class="border-t border-gray-200 pt-6 mt-10">
       <p class="text-sm text-gray-400">
-        Pricing data: v1.3.0, 16 models, 7 providers. Sourced from official pricing pages, verified 2026-02-08. Updated weekly.
+        Pricing data: v2.1.0, 15 models, 6 providers. Sourced from official pricing pages, verified 2026-02-23. Updated weekly.
       </p>
     </footer>
   </article>
