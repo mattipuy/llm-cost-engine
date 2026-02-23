@@ -40,7 +40,7 @@
       },
       "capabilities": {
         "context_window": 128000,
-        "latency_index": 0.90
+        "latency_index": 0.9
       }
     },
     {
@@ -76,6 +76,22 @@
       }
     },
     {
+      "id": "claude-opus-4.6",
+      "name": "Claude Opus 4.6",
+      "provider": "Anthropic",
+      "pricing": {
+        "input_1m": 5.0,
+        "output_1m": 25.0,
+        "cached_input_1m": 0.5,
+        "batch_input_1m": 2.5,
+        "batch_output_1m": 12.5
+      },
+      "capabilities": {
+        "context_window": 200000,
+        "latency_index": 0.85
+      }
+    },
+    {
       "id": "claude-sonnet-4.6",
       "name": "Claude Sonnet 4.6",
       "provider": "Anthropic",
@@ -105,22 +121,6 @@
       "capabilities": {
         "context_window": 200000,
         "latency_index": 0.99
-      }
-    },
-    {
-      "id": "claude-opus-4.6",
-      "name": "Claude Opus 4.6",
-      "provider": "Anthropic",
-      "pricing": {
-        "input_1m": 5.0,
-        "output_1m": 25.0,
-        "cached_input_1m": 0.5,
-        "batch_input_1m": 2.5,
-        "batch_output_1m": 12.5
-      },
-      "capabilities": {
-        "context_window": 200000,
-        "latency_index": 0.85
       }
     },
     {
