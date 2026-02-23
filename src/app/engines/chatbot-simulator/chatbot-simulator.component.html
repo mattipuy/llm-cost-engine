@@ -49,8 +49,8 @@
         </nav>
       </div>
       <p class="mt-2 text-lg text-gray-600">
-        Compare LLM costs instantly. Get a procurement-ready analysis in 60
-        seconds.
+        Know your <strong class="text-gray-800">monthly LLM cost</strong> before you commit.
+        Real TCO based on volume, cache strategy, and token mix — not just $/token.
       </p>
     </div>
   </header>
@@ -2035,7 +2035,7 @@
         <p class="text-gray-400">
           Weekly price snapshots · 12+ weeks of history
         </p>
-        <p class="pt-2">
+        <p class="pt-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
           <a
             href="https://github.com/mattipuy/llm-cost-engine"
             target="_blank"
@@ -2043,6 +2043,16 @@
             class="hover:text-indigo-600"
           >
             View on GitHub
+          </a>
+          <span class="text-gray-300">·</span>
+          <a
+            href="/data/llm-pricing.json"
+            target="_blank"
+            rel="noopener"
+            class="hover:text-indigo-600"
+            title="Free JSON API — 15 models, updated weekly"
+          >
+            Free Pricing API (JSON)
           </a>
         </p>
       </div>
