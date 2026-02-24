@@ -265,6 +265,10 @@ export class BatchApiComponent implements OnInit, OnDestroy {
           if (data.metadata) this.pricingMetadata.set(data.metadata);
           const best = this.registry.getBestBatch(data.models, 'standard');
           this.selectedModelId.set(best?.id ?? data.models[0]?.id ?? '');
+          // Update SEO meta tags with actual model names from registry
+          this.setMetaTags(data.models);
+          this.injectJsonLd(data.models);
+          this.updateDynamicMeta();
           this.isLoading.set(false);
           this.isRetrying.set(false);
         },
@@ -290,14 +294,19 @@ export class BatchApiComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private setMetaTags(): void {
+  private setMetaTags(models?: LlmModel[]): void {
+    const best1 = models
+      ? (this.registry.getBestBatch(models, 'flagship')?.name ?? 'GPT-5.2')
+      : 'GPT-5.2';
+    const best2 = models
+      ? (this.registry.getBestBatch(models, 'standard')?.name ?? 'Claude Sonnet')
+      : 'Claude Sonnet';
     this.title.setTitle(
-      'Batch API Cost Calculator - 50% Savings on GPT-5.1 & Claude',
+      `Batch API Cost Calculator - 50% Savings on ${best1} & ${best2}`,
     );
     this.meta.updateTag({
       name: 'description',
-      content:
-        'Calculate how much you save with OpenAI and Anthropic Batch APIs. Trade 24h turnaround for 50% cost reduction on GPT-5.1, Claude, and more.',
+      content: `Calculate how much you save with OpenAI and Anthropic Batch APIs. Trade 24h turnaround for 50% cost reduction on ${best1}, ${best2}, and more.`,
     });
     this.meta.updateTag({
       property: 'og:title',
@@ -323,12 +332,17 @@ export class BatchApiComponent implements OnInit, OnDestroy {
     });
   }
 
-  private injectJsonLd(): void {
+  private injectJsonLd(models?: LlmModel[]): void {
+    const best1 = models
+      ? (this.registry.getBestBatch(models, 'flagship')?.name ?? 'GPT-5.2')
+      : 'GPT-5.2';
+    const best2 = models
+      ? (this.registry.getBestBatch(models, 'standard')?.name ?? 'Claude Sonnet')
+      : 'Claude Sonnet';
     this.jsonLdService.injectSoftwareApplicationSchema(
       {
         name: 'Batch API Cost Calculator',
-        description:
-          'Calculate batch processing savings on GPT-5.1, Claude, and more. Trade 24h turnaround for 50% cost reduction.',
+        description: `Calculate batch processing savings on ${best1}, ${best2}, and more. Trade 24h turnaround for 50% cost reduction.`,
         url: 'https://llm-cost-engine.com/tools/batch-api',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',

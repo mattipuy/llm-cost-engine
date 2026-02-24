@@ -1726,9 +1726,18 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       ? `LLM Cost Analysis: ${formattedMessages} messages/day - ${winner.modelName} wins`
       : `LLM Cost Analysis: ${formattedMessages} messages/day | ${ENGINE_META.fullName}`;
 
+    const modelList = this.models();
+    const top3Names =
+      modelList.length > 0
+        ? this.registry
+            .getTopPerProvider(modelList)
+            .slice(0, 3)
+            .map((m) => m.name)
+            .join(', ')
+        : 'GPT-5.2, Claude Sonnet 4.6, Gemini 3.1 Flash';
     const dynamicDescription = winner
-      ? `TCO analysis for ${volumeDesc} deployment (${formattedMessages} msg/day). ${winner.modelName} offers best value at $${winner.monthlyCost.toFixed(2)}/mo. Compare Claude Sonnet 4.6, GPT-5.1, Gemini 3.1 Pro, DeepSeek V3.`
-      : `Calculate LLM costs for ${formattedMessages} messages/day. Compare Claude Sonnet 4.6, GPT-5.1, Gemini 3.1 Pro, and DeepSeek V3 pricing with our deterministic ValueScore algorithm.`;
+      ? `${winner.modelName} is best value for ${formattedMessages} msg/day. $${winner.monthlyCost.toFixed(2)}/month. Compare ${top3Names}.`
+      : `Calculate LLM costs for ${formattedMessages} messages/day. Compare ${top3Names} pricing with our deterministic ValueScore.`;
 
     // Update meta tags
     this.title.setTitle(dynamicTitle);
@@ -1767,13 +1776,19 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // META & SEO
   // ============================================================================
 
-  private injectJsonLd(): void {
+  private injectJsonLd(models?: LlmModel[]): void {
+    const top4 = models
+      ? this.registry
+          .getTopPerProvider(models)
+          .slice(0, 4)
+          .map((m) => m.name)
+          .join(', ')
+      : 'GPT-5.2, Claude Sonnet 4.6, Gemini 3.1 Flash, DeepSeek V3';
     // SoftwareApplication schema
     this.jsonLdService.injectSoftwareApplicationSchema(
       {
         name: ENGINE_META.fullName,
-        description:
-          'Enterprise-grade TCO analysis for LLM deployments. Compare Claude Sonnet 4.6, GPT-5.1, Gemini 3.1 Pro, and DeepSeek V3 with deterministic ValueScore methodology.',
+        description: `Enterprise-grade TCO analysis for LLM deployments. Compare ${top4} with deterministic ValueScore methodology.`,
         url: 'https://llm-cost-engine.com',
         applicationCategory: 'BusinessApplication',
         operatingSystem: 'Web Browser',
@@ -1818,14 +1833,18 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     );
   }
 
-  private setMetaTags(): void {
+  private setMetaTags(models?: LlmModel[]): void {
+    const top = models
+      ? this.registry.getTopPerProvider(models).slice(0, 3).map((m) => m.name)
+      : ['GPT-5.2', 'Claude Sonnet 4.6', 'Gemini 3.1 Flash'];
+    const topFull = top.join(', ');
+    const topTwo = top.slice(0, 2).join(' & ');
     this.title.setTitle(
-      `${ENGINE_META.fullName}: TCO Analysis for GPT-5.1, Claude Sonnet 4.6 & Gemini 3.1 Pro`,
+      `${ENGINE_META.fullName}: TCO Analysis for ${topFull}`,
     );
     this.meta.updateTag({
       name: 'description',
-      content:
-        'Enterprise TCO analysis for LLM deployments. Compare monthly costs for GPT-5.1, Gemini 3.1 Pro, and Claude Sonnet 4.6. Export signed PDF reports for CTO/CFO approval.',
+      content: `Enterprise TCO analysis for LLM deployments. Compare ${topTwo} costs. Deterministic ValueScore. Export PDF for CTO/CFO approval.`,
     });
     this.meta.updateTag({
       property: 'og:title',
@@ -1856,6 +1875,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           if (data.metadata) {
             this.pricingMetadata.set(data.metadata);
           }
+          // Update SEO meta tags with actual model names from registry
+          this.setMetaTags(data.models);
+          this.injectJsonLd(data.models);
           this.isLoading.set(false);
           this.isRetrying.set(false);
           this.loadError.set(null);

@@ -280,6 +280,10 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
           if (data.metadata) this.pricingMetadata.set(data.metadata);
           const best = this.registry.getBestCacheable(data.models, 'standard');
           this.selectedModelId.set(best?.id ?? data.models[0]?.id ?? '');
+          // Update SEO meta tags with actual model names from registry
+          this.setMetaTags(data.models);
+          this.injectJsonLd(data.models);
+          this.updateDynamicMeta();
           this.isLoading.set(false);
           this.isRetrying.set(false);
         },
@@ -305,14 +309,19 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private setMetaTags(): void {
+  private setMetaTags(models?: LlmModel[]): void {
+    const best1 = models
+      ? (this.registry.getBestCacheable(models, 'flagship')?.name ?? 'Claude')
+      : 'Claude';
+    const best2 = models
+      ? (this.registry.getBestCacheable(models, 'efficient')?.name ?? 'Gemini')
+      : 'Gemini';
     this.title.setTitle(
-      'Prompt Caching ROI Calculator - Estimate Savings for Claude & Gemini',
+      `Prompt Caching ROI Calculator - Estimate Savings for ${best1} & ${best2}`,
     );
     this.meta.updateTag({
       name: 'description',
-      content:
-        'Calculate how much you save with prompt caching on Claude, GPT-5.1, and Gemini. Deterministic Write/Read split analysis with break-even and annual projections.',
+      content: `Calculate prompt caching savings on ${best1} and ${best2}. Deterministic Write/Read split with break-even and annual projections.`,
     });
     this.meta.updateTag({
       property: 'og:title',
@@ -338,12 +347,17 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
     });
   }
 
-  private injectJsonLd(): void {
+  private injectJsonLd(models?: LlmModel[]): void {
+    const best1 = models
+      ? (this.registry.getBestCacheable(models, 'flagship')?.name ?? 'Claude')
+      : 'Claude';
+    const best2 = models
+      ? (this.registry.getBestCacheable(models, 'efficient')?.name ?? 'Gemini')
+      : 'Gemini';
     this.jsonLdService.injectSoftwareApplicationSchema(
       {
         name: 'Prompt Caching ROI Calculator',
-        description:
-          'Calculate prompt caching savings across Claude, GPT-5.1, Gemini, and DeepSeek. Deterministic Write/Read split analysis.',
+        description: `Calculate prompt caching savings across ${best1}, ${best2}, and more. Deterministic Write/Read split analysis.`,
         url: 'https://llm-cost-engine.com/tools/caching-roi',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',
