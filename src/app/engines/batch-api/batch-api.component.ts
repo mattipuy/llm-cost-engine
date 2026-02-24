@@ -110,7 +110,7 @@ export class BatchApiComponent implements OnInit, OnDestroy {
   // SIGNALS - User Inputs
   // ============================================================================
 
-  selectedModelId = signal('gpt-4o');
+  selectedModelId = signal('gpt-5.1');
   records = signal(this.DEFAULT_RECORDS);
   avgInputTokens = signal(this.DEFAULT_AVG_INPUT);
   avgOutputTokens = signal(this.DEFAULT_AVG_OUTPUT);

@@ -65,7 +65,7 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
   // SIGNALS - User Inputs
   // ============================================================================
 
-  selectedModelId = signal('claude-3.5-sonnet');
+  selectedModelId = signal('claude-sonnet-4.6');
   staticTokens = signal(this.DEFAULT_STATIC_TOKENS);
   dynamicTokens = signal(this.DEFAULT_DYNAMIC_TOKENS);
   outputTokens = signal(this.DEFAULT_OUTPUT_TOKENS);
