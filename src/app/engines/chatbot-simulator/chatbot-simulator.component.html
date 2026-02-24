@@ -1801,85 +1801,108 @@
                 </div>
               </div>
             } @else {
-              <!-- Email Form (appears after clicking Export) -->
-              <div class="space-y-4">
-                <!-- Back Button + ESC Hint -->
-                <div class="flex items-center justify-between mb-2">
+              <!-- Preview Card + Email Gate -->
+              <div class="space-y-3">
+                <!-- Back + label -->
+                <div class="flex items-center justify-between">
                   <button
                     type="button"
                     (click)="resetLeadForm()"
                     class="text-xs text-gray-500 hover:text-cyan-400 transition-colors flex items-center gap-1"
                   >
-                    <svg
-                      class="w-3 h-3"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                      />
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
                     Back to options
                   </button>
-                  <span class="text-xs text-gray-500">or press ESC</span>
+                  <span class="text-xs text-cyan-400 font-mono">Executive Report Preview</span>
                 </div>
 
-                <div>
-                  <label class="text-gray-500 block mb-2">
-                    <span class="text-cyan-400">$</span> tco-analysis --email=
-                  </label>
-                  <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="relative flex-1">
-                      <input
-                        type="email"
-                        placeholder="cto@company.com"
-                        [value]="leadEmail()"
-                        (input)="onEmailChange($any($event.target).value)"
-                        class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-green-400 placeholder-gray-600 focus:border-cyan-400 focus:outline-none font-mono"
-                        [class.border-green-500]="isEmailValid()"
-                        [class.border-red-500]="leadEmail() && !isEmailValid()"
-                        [disabled]="leadSubmitStatus() === 'submitting'"
-                        autofocus
-                      />
-                      @if (leadEmail()) {
-                        <span class="absolute right-3 top-1/2 -translate-y-1/2">
-                          @if (isEmailValid()) {
-                            <span class="text-green-400">✓</span>
-                          } @else {
-                            <span class="text-red-400">✗</span>
-                          }
-                        </span>
-                      }
-                    </div>
-                    <button
-                      type="button"
-                      (click)="onDownloadReport()"
-                      [disabled]="!canSubmitLead()"
-                      class="px-6 py-2 rounded font-mono text-sm transition-all duration-150 whitespace-nowrap"
-                      [class.bg-cyan-600]="canSubmitLead()"
-                      [class.text-white]="canSubmitLead()"
-                      [class.hover:bg-cyan-500]="canSubmitLead()"
-                      [class.bg-gray-700]="!canSubmitLead()"
-                      [class.text-gray-500]="!canSubmitLead()"
-                      [class.cursor-not-allowed]="!canSubmitLead()"
-                    >
-                      @if (leadSubmitStatus() === "submitting") {
-                        <span class="inline-flex items-center gap-2">
-                          <span class="animate-pulse">▶</span>
-                          Generating Signed PDF...
-                        </span>
-                      } @else {
-                        [SEND ANALYSIS]
-                      }
-                    </button>
+                <!-- Preview Card -->
+                <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden text-xs font-mono">
+
+                  <!-- Section 1: Executive Summary (fully visible) -->
+                  <div class="p-3 border-b border-gray-700 space-y-1">
+                    <p class="text-gray-500 uppercase tracking-wide text-[10px]">Executive Summary</p>
+                    @if (bestModel(); as w) {
+                      <p class="text-gray-300">Best fit: <span class="text-cyan-400 font-semibold">{{ w.modelName }}</span></p>
+                    }
+                    @if (winnerSensitivity(); as s) {
+                      <p><span class="text-green-400 font-bold">${{ s.annualCost1x.toFixed(2) }}</span><span class="text-gray-500"> projected annual cost</span></p>
+                    }
+                    @if (aggressiveComparison()?.savingsPercent) {
+                      <p class="text-green-500">{{ aggressiveComparison()!.savingsPercent }}% cheaper than next alternative</p>
+                    }
                   </div>
-                  <p class="text-xs text-gray-600 mt-2">
-                    Signed PDF will be delivered to your inbox.
-                  </p>
+
+                  <!-- Section 2: Top 2 models visible -->
+                  <div class="p-3 border-b border-gray-700">
+                    <p class="text-gray-500 uppercase tracking-wide text-[10px] mb-1.5">Model Comparison</p>
+                    @for (r of results().slice(0, 2); track r.modelId; let i = $index) {
+                      <div class="flex justify-between mb-1">
+                        <span [class.text-cyan-400]="i === 0" [class.text-gray-300]="i !== 0">
+                          {{ i === 0 ? '★ ' : '  ' }}{{ r.modelName }}
+                        </span>
+                        <span class="text-gray-400">${{ r.monthlyCost.toFixed(2) }}/mo · ${{ (r.monthlyCost * 12).toFixed(2) }}/yr</span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Section 3: Blurred — sensitivity + remaining models + compliance -->
+                  <div class="p-3 border-b border-gray-700 blur-[2px] select-none pointer-events-none" aria-hidden="true">
+                    <p class="text-gray-500 uppercase tracking-wide text-[10px] mb-1.5">Sensitivity Analysis (2× / 3× Volume)</p>
+                    <p class="text-gray-400">2× volume: $xx.xx/mo · Annual: $xxx.xx</p>
+                    <p class="text-gray-400">3× volume: $xx.xx/mo · Annual: $xxx.xx</p>
+                    <p class="text-gray-500 mt-2 uppercase tracking-wide text-[10px]">Cost Variance · Methodology · Compliance</p>
+                    <p class="text-gray-600">Cost variance (highest vs lowest): x.x× ··· All coefficients are public named constants...</p>
+                  </div>
+
+                  <!-- Email Gate -->
+                  <div class="p-3 bg-gray-900/80">
+                    <p class="text-cyan-400 font-semibold mb-2">Get the full executive report (PDF + sensitivity projections)</p>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                      <div class="relative flex-1">
+                        <input
+                          type="email"
+                          placeholder="cto@company.com"
+                          [value]="leadEmail()"
+                          (input)="onEmailChange($any($event.target).value)"
+                          class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-green-400 placeholder-gray-600 focus:border-cyan-400 focus:outline-none font-mono text-xs"
+                          [class.border-green-500]="isEmailValid()"
+                          [class.border-red-500]="leadEmail() && !isEmailValid()"
+                          [disabled]="leadSubmitStatus() === 'submitting'"
+                          autofocus
+                        />
+                        @if (leadEmail()) {
+                          <span class="absolute right-3 top-1/2 -translate-y-1/2">
+                            @if (isEmailValid()) { <span class="text-green-400">✓</span> }
+                            @else { <span class="text-red-400">✗</span> }
+                          </span>
+                        }
+                      </div>
+                      <button
+                        type="button"
+                        (click)="onDownloadReport()"
+                        [disabled]="!canSubmitLead()"
+                        class="px-5 py-2 rounded font-mono text-xs transition-all duration-150 whitespace-nowrap"
+                        [class.bg-cyan-600]="canSubmitLead()"
+                        [class.text-white]="canSubmitLead()"
+                        [class.hover:bg-cyan-500]="canSubmitLead()"
+                        [class.bg-gray-700]="!canSubmitLead()"
+                        [class.text-gray-500]="!canSubmitLead()"
+                        [class.cursor-not-allowed]="!canSubmitLead()"
+                      >
+                        @if (leadSubmitStatus() === "submitting") {
+                          <span class="inline-flex items-center gap-1.5">
+                            <span class="animate-pulse">▶</span> Generating...
+                          </span>
+                        } @else {
+                          [DOWNLOAD PDF]
+                        }
+                      </button>
+                    </div>
+                    <p class="text-gray-600 text-[10px] mt-1.5">PDF downloads immediately · No spam · Unsubscribe anytime</p>
+                  </div>
                 </div>
               </div>
             }
