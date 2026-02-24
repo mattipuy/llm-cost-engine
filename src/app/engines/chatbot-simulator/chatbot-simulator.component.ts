@@ -1009,40 +1009,33 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   /**
    * Determines if a model is recommended based on current usage context.
+   * Uses tier and tags from the registry — no hardcoded model IDs.
+   *
    * Logic:
-   * - High Volume (>10k msg/day) -> Recommend Efficiency Models (Flash, Mini, Haiku)
-   * - High Context (>200k tokens) -> Recommend Large Context Models
-   * - Coding Preset -> Recommend Reasoning Models (Sonnet, GPT-5, Opus)
+   * - High Volume (>=2000 msg/day)  → efficient/mini tier (cost-optimised)
+   * - High Context (>=100k tokens)  → models tagged 'long-context'
+   * - Low Volume (<2000 msg/day)    → standard/flagship tier (quality-focused)
    */
   isRecommendedForContext(modelId: string): boolean {
-    const m = this.messagesPerDay();
-    const id = modelId.toLowerCase();
+    const model = this.availableModels().find((m) => m.id === modelId);
+    if (!model) return false;
 
-    // High Efficiency Context (lowered threshold to include Customer Support)
-    if (m >= 2000) {
-      return (
-        id.includes('flash') ||
-        id.includes('gpt-5-mini') ||
-        id.includes('haiku') ||
-        id.includes('deepseek')
-      );
+    const msgPerDay = this.messagesPerDay();
+    const inputTokens = this.tokensInputPerMessage();
+
+    // High volume: prioritise cost-efficient models
+    if (msgPerDay >= 2000) {
+      return model.tier === 'efficient' || model.tier === 'mini';
     }
 
-    // High Context Logic (>100k tokens input)
-    if (this.tokensInputPerMessage() >= 100000) {
-      return (
-        id.includes('pro') || // GPT-5.2 Pro / Gemini 3 Pro
-        id.includes('flash') // Gemini Flash (1M)
-      );
+    // Heavy context: prioritise models with long-context capability
+    if (inputTokens >= 100000) {
+      return model.tags?.includes('long-context') ?? false;
     }
 
-    // Default/Reasoning Context (Low Volume)
-    if (m < 2000) {
-      return (
-        id.includes('pro') ||
-        id.includes('sonnet') ||
-        (id.includes('gpt-5-2') && !id.includes('pro'))
-      );
+    // Low volume: prioritise quality (standard or flagship)
+    if (msgPerDay < 2000) {
+      return model.tier === 'standard' || model.tier === 'flagship';
     }
 
     return false;
