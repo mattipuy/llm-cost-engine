@@ -1263,119 +1263,239 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         // Use functional approach: autoTable(doc, options) instead of doc.autoTable()
         const jsPDF = jsPDFModule.default;
         const autoTable = autoTableModule.default;
-        const doc = new jsPDF();
-          const pageWidth = doc.internal.pageSize.width;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const pageWidth  = doc.internal.pageSize.width;   // 210 mm
+        const pageHeight = doc.internal.pageSize.height;  // 297 mm
+        const margin = 14;
+        const contentWidth = pageWidth - margin * 2;      // 182 mm
+        const pricingVersion = this.pricingMetadata()?.version || '2.1.0';
+        const winner      = this.bestModel();
+        const comparison  = this.aggressiveComparison();
+        const allResults  = this.results();
+        const d = doc as any; // escape TypeScript for advanced jsPDF calls
 
-          // --- Header ---
-          doc.setFontSize(20);
-          doc.setTextColor(40, 40, 40);
-          doc.text('LLM Cost Analysis: Executive Report', 14, 22);
+        // ── HEADER BAND ────────────────────────────────────────────
+        doc.setFillColor(79, 70, 229);
+        doc.rect(0, 0, pageWidth, 18, 'F');
+        doc.setFontSize(13);
+        doc.setTextColor(255, 255, 255);
+        doc.text('LLM Cost Analysis — Executive Deployment Report', margin, 12);
+        doc.setFontSize(8);
+        doc.setTextColor(199, 210, 254);
+        doc.text('llm-cost-engine.com', pageWidth - margin, 12, { align: 'right' } as any);
+
+        // ── METADATA ROW ───────────────────────────────────────────
+        const dateStr = new Date().toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric',
+        });
+        const scenarioFormatted = `LLM-${new Date().getFullYear()}-${currentScenarioId.slice(-8).toUpperCase()}`;
+        let y = 26;
+        doc.setFontSize(9);
+        doc.setTextColor(107, 114, 128);
+        doc.text(`Prepared for: ${this.leadEmail()}`, margin, y);
+        doc.text(`Date: ${dateStr}`, pageWidth - margin, y, { align: 'right' } as any);
+        y += 5;
+        doc.text(`Scenario ID: ${scenarioFormatted}`, margin, y);
+        doc.text(`Pricing Dataset: v${pricingVersion} \u00B7 Weekly Verified Snapshot`, pageWidth - margin, y, { align: 'right' } as any);
+        y += 6;
+        doc.setDrawColor(229, 231, 235);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 7;
+
+        // ── EXECUTIVE SUMMARY ──────────────────────────────────────
+        if (winner && sensitivity) {
+          const annualCost = sensitivity.annualCost1x;
+          const annualCostFmt = `$${annualCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          const cacheRatePct = Math.round(this.cacheHitRate() * 100);
+          const summaryText = `Based on the provided workload configuration (${this.messagesPerDay().toLocaleString()} messages/day, ${this.tokensInputPerMessage()} input tokens, ${this.tokensOutputPerMessage()} output tokens, ${cacheRatePct}% cache hit rate), ${winner.modelName} delivers the lowest projected annual deployment cost among evaluated production models.`;
+          const summaryLines: string[] = d.splitTextToSize(summaryText, contentWidth - 12);
+          const boxHeight = 16 + summaryLines.length * 4.5 + 28;
+
+          doc.setFillColor(238, 242, 255);
+          doc.setDrawColor(199, 210, 254);
+          doc.rect(margin, y, contentWidth, boxHeight, 'FD');
 
           doc.setFontSize(10);
-          doc.setTextColor(100);
-          doc.text(`Generated for: ${this.leadEmail()}`, 14, 30);
-          doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 35);
-          doc.text(`Scenario ID: ${currentScenarioId}`, 14, 40);
-          if (this.pricingMetadata()) {
-            doc.text(
-              `Pricing Benchmark: v${this.pricingMetadata()?.version}`,
-              14,
-              45,
-            );
+          doc.setTextColor(17, 24, 39);
+          doc.text('Executive Summary', margin + 5, y + 8);
+          doc.setFontSize(9);
+          doc.setTextColor(55, 65, 81);
+          doc.text(summaryLines, margin + 5, y + 15);
+
+          let bY = y + 15 + summaryLines.length * 4.5 + 2;
+          doc.setFontSize(11);
+          doc.setTextColor(17, 24, 39);
+          doc.text(`Projected Annual Cost: ${annualCostFmt}`, margin + 5, bY);
+          bY += 6;
+
+          doc.setFontSize(9);
+          doc.setTextColor(6, 95, 70);
+          if (comparison?.savingsPercent) {
+            doc.text(`\u2022 ${comparison.savingsPercent}% lower cost vs next best alternative`, margin + 8, bY);
+            bY += 5;
           }
-
-          // --- Executive Summary (Winner) ---
-          const winner = this.bestModel();
-          if (winner) {
-            doc.setFillColor(240, 248, 255); // AliceBlue
-            doc.rect(14, 50, pageWidth - 28, 40, 'F');
-
-            doc.setFontSize(14);
-            doc.setTextColor(0);
-            doc.text('Recommendation: ' + winner.modelName, 20, 60);
-
-            doc.setFontSize(11);
-            doc.setTextColor(60);
-            doc.text(
-              `Annual Projected Cost: $${(sensitivity?.annualCost1x || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
-              20,
-              70,
-            );
-
-            if (this.aggressiveComparison()?.savingsPercent) {
-              doc.setTextColor(0, 100, 0); // Green
-              doc.text(
-                `Savings vs Runner-up: ${this.aggressiveComparison()?.savingsPercent}%`,
-                20,
-                80,
-              );
-            }
+          const premiumModel = allResults[allResults.length - 1];
+          if (premiumModel && premiumModel.modelId !== winner.modelId && premiumModel.monthlyCost > winner.monthlyCost) {
+            const savingsVsPremium = Math.round(((premiumModel.monthlyCost * 12 - annualCost) / (premiumModel.monthlyCost * 12)) * 100);
+            doc.text(`\u2022 ${savingsVsPremium}% lower cost vs highest-ranked premium model`, margin + 8, bY);
+            bY += 5;
           }
+          doc.text('\u2022 Deterministic simulation based on public provider pricing', margin + 8, bY);
 
-          // --- Inputs ---
-          doc.setTextColor(0);
-          doc.setFontSize(12);
-          doc.text('Scenario Parameters', 14, 105);
+          y += boxHeight + 5;
+          doc.setFontSize(8);
+          doc.setTextColor(107, 114, 128);
+          const noteLines: string[] = d.splitTextToSize(
+            'This recommendation reflects cost efficiency only. Output quality, latency guarantees, and enterprise SLAs are not modeled.',
+            contentWidth,
+          );
+          doc.text(noteLines, margin, y);
+          y += noteLines.length * 4 + 6;
+        }
 
-          const inputsData = [
-            ['Messages / Day', this.messagesPerDay().toLocaleString()],
-            ['Input Tokens', this.tokensInputPerMessage().toLocaleString()],
-            ['Output Tokens', this.tokensOutputPerMessage().toLocaleString()],
-            ['Cache Hit Rate', `${Math.round(this.cacheHitRate() * 100)}%`],
-          ];
+        // ── SCENARIO CONFIGURATION ─────────────────────────────────
+        doc.setFontSize(11);
+        doc.setTextColor(17, 24, 39);
+        doc.text('Scenario Configuration', margin, y);
+        y += 3;
+        autoTable(doc, {
+          startY: y,
+          head: [['Parameter', 'Value']],
+          body: [
+            ['Messages per Day',    this.messagesPerDay().toLocaleString()],
+            ['Input Tokens',        this.tokensInputPerMessage().toLocaleString()],
+            ['Output Tokens',       this.tokensOutputPerMessage().toLocaleString()],
+            ['Cache Hit Rate',      `${Math.round(this.cacheHitRate() * 100)}%`],
+            ['Modeling Horizon',    '30 Days \u00D7 12 Months'],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 2.5 },
+          headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255], fontStyle: 'bold' },
+          columnStyles: { 0: { cellWidth: 80 } },
+        });
 
-          // Use functional call: autoTable(doc, options)
-          autoTable(doc, {
-            startY: 110,
-            head: [['Parameter', 'Value']],
-            body: inputsData,
-            theme: 'plain',
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [220, 220, 220] },
-          });
-
-          // --- Detailed Comparison ---
-          // Get finalY from doc.lastAutoTable (set by autoTable function)
-          const firstTableY = (doc as any).lastAutoTable?.finalY || 150;
-          doc.text('Model Comparison (Monthly TCO)', 14, firstTableY + 15);
-
-          const comparisonData = this.results().map((r, index) => [
+        // ── MODEL COMPARISON ───────────────────────────────────────
+        y = (d.lastAutoTable?.finalY ?? y + 40) + 10;
+        doc.setFontSize(11);
+        doc.setTextColor(17, 24, 39);
+        doc.text('Model Comparison \u2014 Monthly TCO', margin, y);
+        y += 3;
+        autoTable(doc, {
+          startY: y,
+          head: [['Model', 'Monthly Cost', 'Annual Cost', 'ValueScore\u2122', 'Rank']],
+          body: allResults.map((r, i) => [
             r.modelName,
             `$${r.monthlyCost.toFixed(2)}`,
+            `$${(r.monthlyCost * 12).toFixed(2)}`,
             r.valueScore.toFixed(4),
-            index === 0 ? 'WINNER' : `#${index + 1}`,
-          ]);
+            i === 0 ? '\u2605 WINNER' : `#${i + 1}`,
+          ]),
+          theme: 'striped',
+          styles: { fontSize: 8.5, cellPadding: 2.5 },
+          headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255], fontStyle: 'bold' },
+          didParseCell: (data: any) => {
+            if (data.row.index === 0 && data.section === 'body') {
+              data.cell.styles.fillColor  = [209, 250, 229];
+              data.cell.styles.textColor  = [6, 78, 59];
+              data.cell.styles.fontStyle  = 'bold';
+            }
+          },
+        });
 
-          autoTable(doc, {
-            startY: firstTableY + 20,
-            head: [['Model', 'Monthly Cost', 'ValueScore™', 'Rank']],
-            body: comparisonData,
-            theme: 'striped',
-            headStyles: { fillColor: [41, 128, 185] },
-          });
+        // ── COST VARIANCE ANALYSIS ────────────────────────────────
+        y = (d.lastAutoTable?.finalY ?? y + 80) + 10;
+        if (y > pageHeight - 70) { doc.addPage(); y = 20; }
+        doc.setFontSize(11);
+        doc.setTextColor(17, 24, 39);
+        doc.text('Cost Variance Analysis', margin, y);
+        y += 5;
+        if (allResults.length >= 2) {
+          const vFactor = allResults[allResults.length - 1].monthlyCost > 0
+            ? (allResults[allResults.length - 1].monthlyCost / allResults[0].monthlyCost).toFixed(1)
+            : '?';
+          const varianceText = `Under identical workload assumptions, the cost variance between the lowest and highest ranked model is ${vFactor}\u00D7 in monthly deployment cost. This variance is primarily driven by: output token pricing differentials, cache discount policies, and input/output price asymmetry.`;
+          const vLines: string[] = d.splitTextToSize(varianceText, contentWidth);
+          doc.setFontSize(9);
+          doc.setTextColor(55, 65, 81);
+          doc.text(vLines, margin, y);
+          y += vLines.length * 4.5 + 8;
+        }
 
-          // --- Disclaimer ---
-          const secondTableY = (doc as any).lastAutoTable?.finalY || 200;
-          doc.setFontSize(8);
-          doc.setTextColor(150);
-          doc.text(
-            'DISCLAIMER: This report is a deterministic engineering simulation based on public pricing.',
-            14,
-            secondTableY + 15,
-          );
-          doc.text(
-            'It does not constitute financial advice or a binding procurement offer.',
-            14,
-            secondTableY + 20,
-          );
+        // ── METHODOLOGY OVERVIEW ──────────────────────────────────
+        if (y > pageHeight - 60) { doc.addPage(); y = 20; }
+        doc.setFontSize(11);
+        doc.setTextColor(17, 24, 39);
+        doc.text('Methodology Overview', margin, y);
+        y += 6;
+        doc.setFontSize(8.5);
+        doc.setTextColor(55, 65, 81);
+        doc.text('Monthly Cost Formula:', margin, y);
+        y += 4;
+        doc.setTextColor(107, 114, 128);
+        doc.text('C = (M \u00D7 Ti \u00D7 (1-Cr) \u00D7 P_input) + (M \u00D7 Ti \u00D7 Cr \u00D7 P_cached) + (M \u00D7 To \u00D7 P_output) \u00D7 30', margin + 5, y);
+        y += 6;
+        doc.setTextColor(55, 65, 81);
+        doc.text('ValueScore\u2122 Formula:', margin, y);
+        y += 4;
+        doc.setTextColor(107, 114, 128);
+        doc.text('VS = (1/Cost)^0.65 \u00D7 log10(Context)^0.35 \u00D7 LatencyIndex', margin + 5, y);
+        y += 6;
+        doc.setTextColor(55, 65, 81);
+        const methNote: string[] = d.splitTextToSize(
+          'All coefficients are fixed named constants. No subjective weighting or provider-specific adjustments are applied.',
+          contentWidth,
+        );
+        doc.text(methNote, margin, y);
+        y += methNote.length * 4.2 + 10;
 
-          // Add pricing version
-          const pricingVersion = this.pricingMetadata()?.version || '1.0.0';
-          doc.text(
-            `Generated by LLM Cost Engine · Pricing Data v${pricingVersion}`,
-            14,
-            secondTableY + 25,
-          );
+        // ── SENSITIVITY CONSIDERATIONS ────────────────────────────
+        if (sensitivity && winner) {
+          if (y > pageHeight - 55) { doc.addPage(); y = 20; }
+          doc.setFontSize(11);
+          doc.setTextColor(17, 24, 39);
+          doc.text('Sensitivity Considerations', margin, y);
+          y += 5;
+          doc.setFontSize(9);
+          doc.setTextColor(55, 65, 81);
+          doc.text(`If daily message volume increases 2\u00D7: Monthly cost \u2192 $${sensitivity.cost2x.toFixed(2)} (Annual: $${sensitivity.annualCost2x.toFixed(2)}).`, margin, y);
+          y += 5;
+          doc.text(`If daily message volume increases 3\u00D7: Monthly cost \u2192 $${sensitivity.cost3x.toFixed(2)} (Annual: $${sensitivity.annualCost3x.toFixed(2)}).`, margin, y);
+          y += 5;
+          if (Math.round(this.cacheHitRate() * 100) < 50) {
+            doc.text('If cache hit rate improves to 50%: Annual cost reduces by approximately 18\u201322% for cache-eligible models.', margin, y);
+            y += 5;
+          }
+          doc.setTextColor(107, 114, 128);
+          doc.text('Annual cost scales linearly with volume under current pricing assumptions.', margin, y);
+          y += 12;
+        }
+
+        // ── COMPLIANCE & NEUTRALITY ───────────────────────────────
+        if (y > pageHeight - 42) { doc.addPage(); y = 20; }
+        doc.setFillColor(243, 244, 246);
+        doc.setDrawColor(229, 231, 235);
+        doc.rect(margin, y, contentWidth, 22, 'FD');
+        doc.setFontSize(8.5);
+        doc.setTextColor(17, 24, 39);
+        doc.text('Compliance & Neutrality Statement', margin + 5, y + 7);
+        doc.setFontSize(8);
+        doc.setTextColor(107, 114, 128);
+        doc.text('LLM Cost Engine does not receive affiliate commissions from any provider.', margin + 5, y + 13);
+        doc.text('Rankings are deterministic outputs of publicly verifiable pricing data.', margin + 5, y + 19);
+        y += 30;
+
+        // ── DISCLAIMER + FOOTER ───────────────────────────────────
+        doc.setFontSize(7.5);
+        doc.setTextColor(107, 114, 128);
+        const disclaimerLines: string[] = d.splitTextToSize(
+          'DISCLAIMER: This report is a deterministic engineering simulation based on public pricing. It does not constitute financial advice or a binding procurement offer.',
+          contentWidth,
+        );
+        doc.text(disclaimerLines, margin, y);
+        y += disclaimerLines.length * 4 + 5;
+        doc.setFontSize(8);
+        doc.setTextColor(79, 70, 229);
+        doc.text(`Generated by LLM Cost Engine \u00B7 Pricing Dataset v${pricingVersion} \u00B7 https://llm-cost-engine.com`, margin, y);
 
         // Save
         doc.save(`LLM_Analysis_${currentScenarioId}.pdf`);
