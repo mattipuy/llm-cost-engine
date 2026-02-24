@@ -22,6 +22,7 @@ import {
   PricingDataService,
   PricingMetadata,
 } from '../../core/services/pricing-data.service';
+import { ModelRegistryService } from '../../core/services/model-registry.service';
 import { JsonLdService } from '../../core/services/json-ld.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { PriceAlertModalComponent } from '../../shared/components/price-alert-modal/price-alert-modal.component';
@@ -65,7 +66,7 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
   // SIGNALS - User Inputs
   // ============================================================================
 
-  selectedModelId = signal('claude-sonnet-4.6');
+  selectedModelId = signal('');
   staticTokens = signal(this.DEFAULT_STATIC_TOKENS);
   dynamicTokens = signal(this.DEFAULT_DYNAMIC_TOKENS);
   outputTokens = signal(this.DEFAULT_OUTPUT_TOKENS);
@@ -193,6 +194,7 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
 
   private logicService = inject(CachingRoiLogicService);
   private pricingService = inject(PricingDataService);
+  private registry = inject(ModelRegistryService);
   private jsonLdService = inject(JsonLdService);
   private analytics = inject(AnalyticsService);
   private meta = inject(Meta);
@@ -276,17 +278,10 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.allModels.set(data.models);
           if (data.metadata) this.pricingMetadata.set(data.metadata);
+          const best = this.registry.getBestCacheable(data.models, 'standard');
+          this.selectedModelId.set(best?.id ?? data.models[0]?.id ?? '');
           this.isLoading.set(false);
           this.isRetrying.set(false);
-
-          // If default model not in cacheable list, select first available
-          const cacheable = this.logicService.filterCacheableModels(data.models);
-          if (
-            cacheable.length > 0 &&
-            !cacheable.find((m) => m.id === this.selectedModelId())
-          ) {
-            this.selectedModelId.set(cacheable[0].id);
-          }
         },
         error: (err) => {
           console.error('Failed to load pricing data', err);

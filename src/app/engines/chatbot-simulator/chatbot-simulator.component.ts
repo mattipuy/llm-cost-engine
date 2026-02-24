@@ -34,6 +34,7 @@ import { AnalyticsService } from '../../core/services/analytics.service';
 import { PriceAlertService } from '../../core/services/price-alert.service';
 import { PriceAlertModalComponent } from '../../shared/components/price-alert-modal/price-alert-modal.component';
 import { MarketInsightsService } from '../../core/services/market-insights.service';
+import { ModelRegistryService } from '../../core/services/model-registry.service';
 import {
   WEIGHT_DESCRIPTIONS,
   ENGINE_META,
@@ -284,10 +285,8 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   // All available models from JSON (populated on load)
   availableModels = signal<LlmModel[]>([]);
 
-  // Selected model IDs for comparison (initialized with popular models for good first-visit UX)
-  selectedModelIds = signal<Set<string>>(
-    new Set(['deepseek-v3', 'claude-sonnet-4.6', 'gpt-5.1', 'gemini-3-flash']),
-  );
+  // Selected model IDs for comparison (populated from registry after data loads)
+  selectedModelIds = signal<Set<string>>(new Set<string>());
 
   // Computed: filtered models for display based on user selection
   activeModels = computed(() => {
@@ -650,6 +649,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   private analyticsService = inject(AnalyticsService);
   private priceAlertService = inject(PriceAlertService);
   private marketInsightsService = inject(MarketInsightsService);
+  private registry = inject(ModelRegistryService);
   private meta = inject(Meta);
   private title = inject(Title);
   private location = inject(Location);
@@ -844,83 +844,79 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   /**
    * Returns recommended model IDs for a given preset.
-   * Logic based on use case characteristics (volume, context, output type).
-   * Updated for registry v2.0.0 model names.
+   * Uses tier+provider criteria via ModelRegistryService for a stable,
+   * registry-driven selection that survives model renames.
    */
   private getRecommendedModelsForPreset(presetId: string): string[] {
     const allModels = this.availableModels();
+    const pick = (tier: string, provider: string) =>
+      this.registry.getByTierAndProvider(allModels, tier, provider);
+
+    let candidates: (LlmModel | null)[];
 
     switch (presetId) {
       case 'saas-startup':
-        // Startup: Cost-efficient models for moderate volume
-        return this.findModelsByKeywords(
-          allModels,
-          ['flash', 'haiku', 'gpt-5-mini', 'deepseek-v3'],
-          4,
-        );
+        // Startup: cost-efficient models for moderate volume
+        candidates = [
+          pick('efficient', 'Google'),
+          pick('mini', 'Anthropic'),
+          pick('mini', 'OpenAI'),
+          pick('standard', 'DeepSeek'),
+        ];
+        break;
 
       case 'enterprise-support':
-        // Growth: Mix of efficiency and quality for high volume
-        return this.findModelsByKeywords(
-          allModels,
-          ['flash', 'haiku', 'gpt-5.1', 'deepseek', 'sonnet-4.6'],
-          5,
-        );
+        // Growth: mix of efficiency and quality for high volume
+        candidates = [
+          pick('efficient', 'Google'),
+          pick('mini', 'Anthropic'),
+          pick('flagship', 'OpenAI'),
+          pick('standard', 'DeepSeek'),
+          pick('standard', 'Anthropic'),
+        ];
+        break;
 
       case 'rag-knowledge':
-        // Enterprise RAG: Large context models for heavy input
-        return this.findModelsByKeywords(
-          allModels,
-          ['gemini-3-flash', 'sonnet-4.6', 'gpt-5.1', 'gemini-3-pro'],
-          4,
-        );
+        // Enterprise RAG: large context models for heavy input
+        candidates = [
+          pick('efficient', 'Google'),
+          pick('standard', 'Anthropic'),
+          pick('flagship', 'OpenAI'),
+          pick('flagship', 'Google'),
+        ];
+        break;
 
       case 'dev-productivity':
-        // Dev tools: Reasoning models for code generation
-        return this.findModelsByKeywords(
-          allModels,
-          ['sonnet-4.6', 'gpt-5.1', 'deepseek', 'opus-4.6'],
-          4,
-        );
+        // Dev tools: reasoning models for code generation
+        candidates = [
+          pick('standard', 'Anthropic'),
+          pick('flagship', 'OpenAI'),
+          pick('flagship', 'DeepSeek'),
+          pick('flagship', 'Anthropic'),
+        ];
+        break;
 
       case 'content-gen':
-        // Content: Quality output models
-        return this.findModelsByKeywords(
-          allModels,
-          ['sonnet-4.6', 'gpt-5.2', 'gemini-3-pro', 'opus-4.6'],
-          4,
-        );
+        // Content: quality output models
+        candidates = [
+          pick('standard', 'Anthropic'),
+          pick('flagship', 'OpenAI'),
+          pick('flagship', 'Google'),
+          pick('flagship', 'Anthropic'),
+        ];
+        break;
 
       default:
-        // Fallback: Top 4 popular models
-        return this.findModelsByKeywords(
-          allModels,
-          ['deepseek-v3', 'sonnet-4.6', 'gpt-5.1', 'gemini-3-flash'],
-          4,
-        );
-    }
-  }
-
-  /**
-   * Helper: Find models by keyword matching (case-insensitive, partial match).
-   * Returns up to `limit` model IDs.
-   */
-  private findModelsByKeywords(models: LlmModel[], keywords: string[], limit: number): string[] {
-    const found = new Set<string>();
-
-    for (const keyword of keywords) {
-      const keywordLower = keyword.toLowerCase();
-      for (const model of models) {
-        if (found.size >= limit) break;
-        const modelIdLower = model.id.toLowerCase();
-        if (modelIdLower.includes(keywordLower)) {
-          found.add(model.id);
-        }
-      }
-      if (found.size >= limit) break;
+        // Fallback: one representative per provider
+        return this.registry.getTopPerProvider(allModels).slice(0, 4).map((m) => m.id);
     }
 
-    return Array.from(found).slice(0, limit);
+    // Deduplicate while preserving order, filter nulls
+    const seen = new Set<string>();
+    return candidates
+      .filter((m): m is LlmModel => m !== null)
+      .filter((m) => !seen.has(m.id) && seen.add(m.id))
+      .map((m) => m.id);
   }
 
   // ============================================================================
@@ -1860,6 +1856,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           this.models.set(data.models);
           // Populate availableModels with all models from JSON for filter UI
           this.availableModels.set(data.models);
+          // Set default selection: one representative per provider, up to 5 models
+          const defaults = this.registry.getTopPerProvider(data.models).slice(0, 5);
+          this.selectedModelIds.set(new Set(defaults.map((m) => m.id)));
           // Store metadata if present in the JSON registry
           if (data.metadata) {
             this.pricingMetadata.set(data.metadata);

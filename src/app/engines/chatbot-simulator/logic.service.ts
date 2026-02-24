@@ -54,6 +54,9 @@ export interface LlmModel {
   provider: string;
   pricing: ModelPricing;
   capabilities: ModelCapabilities;
+  tier?: 'flagship' | 'standard' | 'efficient' | 'mini';
+  provider_rank?: number;
+  tags?: string[];
 }
 
 /**

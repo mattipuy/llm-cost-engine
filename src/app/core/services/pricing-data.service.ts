@@ -20,11 +20,29 @@ export interface PricingMetadata {
 }
 
 /**
+ * A single tier+provider criteria used to resolve a model from the registry.
+ */
+export interface PresetProfile {
+  tier: string;
+  provider: string;
+}
+
+/**
+ * Preset profiles stored in the JSON registry for each tool's default selection.
+ */
+export interface PresetProfiles {
+  caching_default?: PresetProfile;
+  batch_default?: PresetProfile;
+  chatbot_defaults?: PresetProfile[];
+}
+
+/**
  * Full pricing data structure including metadata and models.
  */
 export interface PricingData {
   metadata?: PricingMetadata;
   models: LlmModel[];
+  preset_profiles?: PresetProfiles;
 }
 
 /**

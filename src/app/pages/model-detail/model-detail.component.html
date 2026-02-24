@@ -129,7 +129,7 @@
         <div class="max-w-3xl">
           <h2 class="text-2xl font-bold mb-2">Calculate Your TCO</h2>
           <p class="text-indigo-100 mb-4">
-            Compare {{ model()!.name }} against 14 other models with our deterministic cost calculator.
+            Compare {{ model()!.name }} against {{ otherModelsCount() }} other models with our deterministic cost calculator.
             Factor in caching, batch API, context limits, and monthly volume.
           </p>
           <a

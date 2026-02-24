@@ -13,6 +13,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { PricingDataService } from '../../core/services/pricing-data.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { JsonLdService } from '../../core/services/json-ld.service';
+import { ModelRegistryService } from '../../core/services/model-registry.service';
 import { LlmModel } from '../../engines/chatbot-simulator/logic.service';
 import { PriceAlertModalComponent } from '../../shared/components/price-alert-modal/price-alert-modal.component';
 
@@ -35,6 +36,7 @@ export class ModelDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private pricingService = inject(PricingDataService);
+  private registry = inject(ModelRegistryService);
   private analytics = inject(AnalyticsService);
   private jsonLdService = inject(JsonLdService);
   private meta = inject(Meta);
@@ -56,13 +58,17 @@ export class ModelDetailComponent implements OnInit {
     return this.allModels().filter(m => m.provider === current.provider && m.id !== current.id);
   });
 
+  // One flagship/best model per competitor provider, ordered by canonical provider order
   competitorModels = computed(() => {
     const current = this.model();
     if (!current) return [];
-    return this.allModels()
-      .filter(m => m.provider !== current.provider)
-      .slice(0, 5); // Top 5 competitors
+    return this.registry
+      .getTopPerProvider(this.allModels())
+      .filter(m => m.provider !== current.provider);
   });
+
+  // Dynamic count of models excluding the current one (for CTA text)
+  otherModelsCount = computed(() => Math.max(0, this.allModels().length - 1));
 
   ngOnInit(): void {
     // Subscribe to route param changes to handle navigation between models

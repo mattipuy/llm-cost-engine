@@ -10,11 +10,25 @@
     "source_verification": "Official provider pricing pages",
     "update_frequency": "weekly"
   },
+  "preset_profiles": {
+    "caching_default": { "tier": "standard", "provider": "Anthropic" },
+    "batch_default":   { "tier": "standard", "provider": "OpenAI" },
+    "chatbot_defaults": [
+      { "tier": "flagship",  "provider": "OpenAI" },
+      { "tier": "standard",  "provider": "Anthropic" },
+      { "tier": "efficient", "provider": "Google" },
+      { "tier": "standard",  "provider": "DeepSeek" },
+      { "tier": "standard",  "provider": "Meta" }
+    ]
+  },
   "models": [
     {
       "id": "gpt-5.2",
       "name": "GPT-5.2",
       "provider": "OpenAI",
+      "tier": "flagship",
+      "provider_rank": 1,
+      "tags": ["chat", "code", "reasoning"],
       "pricing": {
         "input_1m": 1.75,
         "output_1m": 14.0,
@@ -31,6 +45,9 @@
       "id": "gpt-5.1",
       "name": "GPT-5.1",
       "provider": "OpenAI",
+      "tier": "flagship",
+      "provider_rank": 2,
+      "tags": ["chat", "code", "reasoning"],
       "pricing": {
         "input_1m": 1.25,
         "output_1m": 10.0,
@@ -47,6 +64,9 @@
       "id": "gpt-5-mini",
       "name": "GPT-5 Mini",
       "provider": "OpenAI",
+      "tier": "mini",
+      "provider_rank": 3,
+      "tags": ["chat", "content"],
       "pricing": {
         "input_1m": 0.25,
         "output_1m": 2.0,
@@ -63,6 +83,9 @@
       "id": "o3-mini",
       "name": "o3-mini",
       "provider": "OpenAI",
+      "tier": "efficient",
+      "provider_rank": 4,
+      "tags": ["reasoning", "code"],
       "pricing": {
         "input_1m": 1.1,
         "output_1m": 4.4,
@@ -79,6 +102,9 @@
       "id": "claude-opus-4.6",
       "name": "Claude Opus 4.6",
       "provider": "Anthropic",
+      "tier": "flagship",
+      "provider_rank": 1,
+      "tags": ["chat", "code", "reasoning", "rag"],
       "pricing": {
         "input_1m": 5.0,
         "output_1m": 25.0,
@@ -95,6 +121,9 @@
       "id": "claude-sonnet-4.6",
       "name": "Claude Sonnet 4.6",
       "provider": "Anthropic",
+      "tier": "standard",
+      "provider_rank": 2,
+      "tags": ["chat", "code", "reasoning", "rag"],
       "pricing": {
         "input_1m": 3.0,
         "output_1m": 15.0,
@@ -111,6 +140,9 @@
       "id": "claude-haiku-4.5",
       "name": "Claude Haiku 4.5",
       "provider": "Anthropic",
+      "tier": "mini",
+      "provider_rank": 3,
+      "tags": ["chat", "content"],
       "pricing": {
         "input_1m": 1.0,
         "output_1m": 5.0,
@@ -127,6 +159,9 @@
       "id": "gemini-3.1-pro",
       "name": "Gemini 3.1 Pro",
       "provider": "Google",
+      "tier": "flagship",
+      "provider_rank": 1,
+      "tags": ["chat", "long-context", "reasoning"],
       "pricing": {
         "input_1m": 2.0,
         "output_1m": 12.0,
@@ -141,6 +176,9 @@
       "id": "gemini-3-flash",
       "name": "Gemini 3 Flash",
       "provider": "Google",
+      "tier": "efficient",
+      "provider_rank": 2,
+      "tags": ["chat", "long-context", "rag"],
       "pricing": {
         "input_1m": 0.5,
         "output_1m": 3.0,
@@ -152,23 +190,12 @@
       }
     },
     {
-      "id": "deepseek-v3",
-      "name": "DeepSeek V3",
-      "provider": "DeepSeek",
-      "pricing": {
-        "input_1m": 0.28,
-        "output_1m": 0.42,
-        "cached_input_1m": 0.028
-      },
-      "capabilities": {
-        "context_window": 128000,
-        "latency_index": 0.88
-      }
-    },
-    {
       "id": "deepseek-r1",
       "name": "DeepSeek R1",
       "provider": "DeepSeek",
+      "tier": "flagship",
+      "provider_rank": 1,
+      "tags": ["reasoning", "code"],
       "pricing": {
         "input_1m": 0.55,
         "output_1m": 2.19,
@@ -180,12 +207,16 @@
       }
     },
     {
-      "id": "llama-3.3-70b",
-      "name": "Llama 3.3 70B",
-      "provider": "Meta",
+      "id": "deepseek-v3",
+      "name": "DeepSeek V3",
+      "provider": "DeepSeek",
+      "tier": "standard",
+      "provider_rank": 2,
+      "tags": ["chat", "code", "content"],
       "pricing": {
-        "input_1m": 0.59,
-        "output_1m": 0.79
+        "input_1m": 0.28,
+        "output_1m": 0.42,
+        "cached_input_1m": 0.028
       },
       "capabilities": {
         "context_window": 128000,
@@ -196,6 +227,9 @@
       "id": "llama-4-maverick",
       "name": "Llama 4 Maverick",
       "provider": "Meta",
+      "tier": "standard",
+      "provider_rank": 1,
+      "tags": ["chat", "content"],
       "pricing": {
         "input_1m": 0.20,
         "output_1m": 0.60
@@ -206,9 +240,28 @@
       }
     },
     {
+      "id": "llama-3.3-70b",
+      "name": "Llama 3.3 70B",
+      "provider": "Meta",
+      "tier": "standard",
+      "provider_rank": 2,
+      "tags": ["chat", "code"],
+      "pricing": {
+        "input_1m": 0.59,
+        "output_1m": 0.79
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.88
+      }
+    },
+    {
       "id": "mistral-large",
       "name": "Mistral Large 3",
       "provider": "Mistral AI",
+      "tier": "flagship",
+      "provider_rank": 1,
+      "tags": ["chat", "code", "reasoning"],
       "pricing": {
         "input_1m": 0.5,
         "output_1m": 1.5,
@@ -223,6 +276,9 @@
       "id": "mistral-medium-3",
       "name": "Mistral Medium 3.1",
       "provider": "Mistral AI",
+      "tier": "standard",
+      "provider_rank": 2,
+      "tags": ["chat", "content"],
       "pricing": {
         "input_1m": 0.4,
         "output_1m": 2.0
@@ -236,6 +292,9 @@
       "id": "mistral-small",
       "name": "Mistral Small 3.2",
       "provider": "Mistral AI",
+      "tier": "efficient",
+      "provider_rank": 3,
+      "tags": ["chat", "content"],
       "pricing": {
         "input_1m": 0.1,
         "output_1m": 0.3,

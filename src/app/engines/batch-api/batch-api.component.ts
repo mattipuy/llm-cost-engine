@@ -22,6 +22,7 @@ import {
   PricingDataService,
   PricingMetadata,
 } from '../../core/services/pricing-data.service';
+import { ModelRegistryService } from '../../core/services/model-registry.service';
 import { JsonLdService } from '../../core/services/json-ld.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { PriceAlertModalComponent } from '../../shared/components/price-alert-modal/price-alert-modal.component';
@@ -110,7 +111,7 @@ export class BatchApiComponent implements OnInit, OnDestroy {
   // SIGNALS - User Inputs
   // ============================================================================
 
-  selectedModelId = signal('gpt-5.1');
+  selectedModelId = signal('');
   records = signal(this.DEFAULT_RECORDS);
   avgInputTokens = signal(this.DEFAULT_AVG_INPUT);
   avgOutputTokens = signal(this.DEFAULT_AVG_OUTPUT);
@@ -173,6 +174,7 @@ export class BatchApiComponent implements OnInit, OnDestroy {
 
   private logicService = inject(BatchApiLogicService);
   private pricingService = inject(PricingDataService);
+  private registry = inject(ModelRegistryService);
   private jsonLdService = inject(JsonLdService);
   private analytics = inject(AnalyticsService);
   private meta = inject(Meta);
@@ -261,17 +263,10 @@ export class BatchApiComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.allModels.set(data.models);
           if (data.metadata) this.pricingMetadata.set(data.metadata);
+          const best = this.registry.getBestBatch(data.models, 'standard');
+          this.selectedModelId.set(best?.id ?? data.models[0]?.id ?? '');
           this.isLoading.set(false);
           this.isRetrying.set(false);
-
-          // If default model not in batch list, select first available
-          const batch = this.logicService.filterBatchModels(data.models);
-          if (
-            batch.length > 0 &&
-            !batch.find((m) => m.id === this.selectedModelId())
-          ) {
-            this.selectedModelId.set(batch[0].id);
-          }
         },
         error: (err) => {
           console.error('Failed to load pricing data', err);

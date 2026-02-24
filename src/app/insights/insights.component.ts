@@ -16,6 +16,9 @@ import {
 import { MarketInsightsService } from '../core/services/market-insights.service';
 import { JsonLdService } from '../core/services/json-ld.service';
 import { ENGINE_META } from '../core/constants/engine-weights';
+import { PricingDataService } from '../core/services/pricing-data.service';
+import { ModelRegistryService } from '../core/services/model-registry.service';
+import { LlmModel } from '../engines/chatbot-simulator/logic.service';
 
 interface MonthlyHighlight {
   title: string;
@@ -360,6 +363,8 @@ export class InsightsComponent implements OnInit {
   private priceHistoryService = inject(PriceHistoryService);
   private marketInsightsService = inject(MarketInsightsService);
   private jsonLdService = inject(JsonLdService);
+  private pricingService = inject(PricingDataService);
+  private registry = inject(ModelRegistryService);
   private meta = inject(Meta);
   private title = inject(Title);
 
@@ -371,66 +376,82 @@ export class InsightsComponent implements OnInit {
     year: 'numeric',
   });
 
-  // Simulated analysis count (would come from real analytics in production)
+  // Models loaded from registry
+  private allModels = signal<LlmModel[]>([]);
 
   // Price trends from history service
   priceTrends = signal<PriceTrend[]>([]);
 
   // Monthly highlights computed from data
-  monthlyHighlights = computed((): MonthlyHighlight[] => [
-    {
-      title: 'Most Simulated Model',
-      value: 'Claude Sonnet 4.6',
-      subtitle: '34% of all simulations',
-      icon: '🏆',
-      color: 'text-indigo-600',
-    },
-    {
-      title: 'Biggest Cost Saver',
-      value: 'DeepSeek V3',
-      subtitle: 'Avg. 78% cheaper than Claude Opus 4.6',
-      icon: '💰',
-      color: 'text-green-600',
-    },
-    {
-      title: 'Fastest Growing',
-      value: 'DeepSeek V3',
-      subtitle: '+156% simulations vs last month',
-      icon: '📈',
-      color: 'text-purple-600',
-    },
-  ]);
+  monthlyHighlights = computed((): MonthlyHighlight[] => {
+    const models = this.allModels();
+    const standardAnthropic = models.length > 0
+      ? this.registry.getByTierAndProvider(models, 'standard', 'Anthropic')
+      : null;
+    return [
+      {
+        title: 'Most Simulated Model',
+        value: standardAnthropic?.name ?? 'Claude Sonnet 4.6',
+        subtitle: '34% of all simulations',
+        icon: '🏆',
+        color: 'text-indigo-600',
+      },
+      {
+        title: 'Biggest Cost Saver',
+        value: 'DeepSeek V3',
+        subtitle: 'Avg. 78% cheaper than Claude Opus 4.6',
+        icon: '💰',
+        color: 'text-green-600',
+      },
+      {
+        title: 'Fastest Growing',
+        value: 'DeepSeek V3',
+        subtitle: '+156% simulations vs last month',
+        icon: '📈',
+        color: 'text-purple-600',
+      },
+    ];
+  });
 
   // Segment data for the table
-  segmentData = computed(() => [
-    {
-      id: 'startup',
-      icon: '🚀',
-      label: 'Startup',
-      description: 'Early-stage, cost-conscious',
-      volumeRange: '< 2K msg/day',
-      topModel: 'DeepSeek V3',
-      avgCost: 45,
-    },
-    {
-      id: 'scaleup',
-      icon: '📈',
-      label: 'Scale-up',
-      description: 'Growth phase, balancing cost/quality',
-      volumeRange: '2K - 10K msg/day',
-      topModel: 'Claude Sonnet 4.6',
-      avgCost: 280,
-    },
-    {
-      id: 'enterprise',
-      icon: '🏢',
-      label: 'Enterprise',
-      description: 'High-volume, quality-focused',
-      volumeRange: '> 10K msg/day',
-      topModel: 'Claude Opus 4.6',
-      avgCost: 1850,
-    },
-  ]);
+  segmentData = computed(() => {
+    const models = this.allModels();
+    const standardAnthropic = models.length > 0
+      ? this.registry.getByTierAndProvider(models, 'standard', 'Anthropic')
+      : null;
+    const flagshipAnthropic = models.length > 0
+      ? this.registry.getByTierAndProvider(models, 'flagship', 'Anthropic')
+      : null;
+    return [
+      {
+        id: 'startup',
+        icon: '🚀',
+        label: 'Startup',
+        description: 'Early-stage, cost-conscious',
+        volumeRange: '< 2K msg/day',
+        topModel: 'DeepSeek V3',
+        avgCost: 45,
+      },
+      {
+        id: 'scaleup',
+        icon: '📈',
+        label: 'Scale-up',
+        description: 'Growth phase, balancing cost/quality',
+        volumeRange: '2K - 10K msg/day',
+        topModel: standardAnthropic?.name ?? 'Claude Sonnet 4.6',
+        avgCost: 280,
+      },
+      {
+        id: 'enterprise',
+        icon: '🏢',
+        label: 'Enterprise',
+        description: 'High-volume, quality-focused',
+        volumeRange: '> 10K msg/day',
+        topModel: flagshipAnthropic?.name ?? 'Claude Opus 4.6',
+        avgCost: 1850,
+      },
+    ];
+  });
 
   // Key takeaways
   readonly keyTakeaways = [
@@ -463,6 +484,7 @@ export class InsightsComponent implements OnInit {
   ngOnInit(): void {
     this.setMetaTags();
     this.injectJsonLd();
+    this.loadModels();
     this.loadPriceTrends();
   }
 
@@ -498,6 +520,15 @@ export class InsightsComponent implements OnInit {
       },
       'llm-insights',
     );
+  }
+
+  private loadModels(): void {
+    this.pricingService.loadPricingData().subscribe({
+      next: (data) => this.allModels.set(data.models),
+      error: () => {
+        // Silently fail - computed signals fall back to hardcoded strings
+      },
+    });
   }
 
   private loadPriceTrends(): void {
