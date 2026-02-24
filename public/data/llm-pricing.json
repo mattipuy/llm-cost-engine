@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "version": "2.2.0",
+    "version": "2.3.0",
     "name": "LLM Cost Engine Pricing Registry",
     "last_updated": "2026-02-24",
     "last_verified": "2026-02-24",
@@ -303,6 +303,22 @@
       "capabilities": {
         "context_window": 128000,
         "latency_index": 0.92
+      }
+    },
+    {
+      "id": "qwen3.5-plus",
+      "name": "Qwen 3.5-Plus",
+      "provider": "Qwen",
+      "tier": "flagship",
+      "provider_rank": 1,
+      "tags": ["chat", "code", "reasoning", "long-context"],
+      "pricing": {
+        "input_1m": 0.40,
+        "output_1m": 2.40
+      },
+      "capabilities": {
+        "context_window": 262144,
+        "latency_index": 0.87
       }
     }
   ]

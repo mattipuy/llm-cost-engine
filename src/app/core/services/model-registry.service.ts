@@ -5,7 +5,7 @@ import { PresetProfile } from './pricing-data.service';
 /**
  * Canonical provider display order for sorting and top-per-provider selection.
  */
-const PROVIDER_ORDER = ['OpenAI', 'Anthropic', 'Google', 'DeepSeek', 'Meta', 'Mistral AI'];
+const PROVIDER_ORDER = ['OpenAI', 'Anthropic', 'Google', 'DeepSeek', 'Meta', 'Mistral AI', 'Qwen'];
 
 /**
  * Pure stateless utility service for querying the LLM model registry.
