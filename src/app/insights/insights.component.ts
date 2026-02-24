@@ -380,7 +380,7 @@ export class InsightsComponent implements OnInit {
   monthlyHighlights = computed((): MonthlyHighlight[] => [
     {
       title: 'Most Simulated Model',
-      value: 'Claude Sonnet 4.5',
+      value: 'Claude Sonnet 4.6',
       subtitle: '34% of all simulations',
       icon: '🏆',
       color: 'text-indigo-600',
@@ -418,7 +418,7 @@ export class InsightsComponent implements OnInit {
       label: 'Scale-up',
       description: 'Growth phase, balancing cost/quality',
       volumeRange: '2K - 10K msg/day',
-      topModel: 'Claude Sonnet 4.5',
+      topModel: 'Claude Sonnet 4.6',
       avgCost: 280,
     },
     {

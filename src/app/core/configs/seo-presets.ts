@@ -47,7 +47,7 @@ export const SEO_PRESETS: SeoPreset[] = [
     name: 'Startup MVP',
     description: 'Early-stage product with limited AI budget',
     metaTitle: 'LLM Cost Analysis: Startup MVP (~500 messages/day)',
-    metaDescription: 'Calculate AI costs for early-stage startups. Compare GPT-4o vs Claude vs Gemini for 500 daily messages. Find the most cost-effective LLM for your MVP.',
+    metaDescription: 'Calculate AI costs for early-stage startups. Compare GPT-5.1 vs Claude Sonnet 4.6 vs DeepSeek V3 for 500 daily messages. Find the most cost-effective LLM for your MVP.',
     params: {
       messagesPerDay: 500,
       tokensInput: 150,

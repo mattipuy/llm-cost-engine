@@ -317,7 +317,7 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
     this.meta.updateTag({
       name: 'description',
       content:
-        'Calculate how much you save with prompt caching on Claude, GPT-4o, and Gemini. Deterministic Write/Read split analysis with break-even and annual projections.',
+        'Calculate how much you save with prompt caching on Claude, GPT-5.1, and Gemini. Deterministic Write/Read split analysis with break-even and annual projections.',
     });
     this.meta.updateTag({
       property: 'og:title',
@@ -348,7 +348,7 @@ export class CachingRoiComponent implements OnInit, OnDestroy {
       {
         name: 'Prompt Caching ROI Calculator',
         description:
-          'Calculate prompt caching savings across Claude, GPT-4o, Gemini, and DeepSeek. Deterministic Write/Read split analysis.',
+          'Calculate prompt caching savings across Claude, GPT-5.1, Gemini, and DeepSeek. Deterministic Write/Read split analysis.',
         url: 'https://llm-cost-engine.com/tools/caching-roi',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',

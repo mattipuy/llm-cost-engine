@@ -297,12 +297,12 @@ export class BatchApiComponent implements OnInit, OnDestroy {
 
   private setMetaTags(): void {
     this.title.setTitle(
-      'Batch API Cost Calculator - 50% Savings on GPT-4o & Claude',
+      'Batch API Cost Calculator - 50% Savings on GPT-5.1 & Claude',
     );
     this.meta.updateTag({
       name: 'description',
       content:
-        'Calculate how much you save with OpenAI and Anthropic Batch APIs. Trade 24h turnaround for 50% cost reduction on GPT-4o, Claude, and more.',
+        'Calculate how much you save with OpenAI and Anthropic Batch APIs. Trade 24h turnaround for 50% cost reduction on GPT-5.1, Claude, and more.',
     });
     this.meta.updateTag({
       property: 'og:title',
@@ -333,7 +333,7 @@ export class BatchApiComponent implements OnInit, OnDestroy {
       {
         name: 'Batch API Cost Calculator',
         description:
-          'Calculate batch processing savings on GPT-4o, Claude, and more. Trade 24h turnaround for 50% cost reduction.',
+          'Calculate batch processing savings on GPT-5.1, Claude, and more. Trade 24h turnaround for 50% cost reduction.',
         url: 'https://llm-cost-engine.com/tools/batch-api',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',

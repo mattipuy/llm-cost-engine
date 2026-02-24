@@ -266,12 +266,12 @@ export class ContextWindowComponent implements OnInit, OnDestroy {
 
   private setMetaTags(): void {
     this.title.setTitle(
-      'LLM Context Window Comparator - GPT-4o, Claude 3 & Gemini Limits',
+      'LLM Context Window Comparator - GPT-5, Claude 4.6 & Gemini 3.1 Limits',
     );
     this.meta.updateTag({
       name: 'description',
       content:
-        'Compare LLM context window sizes across GPT-4o, Claude 3, Gemini, and more. See which models fit your document and find the cheapest option.',
+        'Compare LLM context window sizes across GPT-5.1, Claude Sonnet 4.6, Gemini 3.1 Pro, and more. See which models fit your document and find the cheapest option.',
     });
     this.meta.updateTag({
       property: 'og:title',
@@ -289,7 +289,7 @@ export class ContextWindowComponent implements OnInit, OnDestroy {
       {
         name: 'LLM Context Window Comparator',
         description:
-          'Compare context window limits across GPT-4o, Claude 3, Gemini, and DeepSeek. Visualize which models fit your document size.',
+          'Compare context window limits across GPT-5.1, Claude Sonnet 4.6, Gemini 3.1 Pro, and DeepSeek. Visualize which models fit your document size.',
         url: 'https://llm-cost-engine.com/tools/context-window',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web Browser',

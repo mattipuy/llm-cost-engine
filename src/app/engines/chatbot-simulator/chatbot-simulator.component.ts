@@ -286,7 +286,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   // Selected model IDs for comparison (initialized with popular models for good first-visit UX)
   selectedModelIds = signal<Set<string>>(
-    new Set(['deepseek-v3', 'claude-sonnet-4.5', 'gpt-5.1', 'gemini-3-flash']),
+    new Set(['deepseek-v3', 'claude-sonnet-4.6', 'gpt-5.1', 'gemini-3-flash']),
   );
 
   // Computed: filtered models for display based on user selection
@@ -863,7 +863,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         // Growth: Mix of efficiency and quality for high volume
         return this.findModelsByKeywords(
           allModels,
-          ['flash', 'haiku', 'gpt-5.1', 'deepseek', 'sonnet-4.5'],
+          ['flash', 'haiku', 'gpt-5.1', 'deepseek', 'sonnet-4.6'],
           5,
         );
 
@@ -871,7 +871,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         // Enterprise RAG: Large context models for heavy input
         return this.findModelsByKeywords(
           allModels,
-          ['gemini-3-flash', 'sonnet-4.5', 'gpt-5.1', 'gemini-3-pro'],
+          ['gemini-3-flash', 'sonnet-4.6', 'gpt-5.1', 'gemini-3-pro'],
           4,
         );
 
@@ -879,7 +879,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         // Dev tools: Reasoning models for code generation
         return this.findModelsByKeywords(
           allModels,
-          ['sonnet-4.5', 'gpt-5.1', 'deepseek', 'opus-4.6'],
+          ['sonnet-4.6', 'gpt-5.1', 'deepseek', 'opus-4.6'],
           4,
         );
 
@@ -887,7 +887,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         // Content: Quality output models
         return this.findModelsByKeywords(
           allModels,
-          ['sonnet-4.5', 'gpt-5.2', 'gemini-3-pro', 'opus-4.6'],
+          ['sonnet-4.6', 'gpt-5.2', 'gemini-3-pro', 'opus-4.6'],
           4,
         );
 
@@ -895,7 +895,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         // Fallback: Top 4 popular models
         return this.findModelsByKeywords(
           allModels,
-          ['deepseek-v3', 'sonnet-4.5', 'gpt-5.1', 'gemini-3-flash'],
+          ['deepseek-v3', 'sonnet-4.6', 'gpt-5.1', 'gemini-3-flash'],
           4,
         );
     }
@@ -1831,12 +1831,12 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   private setMetaTags(): void {
     this.title.setTitle(
-      `${ENGINE_META.fullName}: TCO Analysis for GPT-4o, Claude 3.5 & Gemini`,
+      `${ENGINE_META.fullName}: TCO Analysis for GPT-5.1, Claude Sonnet 4.6 & Gemini 3.1 Pro`,
     );
     this.meta.updateTag({
       name: 'description',
       content:
-        'Enterprise TCO analysis for LLM deployments. Compare monthly costs for GPT-4o, Gemini 1.5 Pro, and Claude 3.5 Sonnet. Export signed PDF reports for CTO/CFO approval.',
+        'Enterprise TCO analysis for LLM deployments. Compare monthly costs for GPT-5.1, Gemini 3.1 Pro, and Claude Sonnet 4.6. Export signed PDF reports for CTO/CFO approval.',
     });
     this.meta.updateTag({
       property: 'og:title',
