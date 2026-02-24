@@ -1529,44 +1529,109 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
       .then(([jsPDFModule, autoTableModule]) => {
         const jsPDF = jsPDFModule.default;
         const autoTable = autoTableModule.default;
-        const doc = new jsPDF();
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const qw = doc.internal.pageSize.width;
+        const qm = 14;
+        const qc = qw - qm * 2;
+        const qd = doc as any;
+        const qPricingVersion = this.pricingMetadata()?.version || '2.1.0';
+        const qScenarioId = `LLM-${new Date().getFullYear()}-${this.scenarioId().slice(-8).toUpperCase()}`;
+        const qResults = this.results();
 
-        // Header
-        doc.setFontSize(18);
-        doc.text('LLM Cost Comparison', 14, 20);
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
-        doc.text(`Scenario: ${this.scenarioId()}`, 14, 33);
+        // ── HEADER ─────────────────────────────────────────────────
+        doc.setFillColor(243, 244, 246);
+        doc.rect(0, 0, qw, 22, 'F');
+        doc.setFontSize(14);
+        doc.setTextColor(17, 24, 39);
+        doc.text('LLM Cost Snapshot \u2014 Deployment Scenario', qm, 13);
+        doc.setFontSize(8);
+        doc.setTextColor(107, 114, 128);
+        doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, qm, 19);
+        doc.text(`Scenario ID: ${qScenarioId}  \u00B7  Pricing Dataset: v${qPricingVersion}`, qw - qm, 19, { align: 'right' } as any);
 
-        // Quick comparison table
-        const data = this.results().map((r, i) => [
-          i === 0 ? '>> ' + r.modelName : r.modelName,
-          r.provider,
-          `$${r.monthlyCost.toFixed(2)}`,
-          r.valueScore.toFixed(4),
-        ]);
+        // ── WORKLOAD ASSUMPTIONS ────────────────────────────────────
+        let qy = 30;
+        doc.setFontSize(9);
+        doc.setTextColor(17, 24, 39);
+        doc.text('Workload Assumptions', qm, qy);
+        qy += 4;
+        doc.setFontSize(8.5);
+        doc.setTextColor(55, 65, 81);
+        const cacheRateQ = Math.round(this.cacheHitRate() * 100);
+        const assumptions = [
+          `\u2022 ${this.messagesPerDay().toLocaleString()} messages / day`,
+          `\u2022 ${this.tokensInputPerMessage()} input tokens per message`,
+          `\u2022 ${this.tokensOutputPerMessage()} output tokens per message`,
+          `\u2022 ${cacheRateQ}% cache hit rate`,
+        ];
+        assumptions.forEach(line => {
+          doc.text(line, qm + 3, qy);
+          qy += 4.5;
+        });
+        qy += 3;
+
+        // ── MONTHLY COST COMPARISON ─────────────────────────────────
+        doc.setFontSize(9);
+        doc.setTextColor(17, 24, 39);
+        doc.text('Monthly Cost Comparison', qm, qy);
+        qy += 3;
 
         autoTable(doc, {
-          startY: 45,
-          head: [['Model', 'Provider', 'Monthly Cost', 'ValueScore']],
-          body: data,
+          startY: qy,
+          head: [['Model', 'Provider', 'Monthly', 'Annual', 'ValueScore\u2122']],
+          body: qResults.map((r, i) => [
+            i === 0 ? `\u2605 ${r.modelName}` : r.modelName,
+            r.provider,
+            `$${r.monthlyCost.toFixed(2)}`,
+            `$${(r.monthlyCost * 12).toFixed(2)}`,
+            r.valueScore.toFixed(4),
+          ]),
           theme: 'striped',
-          headStyles: { fillColor: [79, 70, 229] },
+          styles: { fontSize: 8.5, cellPadding: 2.5 },
+          headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255], fontStyle: 'bold' },
+          didParseCell: (data: any) => {
+            if (data.row.index === 0 && data.section === 'body') {
+              data.cell.styles.fillColor = [209, 250, 229];
+              data.cell.styles.textColor = [6, 78, 59];
+              data.cell.styles.fontStyle = 'bold';
+            }
+          },
         });
 
-        // Footer
-        const finalY = (doc as any).lastAutoTable?.finalY || 100;
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text('Quick export from LLM Cost Engine', 14, finalY + 15);
-        doc.text(
-          'For detailed analysis with sensitivity projections, use "Get Enterprise Report"',
-          14,
-          finalY + 20,
-        );
+        // ── VARIANCE + NEUTRALITY ───────────────────────────────────
+        qy = (qd.lastAutoTable?.finalY ?? qy + 60) + 8;
+        if (qResults.length >= 2) {
+          const vFactor = (qResults[qResults.length - 1].monthlyCost / qResults[0].monthlyCost).toFixed(1);
+          doc.setFontSize(9);
+          doc.setTextColor(17, 24, 39);
+          doc.text(`Cost variance (highest vs lowest): ${vFactor}\u00D7`, qm, qy);
+          qy += 7;
+        }
 
-        doc.save(`LLM_Quick_${this.scenarioId()}.pdf`);
+        doc.setFontSize(8);
+        doc.setTextColor(107, 114, 128);
+        doc.text('This is a deterministic cost simulation based on public pricing. It does not evaluate model quality.', qm, qy, { maxWidth: qc } as any);
+        qy += 9;
+
+        // ── TEASER → ENTERPRISE ─────────────────────────────────────
+        doc.setFillColor(238, 242, 255);
+        doc.setDrawColor(199, 210, 254);
+        doc.rect(qm, qy, qc, 14, 'FD');
+        doc.setFontSize(8);
+        doc.setTextColor(79, 70, 229);
+        doc.text('For sensitivity projections (2\u00D7/3\u00D7 volume), variance analysis, and executive summary \u2192', qm + 4, qy + 6);
+        doc.setFontSize(8.5);
+        doc.text('Generate Executive Cost Report at llm-cost-engine.com/tools/chatbot-simulator', qm + 4, qy + 11);
+        qy += 21;
+
+        // ── FOOTER ──────────────────────────────────────────────────
+        doc.setFontSize(7.5);
+        doc.setTextColor(107, 114, 128);
+        doc.text('Engineering snapshot (compact version)', qm, qy);
+        doc.setTextColor(79, 70, 229);
+        doc.text('Generated by LLM Cost Engine \u00B7 https://llm-cost-engine.com', qw - qm, qy, { align: 'right' } as any);
+
+        doc.save(`LLM_Snapshot_${this.scenarioId()}.pdf`);
       })
       .catch((err) => {
         console.error('Quick PDF generation failed:', err);
