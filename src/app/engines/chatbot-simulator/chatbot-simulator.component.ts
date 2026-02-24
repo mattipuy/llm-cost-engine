@@ -1616,13 +1616,14 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         // ── TEASER → ENTERPRISE ─────────────────────────────────────
         doc.setFillColor(238, 242, 255);
         doc.setDrawColor(199, 210, 254);
-        doc.rect(qm, qy, qc, 14, 'FD');
+        doc.rect(qm, qy, qc, 16, 'FD');
+        doc.setFontSize(8.5);
+        doc.setTextColor(17, 24, 39);
+        doc.text('Includes 2\u00D7 / 3\u00D7 volume projections and annual procurement summary.', qm + 4, qy + 6);
         doc.setFontSize(8);
         doc.setTextColor(79, 70, 229);
-        doc.text('For sensitivity projections (2\u00D7/3\u00D7 volume), variance analysis, and executive summary \u2192', qm + 4, qy + 6);
-        doc.setFontSize(8.5);
-        doc.text('Generate Executive Cost Report at llm-cost-engine.com/tools/chatbot-simulator', qm + 4, qy + 11);
-        qy += 21;
+        doc.text('\u2192 Generate Executive Report at llm-cost-engine.com/tools/chatbot-simulator', qm + 4, qy + 12);
+        qy += 23;
 
         // ── FOOTER ──────────────────────────────────────────────────
         doc.setFontSize(7.5);
