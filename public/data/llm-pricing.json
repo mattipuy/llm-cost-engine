@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "version": "2.1.0",
+    "version": "2.2.0",
     "name": "LLM Cost Engine Pricing Registry",
-    "last_updated": "2026-02-23",
-    "last_verified": "2026-02-23",
+    "last_updated": "2026-02-24",
+    "last_verified": "2026-02-24",
     "base_currency": "USD",
     "pricing_unit": "per_1M_tokens",
     "maintained_by": "LLM Cost Engine Team",
@@ -18,7 +18,7 @@
       "pricing": {
         "input_1m": 1.75,
         "output_1m": 14.0,
-        "cached_input_1m": 0.875,
+        "cached_input_1m": 0.175,
         "batch_input_1m": 0.875,
         "batch_output_1m": 7.0
       },
@@ -34,7 +34,7 @@
       "pricing": {
         "input_1m": 1.25,
         "output_1m": 10.0,
-        "cached_input_1m": 0.625,
+        "cached_input_1m": 0.125,
         "batch_input_1m": 0.625,
         "batch_output_1m": 5.0
       },
@@ -50,7 +50,7 @@
       "pricing": {
         "input_1m": 0.25,
         "output_1m": 2.0,
-        "cached_input_1m": 0.125,
+        "cached_input_1m": 0.025,
         "batch_input_1m": 0.125,
         "batch_output_1m": 1.0
       },
@@ -156,9 +156,9 @@
       "name": "DeepSeek V3",
       "provider": "DeepSeek",
       "pricing": {
-        "input_1m": 0.27,
-        "output_1m": 1.1,
-        "cached_input_1m": 0.07
+        "input_1m": 0.28,
+        "output_1m": 0.42,
+        "cached_input_1m": 0.028
       },
       "capabilities": {
         "context_window": 128000,
@@ -184,9 +184,8 @@
       "name": "Llama 3.3 70B",
       "provider": "Meta",
       "pricing": {
-        "input_1m": 0.7,
-        "output_1m": 0.8,
-        "cached_input_1m": 0.35
+        "input_1m": 0.59,
+        "output_1m": 0.79
       },
       "capabilities": {
         "context_window": 128000,
@@ -194,13 +193,26 @@
       }
     },
     {
+      "id": "llama-4-maverick",
+      "name": "Llama 4 Maverick",
+      "provider": "Meta",
+      "pricing": {
+        "input_1m": 0.20,
+        "output_1m": 0.60
+      },
+      "capabilities": {
+        "context_window": 128000,
+        "latency_index": 0.95
+      }
+    },
+    {
       "id": "mistral-large",
-      "name": "Mistral Large",
+      "name": "Mistral Large 3",
       "provider": "Mistral AI",
       "pricing": {
-        "input_1m": 2.0,
-        "output_1m": 6.0,
-        "cached_input_1m": 1.0
+        "input_1m": 0.5,
+        "output_1m": 1.5,
+        "cached_input_1m": 0.25
       },
       "capabilities": {
         "context_window": 128000,
@@ -208,16 +220,29 @@
       }
     },
     {
-      "id": "mistral-small",
-      "name": "Mistral Small",
+      "id": "mistral-medium-3",
+      "name": "Mistral Medium 3.1",
       "provider": "Mistral AI",
       "pricing": {
-        "input_1m": 0.2,
-        "output_1m": 0.6,
-        "cached_input_1m": 0.1
+        "input_1m": 0.4,
+        "output_1m": 2.0
       },
       "capabilities": {
-        "context_window": 32000,
+        "context_window": 128000,
+        "latency_index": 0.88
+      }
+    },
+    {
+      "id": "mistral-small",
+      "name": "Mistral Small 3.2",
+      "provider": "Mistral AI",
+      "pricing": {
+        "input_1m": 0.1,
+        "output_1m": 0.3,
+        "cached_input_1m": 0.05
+      },
+      "capabilities": {
+        "context_window": 128000,
         "latency_index": 0.92
       }
     }
