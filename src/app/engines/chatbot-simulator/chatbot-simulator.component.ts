@@ -1296,7 +1296,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         doc.text(`Date: ${dateStr}`, pageWidth - margin, y, { align: 'right' } as any);
         y += 5;
         doc.text(`Scenario ID: ${scenarioFormatted}`, margin, y);
-        doc.text(`Pricing Dataset: v${pricingVersion} \u00B7 Weekly Verified Snapshot`, pageWidth - margin, y, { align: 'right' } as any);
+        doc.text(`Pricing Dataset: v${pricingVersion} - Weekly Verified Snapshot`, pageWidth - margin, y, { align: 'right' } as any);
         y += 6;
         doc.setDrawColor(229, 231, 235);
         doc.line(margin, y, pageWidth - margin, y);
@@ -1331,16 +1331,16 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           doc.setFontSize(9);
           doc.setTextColor(6, 95, 70);
           if (comparison?.savingsPercent) {
-            doc.text(`\u2022 ${comparison.savingsPercent}% lower cost vs next best alternative`, margin + 8, bY);
+            doc.text(`- ${comparison.savingsPercent}% lower cost vs next best alternative`, margin + 8, bY);
             bY += 5;
           }
           const premiumModel = allResults[allResults.length - 1];
           if (premiumModel && premiumModel.modelId !== winner.modelId && premiumModel.monthlyCost > winner.monthlyCost) {
             const savingsVsPremium = Math.round(((premiumModel.monthlyCost * 12 - annualCost) / (premiumModel.monthlyCost * 12)) * 100);
-            doc.text(`\u2022 ${savingsVsPremium}% lower cost vs highest-ranked premium model`, margin + 8, bY);
+            doc.text(`- ${savingsVsPremium}% lower cost vs highest-ranked premium model`, margin + 8, bY);
             bY += 5;
           }
-          doc.text('\u2022 Deterministic simulation based on public provider pricing', margin + 8, bY);
+          doc.text('- Deterministic simulation based on public provider pricing', margin + 8, bY);
 
           y += boxHeight + 5;
           doc.setFontSize(8);
@@ -1366,7 +1366,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
             ['Input Tokens',        this.tokensInputPerMessage().toLocaleString()],
             ['Output Tokens',       this.tokensOutputPerMessage().toLocaleString()],
             ['Cache Hit Rate',      `${Math.round(this.cacheHitRate() * 100)}%`],
-            ['Modeling Horizon',    '30 Days \u00D7 12 Months'],
+            ['Modeling Horizon',    '30 Days x 12 Months'],
           ],
           theme: 'grid',
           styles: { fontSize: 9, cellPadding: 2.5 },
@@ -1378,17 +1378,17 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         y = (d.lastAutoTable?.finalY ?? y + 40) + 10;
         doc.setFontSize(11);
         doc.setTextColor(17, 24, 39);
-        doc.text('Model Comparison \u2014 Monthly TCO', margin, y);
+        doc.text('Model Comparison - Monthly TCO', margin, y);
         y += 3;
         autoTable(doc, {
           startY: y,
-          head: [['Model', 'Monthly Cost', 'Annual Cost', 'ValueScore\u2122', 'Rank']],
+          head: [['Model', 'Monthly Cost', 'Annual Cost', 'ValueScore', 'Rank']],
           body: allResults.map((r, i) => [
             r.modelName,
             `$${r.monthlyCost.toFixed(2)}`,
             `$${(r.monthlyCost * 12).toFixed(2)}`,
             r.valueScore.toFixed(4),
-            i === 0 ? '\u2605 WINNER' : `#${i + 1}`,
+            i === 0 ? '>> WINNER' : `#${i + 1}`,
           ]),
           theme: 'striped',
           styles: { fontSize: 8.5, cellPadding: 2.5 },
@@ -1413,7 +1413,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           const vFactor = allResults[allResults.length - 1].monthlyCost > 0
             ? (allResults[allResults.length - 1].monthlyCost / allResults[0].monthlyCost).toFixed(1)
             : '?';
-          const varianceText = `Under identical workload assumptions, the cost variance between the lowest and highest ranked model is ${vFactor}\u00D7 in monthly deployment cost. This variance is primarily driven by: output token pricing differentials, cache discount policies, and input/output price asymmetry.`;
+          const varianceText = `Under identical workload assumptions, the cost variance between the lowest and highest ranked model is ${vFactor}x in monthly deployment cost. This variance is primarily driven by: output token pricing differentials, cache discount policies, and input/output price asymmetry.`;
           const vLines: string[] = d.splitTextToSize(varianceText, contentWidth);
           doc.setFontSize(9);
           doc.setTextColor(55, 65, 81);
@@ -1432,13 +1432,13 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         doc.text('Monthly Cost Formula:', margin, y);
         y += 4;
         doc.setTextColor(107, 114, 128);
-        doc.text('C = (M \u00D7 Ti \u00D7 (1-Cr) \u00D7 P_input) + (M \u00D7 Ti \u00D7 Cr \u00D7 P_cached) + (M \u00D7 To \u00D7 P_output) \u00D7 30', margin + 5, y);
+        doc.text('C = (M x Ti x (1-Cr) x P_input) + (M x Ti x Cr x P_cached) + (M x To x P_output) x 30', margin + 5, y);
         y += 6;
         doc.setTextColor(55, 65, 81);
-        doc.text('ValueScore\u2122 Formula:', margin, y);
+        doc.text('ValueScore Formula:', margin, y);
         y += 4;
         doc.setTextColor(107, 114, 128);
-        doc.text('VS = (1/Cost)^0.65 \u00D7 log10(Context)^0.35 \u00D7 LatencyIndex', margin + 5, y);
+        doc.text('VS = (1/Cost)^0.65 x log10(Context)^0.35 x LatencyIndex', margin + 5, y);
         y += 6;
         doc.setTextColor(55, 65, 81);
         const methNote: string[] = d.splitTextToSize(
@@ -1457,12 +1457,12 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           y += 5;
           doc.setFontSize(9);
           doc.setTextColor(55, 65, 81);
-          doc.text(`If daily message volume increases 2\u00D7: Monthly cost \u2192 $${sensitivity.cost2x.toFixed(2)} (Annual: $${sensitivity.annualCost2x.toFixed(2)}).`, margin, y);
+          doc.text(`If daily message volume increases 2x: Monthly cost -> $${sensitivity.cost2x.toFixed(2)} (Annual: $${sensitivity.annualCost2x.toFixed(2)}).`, margin, y);
           y += 5;
-          doc.text(`If daily message volume increases 3\u00D7: Monthly cost \u2192 $${sensitivity.cost3x.toFixed(2)} (Annual: $${sensitivity.annualCost3x.toFixed(2)}).`, margin, y);
+          doc.text(`If daily message volume increases 3x: Monthly cost -> $${sensitivity.cost3x.toFixed(2)} (Annual: $${sensitivity.annualCost3x.toFixed(2)}).`, margin, y);
           y += 5;
           if (Math.round(this.cacheHitRate() * 100) < 50) {
-            doc.text('If cache hit rate improves to 50%: Annual cost reduces by approximately 18\u201322% for cache-eligible models.', margin, y);
+            doc.text('If cache hit rate improves to 50%: Annual cost reduces by approximately 18-22% for cache-eligible models.', margin, y);
             y += 5;
           }
           doc.setTextColor(107, 114, 128);
@@ -1495,7 +1495,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         y += disclaimerLines.length * 4 + 5;
         doc.setFontSize(8);
         doc.setTextColor(79, 70, 229);
-        doc.text(`Generated by LLM Cost Engine \u00B7 Pricing Dataset v${pricingVersion} \u00B7 https://llm-cost-engine.com`, margin, y);
+        doc.text(`Generated by LLM Cost Engine - Pricing Dataset v${pricingVersion} - https://llm-cost-engine.com`, margin, y);
 
         // Save
         doc.save(`LLM_Analysis_${currentScenarioId}.pdf`);
@@ -1543,11 +1543,11 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         doc.rect(0, 0, qw, 22, 'F');
         doc.setFontSize(14);
         doc.setTextColor(17, 24, 39);
-        doc.text('LLM Cost Snapshot \u2014 Deployment Scenario', qm, 13);
+        doc.text('LLM Cost Snapshot - Deployment Scenario', qm, 13);
         doc.setFontSize(8);
         doc.setTextColor(107, 114, 128);
         doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, qm, 19);
-        doc.text(`Scenario ID: ${qScenarioId}  \u00B7  Pricing Dataset: v${qPricingVersion}`, qw - qm, 19, { align: 'right' } as any);
+        doc.text(`Scenario ID: ${qScenarioId} - Pricing Dataset: v${qPricingVersion}`, qw - qm, 19, { align: 'right' } as any);
 
         // ── WORKLOAD ASSUMPTIONS ────────────────────────────────────
         let qy = 30;
@@ -1559,10 +1559,10 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         doc.setTextColor(55, 65, 81);
         const cacheRateQ = Math.round(this.cacheHitRate() * 100);
         const assumptions = [
-          `\u2022 ${this.messagesPerDay().toLocaleString()} messages / day`,
-          `\u2022 ${this.tokensInputPerMessage()} input tokens per message`,
-          `\u2022 ${this.tokensOutputPerMessage()} output tokens per message`,
-          `\u2022 ${cacheRateQ}% cache hit rate`,
+          `- ${this.messagesPerDay().toLocaleString()} messages / day`,
+          `- ${this.tokensInputPerMessage()} input tokens per message`,
+          `- ${this.tokensOutputPerMessage()} output tokens per message`,
+          `- ${cacheRateQ}% cache hit rate`,
         ];
         assumptions.forEach(line => {
           doc.text(line, qm + 3, qy);
@@ -1578,9 +1578,9 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
         autoTable(doc, {
           startY: qy,
-          head: [['Model', 'Provider', 'Monthly', 'Annual', 'ValueScore\u2122']],
+          head: [['Model', 'Provider', 'Monthly', 'Annual', 'ValueScore']],
           body: qResults.map((r, i) => [
-            i === 0 ? `\u2605 ${r.modelName}` : r.modelName,
+            i === 0 ? `>> ${r.modelName}` : r.modelName,
             r.provider,
             `$${r.monthlyCost.toFixed(2)}`,
             `$${(r.monthlyCost * 12).toFixed(2)}`,
@@ -1604,7 +1604,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
           const vFactor = (qResults[qResults.length - 1].monthlyCost / qResults[0].monthlyCost).toFixed(1);
           doc.setFontSize(9);
           doc.setTextColor(17, 24, 39);
-          doc.text(`Cost variance (highest vs lowest): ${vFactor}\u00D7`, qm, qy);
+          doc.text(`Cost variance (highest vs lowest): ${vFactor}x`, qm, qy);
           qy += 7;
         }
 
@@ -1619,10 +1619,10 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         doc.rect(qm, qy, qc, 16, 'FD');
         doc.setFontSize(8.5);
         doc.setTextColor(17, 24, 39);
-        doc.text('Includes 2\u00D7 / 3\u00D7 volume projections and annual procurement summary.', qm + 4, qy + 6);
+        doc.text('Includes 2x / 3x volume projections and annual procurement summary.', qm + 4, qy + 6);
         doc.setFontSize(8);
         doc.setTextColor(79, 70, 229);
-        doc.text('\u2192 Generate Executive Report at llm-cost-engine.com/tools/chatbot-simulator', qm + 4, qy + 12);
+        doc.text('-> Generate Executive Report at llm-cost-engine.com/tools/chatbot-simulator', qm + 4, qy + 12);
         qy += 23;
 
         // ── FOOTER ──────────────────────────────────────────────────
@@ -1630,7 +1630,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
         doc.setTextColor(107, 114, 128);
         doc.text('Engineering snapshot (compact version)', qm, qy);
         doc.setTextColor(79, 70, 229);
-        doc.text('Generated by LLM Cost Engine \u00B7 https://llm-cost-engine.com', qw - qm, qy, { align: 'right' } as any);
+        doc.text('Generated by LLM Cost Engine - https://llm-cost-engine.com', qw - qm, qy, { align: 'right' } as any);
 
         doc.save(`LLM_Snapshot_${this.scenarioId()}.pdf`);
       })
