@@ -45,6 +45,12 @@ export class JsonLdService {
       "operatingSystem": data.operatingSystem ?? "Web Browser",
       "browserRequirements": "Requires JavaScript. Requires HTML5.",
       "softwareVersion": data.softwareVersion ?? "1.0.0",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://llm-cost-engine.com/assets/og-image.png",
+        "width": 1200,
+        "height": 630
+      },
       "author": {
         "@type": "Organization",
         "name": "LLM Cost Engine",
@@ -54,7 +60,39 @@ export class JsonLdService {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock"
+        "availability": "https://schema.org/InStock",
+        "hasMerchantReturnPolicy": {
+          "@type": "MerchantReturnPolicy",
+          "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted",
+          "applicableCountry": "US"
+        },
+        "shippingDetails": {
+          "@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@type": "MonetaryAmount",
+            "value": "0",
+            "currency": "USD"
+          },
+          "shippingDestination": {
+            "@type": "DefinedRegion",
+            "addressCountry": "US"
+          },
+          "deliveryTime": {
+            "@type": "ShippingDeliveryTime",
+            "handlingTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 0,
+              "maxValue": 0,
+              "unitCode": "DAY"
+            },
+            "transitTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 0,
+              "maxValue": 0,
+              "unitCode": "DAY"
+            }
+          }
+        }
       },
       ...(data.aggregateRating && {
         "aggregateRating": {
