@@ -464,6 +464,14 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
 
   bestModel = computed(() => this.logicService.findBestValue(this.results()));
 
+  bestModelForAlert = computed(() => {
+    const r = this.results();
+    if (r.length > 0) return { modelId: r[0].modelId, modelName: r[0].modelName };
+    const m = this.availableModels();
+    if (m.length > 0) return { modelId: m[0].id, modelName: m[0].name };
+    return null;
+  });
+
   runnerUp = computed(() => {
     const all = this.results();
     return all.length > 1 ? all[1] : null;

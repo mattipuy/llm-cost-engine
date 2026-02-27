@@ -61,6 +61,25 @@
     </div>
   </header>
 
+  <!-- Newsletter CTA strip -->
+  <div class="bg-indigo-50 border-b border-indigo-100 px-4 py-2.5
+              flex items-center justify-between gap-3 text-sm">
+    <span class="text-indigo-700">
+      📬 <strong>Weekly price alerts</strong> — get notified when GPT-5.2,
+      Claude Sonnet or Gemini change price.
+    </span>
+    <button type="button"
+            (click)="openPriceAlert(
+              bestModelForAlert()?.modelId ?? '',
+              bestModelForAlert()?.modelName ?? 'LLM',
+              0, 0
+            )"
+            class="shrink-0 px-3 py-1 bg-indigo-600 text-white text-xs font-semibold
+                   rounded-md hover:bg-indigo-700 transition-colors cursor-pointer">
+      Subscribe free →
+    </button>
+  </div>
+
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Quick Start Cards - Above Fold -->
     <section class="mb-8" aria-labelledby="quickstart-heading">

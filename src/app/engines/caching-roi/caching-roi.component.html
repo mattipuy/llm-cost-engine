@@ -373,13 +373,13 @@
           <p class="font-semibold text-indigo-900 text-sm">Get notified when cached pricing changes</p>
           <p class="text-indigo-700 text-sm mt-0.5">Price drop alerts ≥5% · Free · Double opt-in · Unsubscribe anytime</p>
         </div>
-        <a
-          routerLink="/tools/chatbot-simulator"
-          fragment="price-alerts"
-          class="shrink-0 inline-block px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors text-center"
+        <button
+          type="button"
+          (click)="openPriceAlert()"
+          class="shrink-0 px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
         >
-          Subscribe to Price Alerts →
-        </a>
+          Get Price Alerts →
+        </button>
       </div>
 
       <!-- Cross-links -->

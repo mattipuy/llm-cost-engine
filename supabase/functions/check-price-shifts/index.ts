@@ -211,6 +211,44 @@ serve(async (req: Request) => {
 });
 
 /**
+ * Returns the HTML sponsor block if env vars are configured, otherwise empty string.
+ */
+function renderSponsorBlockHtml(): string {
+  const name = Deno.env.get('SPONSOR_NAME');
+  if (!name) return '';
+  const url = Deno.env.get('SPONSOR_URL') ?? '';
+  const tagline = Deno.env.get('SPONSOR_TAGLINE') ?? '';
+  const ctaText = Deno.env.get('SPONSOR_CTA_TEXT') ?? 'Learn more →';
+  return `
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0">
+        <tr>
+          <td style="padding:16px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px">
+            <p style="margin:0 0 4px;font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.05em">Sponsored</p>
+            <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#111827">${name}</p>
+            <p style="margin:0 0 12px;font-size:13px;color:#6B7280">${tagline}</p>
+            <a href="${url}" style="font-size:13px;color:#4F46E5;font-weight:500">${ctaText}</a>
+          </td>
+        </tr>
+      </table>`;
+}
+
+/**
+ * Returns the plain-text sponsor block if env vars are configured, otherwise empty string.
+ */
+function renderSponsorBlockText(): string {
+  const name = Deno.env.get('SPONSOR_NAME');
+  if (!name) return '';
+  const url = Deno.env.get('SPONSOR_URL') ?? '';
+  const tagline = Deno.env.get('SPONSOR_TAGLINE') ?? '';
+  return `
+---
+Sponsored by ${name}
+${tagline}
+${url}
+---`;
+}
+
+/**
  * Renders a plain text digest email for a single user.
  */
 function renderDigestEmailText(digest: DigestEntry): string {
@@ -235,7 +273,7 @@ ${rows}
 
 Recalculate Your TCO:
 ${BASE_URL}/tools/chatbot-simulator
-
+${renderSponsorBlockText()}
 ---
 LLM Cost Engine · Deterministic TCO Analysis
 Unsubscribe: ${unsubLink}`;
@@ -285,6 +323,8 @@ function renderDigestEmail(digest: DigestEntry): string {
           ${rows}
         </tbody>
       </table>
+
+      ${renderSponsorBlockHtml()}
 
       <p>
         <a href="${BASE_URL}/tools/chatbot-simulator"
