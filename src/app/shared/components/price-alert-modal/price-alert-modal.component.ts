@@ -198,7 +198,8 @@ export class PriceAlertModalComponent {
       this.email(),
       this.modelId,
       stats,
-      this.honeypot()
+      this.honeypot(),
+      this.source,
     );
 
     if (result.success) {

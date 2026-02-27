@@ -38,6 +38,7 @@ export class PriceAlertService {
     modelId: string,
     stats: PriceAlertStats,
     honeypot: string,
+    source = 'unknown',
   ): Promise<PriceAlertResult> {
     if (honeypot) return { success: true };
 
@@ -46,7 +47,7 @@ export class PriceAlertService {
 
     try {
       const { data, error } = await client.functions.invoke('subscribe-to-alert', {
-        body: { email, modelId, currentStats: stats },
+        body: { email, modelId, currentStats: stats, source },
       });
       if (error) return { success: false, error: error.message };
       return {

@@ -13,7 +13,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { email, modelId, currentStats } = await req.json();
+    const { email, modelId, currentStats, source = 'unknown' } = await req.json();
 
     // Anti-spam: email regex
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -122,6 +122,7 @@ serve(async (req: Request) => {
             verification_token: null,
             token_expires_at: null,
             unsubscribe_token: newUnsubToken,
+            source,
           });
 
         if (insertError) {
@@ -165,6 +166,7 @@ serve(async (req: Request) => {
             Date.now() + 24 * 60 * 60 * 1000,
           ).toISOString(),
           unsubscribe_token: newUnsubToken,
+          source,
         });
 
       if (insertError) {
