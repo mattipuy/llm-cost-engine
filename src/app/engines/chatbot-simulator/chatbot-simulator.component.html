@@ -72,7 +72,8 @@
             (click)="openPriceAlert(
               bestModelForAlert()?.modelId ?? '',
               bestModelForAlert()?.modelName ?? 'LLM',
-              0, 0
+              0, 0,
+              'chatbot-simulator-banner'
             )"
             class="shrink-0 px-3 py-1 bg-indigo-600 text-white text-xs font-semibold
                    rounded-md hover:bg-indigo-700 transition-colors cursor-pointer">
@@ -922,7 +923,8 @@
                             winner.modelId,
                             winner.modelName,
                             tokensInputPerMessage(),
-                            winner.monthlyCost
+                            winner.monthlyCost,
+                            'chatbot-simulator-winner-card'
                           )
                         "
                         class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
@@ -1324,7 +1326,8 @@
                             result.modelId,
                             result.modelName,
                             tokensInputPerMessage(),
-                            result.monthlyCost
+                            result.monthlyCost,
+                            'chatbot-simulator-model-card'
                           )
                         "
                         class="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer"
@@ -2263,6 +2266,7 @@
     [modelName]="alertModelName()"
     [currentPriceInput]="alertPriceInput()"
     [currentMonthlyCost]="alertMonthlyCost()"
+    [source]="alertSource()"
     [isOpen]="alertModalOpen()"
     (closed)="closePriceAlert()"
   />

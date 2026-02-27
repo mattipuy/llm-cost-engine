@@ -478,6 +478,7 @@
       [modelName]="model.name"
       [currentPriceInput]="model.pricing.input_1m"
       [currentMonthlyCost]="results()?.costBatch ?? 0"
+      source="batch-api"
       [isOpen]="alertModalOpen()"
       (closed)="closePriceAlert()"
     />

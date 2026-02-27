@@ -446,6 +446,7 @@
       [modelName]="model.name"
       [currentPriceInput]="model.pricing.input_1m"
       [currentMonthlyCost]="results()?.costCached ?? 0"
+      source="caching-roi"
       [isOpen]="alertModalOpen()"
       (closed)="closePriceAlert()"
     />

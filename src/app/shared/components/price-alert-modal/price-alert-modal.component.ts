@@ -160,6 +160,7 @@ export class PriceAlertModalComponent {
   @Input({ required: true }) currentPriceInput!: number;
   @Input({ required: true }) currentMonthlyCost!: number;
   @Input() isOpen = false;
+  @Input() source = 'unknown';
   @Output() closed = new EventEmitter<void>();
 
   private alertService = inject(PriceAlertService);
@@ -202,7 +203,7 @@ export class PriceAlertModalComponent {
 
     if (result.success) {
       // Track email signup conversion
-      this.analytics.trackEmailSignup(this.modelId, 'model-card-bell');
+      this.analytics.trackEmailSignup(this.modelId, this.source);
 
       // Determine success type based on backend response
       if (result.autoVerified) {

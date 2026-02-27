@@ -320,6 +320,7 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
   alertModelName = signal('');
   alertPriceInput = signal(0);
   alertMonthlyCost = signal(0);
+  alertSource = signal('chatbot-simulator');
 
   // ============================================================================
   // SIGNALS - Lead Capture (Export Options) - No-Friction Flow
@@ -1166,11 +1167,13 @@ export class ChatbotSimulatorComponent implements OnInit, OnDestroy {
     modelName: string,
     priceInput: number,
     monthlyCost: number,
+    source = 'chatbot-simulator',
   ): void {
     this.alertModelId.set(modelId);
     this.alertModelName.set(modelName);
     this.alertPriceInput.set(priceInput);
     this.alertMonthlyCost.set(monthlyCost);
+    this.alertSource.set(source);
     this.alertModalOpen.set(true);
   }
 
