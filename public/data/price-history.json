@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "description": "Historical LLM pricing data for trend analysis",
     "first_snapshot": "2026-01-31",
-    "last_snapshot": "2026-02-22",
+    "last_snapshot": "2026-03-01",
     "snapshot_frequency": "weekly",
     "data_retention": "24_months"
   },
@@ -476,7 +476,221 @@
           "cached_1m": 0.1
         }
       ]
+    },
+    {
+      "date": "2026-03-01",
+      "models": [
+        {
+          "id": "gpt-5.2",
+          "name": "GPT-5.2",
+          "provider": "OpenAI",
+          "input_1m": 1.75,
+          "output_1m": 14,
+          "cached_1m": 0.175
+        },
+        {
+          "id": "gpt-5.1",
+          "name": "GPT-5.1",
+          "provider": "OpenAI",
+          "input_1m": 1.25,
+          "output_1m": 10,
+          "cached_1m": 0.125
+        },
+        {
+          "id": "gpt-5-mini",
+          "name": "GPT-5 Mini",
+          "provider": "OpenAI",
+          "input_1m": 0.25,
+          "output_1m": 2,
+          "cached_1m": 0.025
+        },
+        {
+          "id": "o3-mini",
+          "name": "o3-mini",
+          "provider": "OpenAI",
+          "input_1m": 1.1,
+          "output_1m": 4.4,
+          "cached_1m": 0.55
+        },
+        {
+          "id": "claude-opus-4.6",
+          "name": "Claude Opus 4.6",
+          "provider": "Anthropic",
+          "input_1m": 5,
+          "output_1m": 25,
+          "cached_1m": 0.5
+        },
+        {
+          "id": "claude-sonnet-4.6",
+          "name": "Claude Sonnet 4.6",
+          "provider": "Anthropic",
+          "input_1m": 3,
+          "output_1m": 15,
+          "cached_1m": 0.3
+        },
+        {
+          "id": "claude-haiku-4.5",
+          "name": "Claude Haiku 4.5",
+          "provider": "Anthropic",
+          "input_1m": 1,
+          "output_1m": 5,
+          "cached_1m": 0.1
+        },
+        {
+          "id": "gemini-3.1-pro",
+          "name": "Gemini 3.1 Pro",
+          "provider": "Google",
+          "input_1m": 2,
+          "output_1m": 12,
+          "cached_1m": 0.2
+        },
+        {
+          "id": "gemini-3-flash",
+          "name": "Gemini 3 Flash",
+          "provider": "Google",
+          "input_1m": 0.5,
+          "output_1m": 3,
+          "cached_1m": 0.125
+        },
+        {
+          "id": "deepseek-r1",
+          "name": "DeepSeek R1",
+          "provider": "DeepSeek",
+          "input_1m": 0.55,
+          "output_1m": 2.19,
+          "cached_1m": 0.14
+        },
+        {
+          "id": "deepseek-v3",
+          "name": "DeepSeek V3",
+          "provider": "DeepSeek",
+          "input_1m": 0.28,
+          "output_1m": 0.42,
+          "cached_1m": 0.028
+        },
+        {
+          "id": "llama-4-maverick",
+          "name": "Llama 4 Maverick",
+          "provider": "Meta",
+          "input_1m": 0.2,
+          "output_1m": 0.6,
+          "cached_1m": null
+        },
+        {
+          "id": "llama-3.3-70b",
+          "name": "Llama 3.3 70B",
+          "provider": "Meta",
+          "input_1m": 0.59,
+          "output_1m": 0.79,
+          "cached_1m": null
+        },
+        {
+          "id": "mistral-large",
+          "name": "Mistral Large 3",
+          "provider": "Mistral AI",
+          "input_1m": 0.5,
+          "output_1m": 1.5,
+          "cached_1m": 0.25
+        },
+        {
+          "id": "mistral-medium-3",
+          "name": "Mistral Medium 3.1",
+          "provider": "Mistral AI",
+          "input_1m": 0.4,
+          "output_1m": 2,
+          "cached_1m": null
+        },
+        {
+          "id": "mistral-small",
+          "name": "Mistral Small 3.2",
+          "provider": "Mistral AI",
+          "input_1m": 0.1,
+          "output_1m": 0.3,
+          "cached_1m": 0.05
+        },
+        {
+          "id": "qwen3.5-plus",
+          "name": "Qwen 3.5-Plus",
+          "provider": "Qwen",
+          "input_1m": 0.4,
+          "output_1m": 2.4,
+          "cached_1m": null
+        }
+      ]
     }
   ],
-  "price_changes": []
+  "price_changes": [
+    {
+      "date": "2026-03-01",
+      "model_id": "deepseek-v3",
+      "provider": "DeepSeek",
+      "field": "input_1m",
+      "old_value": 0.27,
+      "new_value": 0.28,
+      "change_percent": 3.7
+    },
+    {
+      "date": "2026-03-01",
+      "model_id": "deepseek-v3",
+      "provider": "DeepSeek",
+      "field": "output_1m",
+      "old_value": 1.1,
+      "new_value": 0.42,
+      "change_percent": -61.8
+    },
+    {
+      "date": "2026-03-01",
+      "model_id": "llama-3.3-70b",
+      "provider": "Meta",
+      "field": "input_1m",
+      "old_value": 0.7,
+      "new_value": 0.59,
+      "change_percent": -15.7
+    },
+    {
+      "date": "2026-03-01",
+      "model_id": "llama-3.3-70b",
+      "provider": "Meta",
+      "field": "output_1m",
+      "old_value": 0.8,
+      "new_value": 0.79,
+      "change_percent": -1.3
+    },
+    {
+      "date": "2026-03-01",
+      "model_id": "mistral-large",
+      "provider": "Mistral AI",
+      "field": "input_1m",
+      "old_value": 2,
+      "new_value": 0.5,
+      "change_percent": -75
+    },
+    {
+      "date": "2026-03-01",
+      "model_id": "mistral-large",
+      "provider": "Mistral AI",
+      "field": "output_1m",
+      "old_value": 6,
+      "new_value": 1.5,
+      "change_percent": -75
+    },
+    {
+      "date": "2026-03-01",
+      "model_id": "mistral-small",
+      "provider": "Mistral AI",
+      "field": "input_1m",
+      "old_value": 0.2,
+      "new_value": 0.1,
+      "change_percent": -50
+    },
+    {
+      "date": "2026-03-01",
+      "model_id": "mistral-small",
+      "provider": "Mistral AI",
+      "field": "output_1m",
+      "old_value": 0.6,
+      "new_value": 0.3,
+      "change_percent": -50
+    }
+  ]
 }
